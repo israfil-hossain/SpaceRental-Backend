@@ -21,7 +21,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("swagger", app, document);
+  SwaggerModule.setup("/", app, document);
 
   await app.listen(port);
 
@@ -29,7 +29,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then((serverUrl) =>
-    logger.log(`Server is running. Swagger: ${serverUrl}/swagger`),
-  )
+  .then((serverUrl) => logger.log(`Server is running at: ${serverUrl}`))
   .catch((err) => logger.error("Something went wrong!", err));
