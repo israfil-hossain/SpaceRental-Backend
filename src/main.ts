@@ -18,10 +18,19 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("Space Rental API")
     .setVersion("1.0")
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("swagger", app, document);
+  SwaggerModule.setup("swagger", app, document, {
+    customJs: [
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.10.3/swagger-ui-bundle.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.10.3/swagger-ui-standalone-preset.js",
+    ],
+    customCssUrl: [
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.10.3/swagger-ui.css",
+    ],
+  });
 
   await app.listen(port);
 
