@@ -10,21 +10,20 @@ export const mongooseConfig: MongooseModuleAsyncOptions = {
   useFactory: async (
     configService: ConfigService,
   ): Promise<MongooseModuleOptions> => {
-    switch (configService.get<string>("NODE_ENV")) {
-      case "production":
-        return {
-          uri: configService.getOrThrow<string>("MONGO_URI"),
-        };
+    const MONGO_DEV_URI =
+      configService.get<string>("MONGO_DEV_URI") || "mongodb://localhost:27017";
+    const DATABASE_NAME = "space-rental";
 
-      case "test":
-        return {
-          uri: "mongodb://localhost:27017/space-rental-test",
-        };
+    if (configService.get<string>("NODE_ENV") === "production") {
+      const MONGO_PROD_URI = configService.getOrThrow<string>("MONGO_URI");
 
-      default:
-        return {
-          uri: "mongodb://localhost:27017/space-rental",
-        };
+      return {
+        uri: `${MONGO_PROD_URI}/${DATABASE_NAME}`,
+      };
     }
+
+    return {
+      uri: `${MONGO_DEV_URI}/${DATABASE_NAME}`,
+    };
   },
 };
