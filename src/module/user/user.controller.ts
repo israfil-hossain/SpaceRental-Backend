@@ -13,31 +13,31 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserService } from "./user.service";
 
 @ApiTags("Users")
-@Controller("user")
+@Controller("User")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post("create")
+  @Post("Create")
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  @Get("get-all")
+  @Get("GetAll")
   findAll() {
     return this.userService.findAll();
   }
 
-  @Get("get-by-id:id")
+  @Get("GetById/:id")
   findOne(@Param("id") id: string) {
     return this.userService.findOne(id);
   }
 
-  @Patch("update-by-id:id")
+  @Patch("UpdateById/:id")
   update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Delete("delete-by-id:id")
+  @Delete("DeleteById/:id")
   remove(@Param("id") id: string) {
     return this.userService.remove(id);
   }
