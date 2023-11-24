@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
+import { mongooseConfig } from "./configs/mongoose.config";
 import { UserModule } from "./module/user/user.module";
 
 @Module({
@@ -14,7 +15,7 @@ import { UserModule } from "./module/user/user.module";
     // -------------------------//
     // Database Configurations //
     // -------------------------//
-    MongooseModule.forRoot("mongodb://localhost:27017/space-rental"),
+    MongooseModule.forRootAsync(mongooseConfig),
     // ---------------------//
     // Application Modules //
     // ---------------------//
