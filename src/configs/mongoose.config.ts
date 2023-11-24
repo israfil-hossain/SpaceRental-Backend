@@ -10,8 +10,6 @@ export const mongooseConfig: MongooseModuleAsyncOptions = {
   useFactory: async (
     configService: ConfigService,
   ): Promise<MongooseModuleOptions> => {
-    const MONGO_DEV_URI =
-      configService.get<string>("MONGO_DEV_URI") || "mongodb://localhost:27017";
     const DATABASE_NAME = "space-rental";
 
     if (configService.get<string>("NODE_ENV") === "production") {
@@ -21,6 +19,9 @@ export const mongooseConfig: MongooseModuleAsyncOptions = {
         uri: `${MONGO_PROD_URI}/${DATABASE_NAME}`,
       };
     }
+
+    const MONGO_DEV_URI =
+      configService.get<string>("MONGO_DEV_URI") || "mongodb://localhost:27017";
 
     return {
       uri: `${MONGO_DEV_URI}/${DATABASE_NAME}`,
