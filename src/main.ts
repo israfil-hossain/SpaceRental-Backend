@@ -2,7 +2,7 @@ import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { configureSwaggerUI } from "./configs/swagger.config";
+import { configureSwaggerUI } from "./config/swagger.config";
 
 const logger = new Logger("SpaceRental");
 

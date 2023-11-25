@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import { PaginatedListDto } from "../common/dto/paginated-list.dto";
-import { ResponseDto } from "../common/dto/response.dto";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { User } from "./entities/user.entity";
+import { CreateUserDto } from "../../domain/dtos/user/create-user.dto";
+import { User } from "../../domain/entities/user/user.entity";
+import { PaginatedListDto } from "../../domain/dtos/common/paginated-list.dto";
+import { ResponseDto } from "../../domain/dtos/common/response.dto";
 
 @Injectable()
 export class UserService {
