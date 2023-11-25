@@ -1,6 +1,11 @@
+import { ApiHideProperty } from "@nestjs/swagger";
+
 export class OperationResponseDto {
   protected readonly success: boolean;
+
   protected readonly message: string;
+
+  @ApiHideProperty()
   protected readonly data?: any;
 
   private constructor(success: boolean, message: string, data?: any) {
