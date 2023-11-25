@@ -5,8 +5,8 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import { OperationResponseDto } from "../../domain/dtos/common/operation-response.dto";
 import { PaginatedResponseDto } from "../../domain/dtos/common/paginated-response.dto";
+import { SuccessResponseDto } from "../../domain/dtos/common/success-response.dto";
 import { CreateUserDto } from "../../domain/dtos/user/create-user.dto";
 import { User } from "../../domain/entities/user/user.entity";
 
@@ -14,14 +14,14 @@ import { User } from "../../domain/entities/user/user.entity";
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<OperationResponseDto> {
+  async create(createUserDto: CreateUserDto): Promise<SuccessResponseDto> {
     try {
       const newUser = new this.userModel(createUserDto);
       await newUser.save();
-      return OperationResponseDto.Success("User created successfully", newUser);
+      return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
       console.error("Error creating user:", error);
-      return OperationResponseDto.Failure("Error creating user");
+      throw new BadRequestException("Error creating user");
     }
   }
 
@@ -46,7 +46,7 @@ export class UserService {
     }
   }
 
-  async findOne(id: string): Promise<OperationResponseDto> {
+  async findOne(id: string): Promise<SuccessResponseDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException("Invalid user ID");
     }
@@ -57,17 +57,17 @@ export class UserService {
       throw new NotFoundException(`Could not find user with ID: ${id}`);
     }
 
-    return OperationResponseDto.Success("User found successfully", user);
+    return new SuccessResponseDto("User found successfully", user);
   }
 
-  async remove(id: string): Promise<OperationResponseDto> {
+  async remove(id: string): Promise<SuccessResponseDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException("Invalid user ID");
     }
 
     const deletionResult = await this.userModel.findByIdAndDelete(id).exec();
     if (deletionResult) {
-      return OperationResponseDto.Success("User deleted successfully");
+      return new SuccessResponseDto("User deleted successfully");
     }
 
     throw new BadRequestException(`Could not delete user with ID: ${id}`);
