@@ -1,4 +1,4 @@
-export class PaginatedListDto<TEntity> {
+export class PaginatedResponseDto<TEntity> {
   readonly totalRecords: number;
   readonly currentPage: number;
   readonly pageSize: number;
