@@ -28,7 +28,7 @@ export class UserService {
   async findAll(
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<PaginatedResponseDto<User>> {
+  ): Promise<PaginatedResponseDto> {
     try {
       const totalRecords = await this.userModel.countDocuments().exec();
       const skip = (page - 1) * pageSize;
@@ -39,19 +39,14 @@ export class UserService {
         .limit(pageSize)
         .exec();
 
-      return new PaginatedResponseDto<User>(
-        totalRecords,
-        page,
-        pageSize,
-        users,
-      );
+      return new PaginatedResponseDto(totalRecords, page, pageSize, users);
     } catch (error) {
       console.error("Error finding users:", error);
-      throw error;
+      throw new BadRequestException("Could not get all users");
     }
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<OperationResponseDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException("Invalid user ID");
     }
@@ -62,7 +57,7 @@ export class UserService {
       throw new NotFoundException(`Could not find user with ID: ${id}`);
     }
 
-    return user;
+    return OperationResponseDto.Success("User found successfully", user);
   }
 
   async remove(id: string): Promise<OperationResponseDto> {

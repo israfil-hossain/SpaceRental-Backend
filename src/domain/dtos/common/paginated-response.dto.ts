@@ -1,17 +1,17 @@
-export class PaginatedResponseDto<TEntity> {
+export class PaginatedResponseDto {
   readonly totalRecords: number;
   readonly currentPage: number;
   readonly pageSize: number;
   readonly totalPages: number;
   readonly hasPreviousPage: boolean;
   readonly hasNextPage: boolean;
-  readonly items: TEntity[];
+  readonly data: any[];
 
   constructor(
     totalRecords: number,
     currentPage: number,
     pageSize: number,
-    items: TEntity[] = [],
+    data: any[] = [],
   ) {
     this.totalRecords = totalRecords;
     this.currentPage = currentPage;
@@ -19,6 +19,6 @@ export class PaginatedResponseDto<TEntity> {
     this.totalPages = Math.ceil(totalRecords / pageSize);
     this.hasPreviousPage = currentPage > 1;
     this.hasNextPage = currentPage < this.totalPages;
-    this.items = items;
+    this.data = data;
   }
 }

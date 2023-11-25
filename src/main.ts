@@ -8,6 +8,8 @@ const logger = new Logger("SpaceRental");
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("api");
+
   const configService = app.get(ConfigService);
   const port = parseInt(configService.get("PORT", "4000"), 10);
   configureSwaggerUI(app);
