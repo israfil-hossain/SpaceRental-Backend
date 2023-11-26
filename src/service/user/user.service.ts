@@ -60,6 +60,16 @@ export class UserService {
     return new SuccessResponseDto("User found successfully", user);
   }
 
+  async getUserByEmail(email: string): Promise<User> {
+    const user = await this.userModel.where({ email }).findOne().exec();
+
+    if (!user) {
+      throw new NotFoundException(`Could not find user with email: ${email}`);
+    }
+
+    return user;
+  }
+
   async remove(id: string): Promise<SuccessResponseDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException("Invalid user ID");
