@@ -8,7 +8,18 @@ import {
 const documentConfig = new DocumentBuilder()
   .setTitle("Space Rental API")
   .setVersion("1.0")
-  .addBearerAuth()
+  .addBearerAuth(
+    {
+      type: "http",
+      scheme: "bearer",
+      bearerFormat: "JWT",
+      name: "JWT",
+      description: "Enter JWT token",
+      in: "header",
+    },
+    "JWT",
+  )
+  .addSecurityRequirements("JWT")
   .build();
 
 const swaggerUiOptions: SwaggerCustomOptions = {

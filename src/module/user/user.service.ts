@@ -8,7 +8,7 @@ import { Model, Types } from "mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { User } from "./entities/user.entity";
+import { User, UserDocument } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {
@@ -60,7 +60,7 @@ export class UserService {
     return new SuccessResponseDto("User found successfully", user);
   }
 
-  async getUserByEmail(email: string): Promise<User> {
+  async getUserByEmail(email: string): Promise<UserDocument> {
     const user = await this.userModel.where({ email }).findOne().exec();
 
     if (!user) {
