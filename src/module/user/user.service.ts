@@ -5,10 +5,10 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import { PaginatedResponseDto } from "../../domain/dtos/common/paginated-response.dto";
-import { SuccessResponseDto } from "../../domain/dtos/common/success-response.dto";
-import { CreateUserDto } from "../../domain/dtos/user/create-user.dto";
-import { User } from "../../domain/entities/user/user.entity";
+import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {

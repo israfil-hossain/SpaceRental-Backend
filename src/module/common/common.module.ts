@@ -17,4 +17,4 @@ import { mongooseConfig } from "src/config/mongoose.config";
     MongooseModule.forRootAsync(mongooseConfig),
   ],
 })
-export class ConfigurationModule {}
+export class CommonModule {}
