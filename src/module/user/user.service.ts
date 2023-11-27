@@ -28,12 +28,12 @@ export class UserService {
   }
 
   async findAll(
-    page: number = 1,
+    currentPage: number = 1,
     pageSize: number = 10,
   ): Promise<PaginatedResponseDto> {
     try {
       const totalRecords = await this.userModel.countDocuments().exec();
-      const skip = (page - 1) * pageSize;
+      const skip = (currentPage - 1) * pageSize;
 
       const users = await this.userModel
         .find()
@@ -41,7 +41,12 @@ export class UserService {
         .limit(pageSize)
         .exec();
 
-      return new PaginatedResponseDto(totalRecords, page, pageSize, users);
+      return new PaginatedResponseDto(
+        totalRecords,
+        currentPage,
+        pageSize,
+        users,
+      );
     } catch (error) {
       this.logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");

@@ -1,6 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { IsPublic } from "../auth/guard/auth.guard";
+import { PaginationQuery } from "../common/dto/pagintation-query.dto";
 import { IdParamValidator } from "../common/pipes/id-param-validator.pipe";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserService } from "./user.service";
@@ -17,8 +26,13 @@ export class UserController {
   }
 
   @Get("GetAll")
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() pagination: PaginationQuery) {
+    const paginationQuery = PaginationQuery.from(pagination);
+
+    return this.userService.findAll(
+      paginationQuery.Page,
+      paginationQuery.PageSize,
+    );
   }
 
   @Get("GetById/:UserId")
