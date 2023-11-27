@@ -12,7 +12,7 @@ export const jwtConfig: JwtModuleAsyncOptions = {
         "JWT_SECRET",
         "ACOMPLEXSECRETANDKEEPITSAFE",
       ),
-      signOptions: { expiresIn: "1h" },
+      signOptions: { expiresIn: "1d" },
       global: true,
     };
   },

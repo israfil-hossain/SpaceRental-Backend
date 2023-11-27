@@ -6,11 +6,9 @@ export type UserDocument = HydratedDocument<User>;
 @Schema({
   toJSON: {
     transform: function (_, ret) {
-      delete ret._id;
-      delete ret.password;
-      delete ret.isPasswordLess;
+      delete ret?.password;
+      delete ret?.isPasswordLess;
     },
-    virtuals: true,
     versionKey: false,
   },
 })

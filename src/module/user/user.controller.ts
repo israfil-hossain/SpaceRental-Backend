@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { IsPublic } from "../auth/guard/auth.guard";
+import { IdParamValidator } from "../common/pipes/id-param-validator.pipe";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserService } from "./user.service";
 
@@ -9,6 +11,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("Create")
+  @IsPublic()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -18,13 +21,13 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get("GetById/:id")
-  findOne(@Param("id") id: string) {
-    return this.userService.findOne(id);
+  @Get("GetById/:UserId")
+  findOne(@Param("UserId", IdParamValidator) userId: string) {
+    return this.userService.findOne(userId);
   }
 
-  @Delete("DeleteById/:id")
-  remove(@Param("id") id: string) {
-    return this.userService.remove(id);
+  @Delete("DeleteById/:UserId")
+  remove(@Param("UserId", IdParamValidator) userId: string) {
+    return this.userService.remove(userId);
   }
 }

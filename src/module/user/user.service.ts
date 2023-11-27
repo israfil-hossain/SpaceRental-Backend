@@ -77,7 +77,10 @@ export class UserService {
 
     const deletionResult = await this.userModel.findByIdAndDelete(id).exec();
     if (deletionResult) {
-      return new SuccessResponseDto("User deleted successfully");
+      return new SuccessResponseDto(
+        "User deleted successfully",
+        deletionResult,
+      );
     }
 
     throw new BadRequestException(`Could not delete user with ID: ${id}`);

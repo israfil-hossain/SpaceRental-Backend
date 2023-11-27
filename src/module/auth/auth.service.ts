@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserService } from "../user/user.service";
+import { TokenResponseDto } from "./dto/token-response.dto";
 
 @Injectable()
 export class AuthService {
@@ -17,9 +18,10 @@ export class AuthService {
     }
 
     const payload = { sub: user._id.toString() };
+    const accessToken = await this.jwtService.signAsync(payload);
 
-    return new SuccessResponseDto("Authenticated successfully", {
-      accessToken: await this.jwtService.signAsync(payload),
-    });
+    const tokenDto = new TokenResponseDto(accessToken, "");
+
+    return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 }
