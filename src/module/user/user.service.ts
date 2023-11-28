@@ -82,15 +82,31 @@ export class UserService {
   }
 
   //#region Internal services
+  async getUserByEmail(email: string): Promise<UserDocument | null> {
+    return await this.userModel.where({ email }).findOne().exec();
+  }
 
-  async getUserByEmail(email: string): Promise<UserDocument> {
-    const user = await this.userModel.where({ email }).findOne().exec();
+  async createUserWithEmailPassword(
+    email: string,
+    password: string,
+  ): Promise<UserDocument> {
+    try {
+      const existingUser = await this.userModel
+        .where({ email })
+        .findOne()
+        .exec();
 
-    if (!user) {
-      throw new NotFoundException(`Could not find user with email: ${email}`);
+      if (existingUser) {
+        throw new BadRequestException("User with this email already exists");
+      }
+
+      const newUser = new this.userModel({ email, password });
+      await newUser.save();
+      return newUser;
+    } catch (error) {
+      this.logger.error("Error creating user:", error);
+      throw new BadRequestException("Error creating user");
     }
-
-    return user;
   }
   //#endregion
 }
