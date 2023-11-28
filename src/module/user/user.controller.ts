@@ -8,8 +8,8 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { IdParamValidator } from "../common/pipes/id-param-validator.pipe";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UserIdQueryDto } from "./dto/user-id-query.dto";
 import { UserListQuery } from "./dto/user-list-query.dto";
 import { UserService } from "./user.service";
 
@@ -33,12 +33,12 @@ export class UserController {
   }
 
   @Get("GetById/:UserId")
-  findOne(@Param("UserId", IdParamValidator) userId: string) {
-    return this.userService.findOne(userId);
+  findOne(@Param() { UserId }: UserIdQueryDto) {
+    return this.userService.findOne(UserId);
   }
 
   @Delete("DeleteById/:UserId")
-  remove(@Param("UserId", IdParamValidator) userId: string) {
-    return this.userService.remove(userId);
+  remove(@Param() { UserId }: UserIdQueryDto) {
+    return this.userService.remove(UserId);
   }
 }
