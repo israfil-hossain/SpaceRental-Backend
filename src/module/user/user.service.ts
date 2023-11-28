@@ -30,12 +30,21 @@ export class UserService {
   async findAll(
     currentPage: number = 1,
     pageSize: number = 10,
+    emailSearch: string = "",
   ): Promise<PaginatedResponseDto> {
     try {
+      // Pagination setup
       const totalRecords = await this.userModel.countDocuments().exec();
       const skip = (currentPage - 1) * pageSize;
 
+      // Search query setup
+      const searchQuery: Record<string, any> = {};
+      if (emailSearch) {
+        searchQuery["email"] = { $regex: emailSearch, $options: "i" };
+      }
+
       const users = await this.userModel
+        .where(searchQuery)
         .find()
         .skip(skip)
         .limit(pageSize)

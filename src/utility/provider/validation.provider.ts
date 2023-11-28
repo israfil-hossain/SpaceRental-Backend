@@ -14,6 +14,9 @@ export const ValidationProvider = {
   provide: APP_PIPE,
   useFactory: () =>
     new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      transformOptions: { enableImplicitConversion: true },
       exceptionFactory: (errors: ValidationError[]) => {
         const formattedErrors: FormattedErrors = {};
         errors.forEach((error) => {

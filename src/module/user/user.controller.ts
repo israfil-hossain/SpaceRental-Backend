@@ -9,9 +9,9 @@ import {
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { IsPublic } from "../auth/guard/auth.guard";
-import { PaginationQuery } from "../common/dto/pagintation-query.dto";
 import { IdParamValidator } from "../common/pipes/id-param-validator.pipe";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UserListQuery } from "./dto/user-list-query.dto";
 import { UserService } from "./user.service";
 
 @ApiTags("Users")
@@ -26,12 +26,11 @@ export class UserController {
   }
 
   @Get("GetAll")
-  findAll(@Query() pagination: PaginationQuery) {
-    const paginationQuery = PaginationQuery.from(pagination);
-
+  findAll(@Query() query: UserListQuery) {
     return this.userService.findAll(
-      paginationQuery.Page,
-      paginationQuery.PageSize,
+      query.Page,
+      query.PageSize,
+      query.EmailSearch,
     );
   }
 
