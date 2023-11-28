@@ -8,7 +8,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { IsPublic } from "../auth/guard/auth.guard";
 import { IdParamValidator } from "../common/pipes/id-param-validator.pipe";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserListQuery } from "./dto/user-list-query.dto";
@@ -20,7 +19,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("Create")
-  @IsPublic()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }

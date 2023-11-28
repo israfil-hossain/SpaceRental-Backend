@@ -3,6 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
+import { TokenRefreshDto } from "./dto/token-refresh.dto";
 import { IsPublic } from "./guard/auth.guard";
 
 @ApiTags("Authentication")
@@ -20,5 +21,11 @@ export class AuthController {
   @IsPublic()
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
+  }
+
+  @Post("TokenRefresh")
+  @IsPublic()
+  tokenRefresh(@Body() tokenRefreshDto: TokenRefreshDto) {
+    return this.authService.refreshAccessToken(tokenRefreshDto.refreshToken);
   }
 }
