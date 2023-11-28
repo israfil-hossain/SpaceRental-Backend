@@ -31,70 +31,55 @@ export class AuthService {
   ) {}
 
   async signIn(email: string, pass: string): Promise<SuccessResponseDto> {
-    try {
-      const user = await this.userService.getUserByEmail(email);
-      if (!user || !(await this.verifyPassword(pass, user.password))) {
-        throw new UnauthorizedException("Invalid credentials provided");
-      }
-
-      const payload = { sub: user._id.toString() };
-      const accessToken = await this.jwtService.signAsync(payload);
-      const refreshToken = await this.generateRefreshToken(user._id.toString());
-
-      const tokenDto = new TokenResponseDto(accessToken, refreshToken);
-
-      return new SuccessResponseDto("Authenticated successfully", tokenDto);
-    } catch (error) {
-      this.logger.log("Error signin account", error);
-      throw new BadRequestException("Something went wrong during signin");
+    const user = await this.userService.getUserByEmail(email);
+    if (!user || !(await this.verifyPassword(pass, user.password))) {
+      throw new UnauthorizedException("Invalid credentials provided");
     }
+
+    const payload = { sub: user._id.toString() };
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.createRefreshTokenWithUserId(
+      user._id.toString(),
+    );
+
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+
+    return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async signUp(email: string, pass: string): Promise<SuccessResponseDto> {
-    try {
-      const password = await this.hashPassword(pass);
+    const password = await this.hashPassword(pass);
 
-      const newUser = await this.userService.createUserWithEmailPassword(
-        email,
-        password,
-      );
+    const newUser = await this.userService.createUserWithEmailPassword(
+      email,
+      password,
+    );
 
-      const accessToken = await this.generateAccessToken(
-        newUser._id.toString(),
-      );
-      const refreshToken = await this.generateRefreshToken(
-        newUser._id.toString(),
-      );
-      const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    const accessToken = await this.generateAccessToken(newUser._id.toString());
+    const refreshToken = await this.createRefreshTokenWithUserId(
+      newUser._id.toString(),
+    );
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
-      return new SuccessResponseDto("Authenticated successfully", tokenDto);
-    } catch (error) {
-      this.logger.log("Error creating account", error);
-      throw new BadRequestException("Something went wrong during signup");
-    }
+    return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    try {
-      const refreshTokenDoc = await this.refreshTokenModel.findOne({
-        token: refreshToken,
-        expiresAt: { $gt: new Date() },
-      });
+    const refreshTokenDoc = await this.refreshTokenModel.findOne({
+      token: refreshToken,
+      expiresAt: { $gt: new Date() },
+    });
 
-      if (!refreshTokenDoc) {
-        throw new Error("Invalid refresh token");
-      }
-
-      const accessToken = await this.generateAccessToken(
-        refreshTokenDoc.user.toString(),
-      );
-      const tokenDto = new TokenResponseDto(accessToken, refreshToken);
-
-      return new SuccessResponseDto("Authenticated successfully", tokenDto);
-    } catch (error) {
-      this.logger.log("Error token refresh", error);
+    if (!refreshTokenDoc) {
       throw new BadRequestException("Refresh token is invalid or expired");
     }
+
+    const accessToken = await this.generateAccessToken(
+      refreshTokenDoc.user.toString(),
+    );
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+
+    return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   //#region Private Services
@@ -113,7 +98,7 @@ export class AuthService {
     return await this.jwtService.signAsync({ sid: userId });
   }
 
-  private async generateRefreshToken(userId: string): Promise<string> {
+  private async createRefreshTokenWithUserId(userId: string): Promise<string> {
     try {
       const token = base64url.default(
         Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
