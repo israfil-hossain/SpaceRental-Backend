@@ -1,17 +1,32 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { InjectModel } from "@nestjs/mongoose";
+import * as base64url from "base64url";
 import * as bcrypt from "bcrypt";
+import * as uuid from "uuid";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserService } from "../user/user.service";
 import { TokenResponseDto } from "./dto/token-response.dto";
+import {
+  RefreshToken,
+  RefreshTokenModelType,
+} from "./entities/refresh-token.entity";
 
 @Injectable()
 export class AuthService {
+  private readonly logger: Logger = new Logger("AuthService");
   private readonly saltRounds: number = 10;
 
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    @InjectModel(RefreshToken.name)
+    private refreshTokenModel: RefreshTokenModelType,
   ) {}
 
   async signIn(email: string, pass: string): Promise<SuccessResponseDto> {
@@ -22,8 +37,9 @@ export class AuthService {
 
     const payload = { sub: user._id.toString() };
     const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.generateRefreshToken(user._id.toString());
 
-    const tokenDto = new TokenResponseDto(accessToken, "");
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
@@ -37,7 +53,10 @@ export class AuthService {
     );
 
     const accessToken = await this.generateAccessToken(newUser._id.toString());
-    const tokenDto = new TokenResponseDto(accessToken, "");
+    const refreshToken = await this.generateRefreshToken(
+      newUser._id.toString(),
+    );
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
@@ -56,6 +75,25 @@ export class AuthService {
 
   private async generateAccessToken(userId: string) {
     return await this.jwtService.signAsync({ sid: userId });
+  }
+
+  private async generateRefreshToken(userId: string): Promise<string> {
+    try {
+      const token = base64url.default(
+        Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
+      );
+
+      const refreshToken = await this.refreshTokenModel.create({
+        token,
+        user: userId,
+      });
+
+      await refreshToken.save();
+      return refreshToken.token;
+    } catch (error) {
+      this.logger.log("Error generating token", error);
+      throw new InternalServerErrorException("Error generating token");
+    }
   }
   //#endregion
 }
