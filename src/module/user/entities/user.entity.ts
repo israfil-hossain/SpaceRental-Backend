@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model } from "mongoose";
+import { UserRole } from "../enum/user-role.enum";
 
 export type UserDocument = HydratedDocument<User>;
 export type UserModelType = Model<User>;
@@ -14,14 +15,33 @@ export type UserModelType = Model<User>;
   },
 })
 export class User {
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true })
   email: string;
 
-  @Prop()
-  password?: string;
+  @Prop({ default: "" })
+  password: string;
 
   @Prop({ default: false })
   isPasswordLess: boolean;
+
+  @Prop({
+    type: String,
+    enum: Object.values(UserRole),
+    default: UserRole.RENTER,
+  })
+  role: UserRole;
+
+  @Prop({ default: null })
+  fullName?: string;
+
+  @Prop({ default: null })
+  phoneNumber?: string;
+
+  @Prop({ default: null })
+  countryCode?: string;
+
+  @Prop({ default: null })
+  dateOfBirth?: Date;
 
   @Prop({ default: () => new Date() })
   dateJoined: Date;
@@ -31,3 +51,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Bind user email with role to be unique together
+UserSchema.index({ email: 1, role: 1 }, { unique: true });

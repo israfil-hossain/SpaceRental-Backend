@@ -12,6 +12,7 @@ import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserService } from "../user/user.service";
+import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
 import {
   RefreshToken,
@@ -20,18 +21,21 @@ import {
 
 @Injectable()
 export class AuthService {
-  private readonly logger: Logger = new Logger("AuthService");
   private readonly saltRounds: number = 10;
+  private readonly logger: Logger = new Logger("AuthService");
+  public readonly refreshTokenModel: RefreshTokenModelType;
 
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
     @InjectModel(RefreshToken.name)
-    private refreshTokenModel: RefreshTokenModelType,
-  ) {}
+    _refreshTokenModel: RefreshTokenModelType,
+  ) {
+    this.refreshTokenModel = _refreshTokenModel;
+  }
 
   async signIn(email: string, pass: string): Promise<SuccessResponseDto> {
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.userService.userModel.findOne().where({ email });
     if (!user || !(await this.verifyPassword(pass, user.password))) {
       throw new UnauthorizedException("Invalid credentials provided");
     }
@@ -47,13 +51,21 @@ export class AuthService {
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
-  async signUp(email: string, pass: string): Promise<SuccessResponseDto> {
-    const password = await this.hashPassword(pass);
-
-    const newUser = await this.userService.createUserWithEmailPassword(
-      email,
-      password,
-    );
+  async signUp({
+    password,
+    ...signupDto
+  }: SignUpDto): Promise<SuccessResponseDto> {
+    const hashedPassword = await this.hashPassword(password);
+    const newUser = await this.userService.userModel.create({
+      email: signupDto.email,
+      password: hashedPassword,
+      role: signupDto.role,
+      fullName: signupDto.fullName,
+      phoneNumber: signupDto.phoneNumber,
+      countryCode: signupDto.countryCode,
+      dateOfBirth: signupDto.dateOfBirth,
+    });
+    await newUser.save();
 
     const accessToken = await this.generateAccessToken(newUser._id.toString());
     const refreshToken = await this.createRefreshTokenWithUserId(

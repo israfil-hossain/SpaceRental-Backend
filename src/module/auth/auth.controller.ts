@@ -14,7 +14,7 @@ export class AuthController {
   @Post("SignUp")
   @IsPublic()
   signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto.email, signUpDto.password);
+    return this.authService.signUp(signUpDto);
   }
 
   @Post("SignIn")
