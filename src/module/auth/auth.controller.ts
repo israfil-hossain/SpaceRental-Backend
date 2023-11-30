@@ -20,7 +20,7 @@ export class AuthController {
   @Post("SignIn")
   @IsPublic()
   signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+    return this.authService.signIn(signInDto);
   }
 
   @Post("TokenRefresh")

@@ -7,22 +7,21 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { User, UserModelType } from "./entities/user.entity";
+import { UserCreateDto } from "./dto/user-create.dto";
+import { User, UserDocument, UserModelType } from "./entities/user.entity";
+import { UserRole } from "./enum/user-role.enum";
 
 @Injectable()
 export class UserService {
   private readonly logger: Logger = new Logger("UserService");
-  public readonly userModel: UserModelType; // UserModel Document accessor
 
-  constructor(@InjectModel(User.name) _userModel: UserModelType) {
-    this.userModel = _userModel;
-  }
+  constructor(@InjectModel(User.name) private userModel: UserModelType) {}
 
-  async create(createUserDto: CreateUserDto): Promise<SuccessResponseDto> {
+  async create(userCreateDto: UserCreateDto): Promise<SuccessResponseDto> {
     try {
-      const newUser = new this.userModel(createUserDto);
+      const newUser = new this.userModel(userCreateDto);
       await newUser.save();
+
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
       this.logger.error("Error creating user:", error);
@@ -83,4 +82,35 @@ export class UserService {
 
     throw new BadRequestException(`Could not delete user with ID: ${id}`);
   }
+
+  //#region Internal Service methods
+  async createUserFromService(
+    userCreateDto: UserCreateDto,
+  ): Promise<UserDocument> {
+    try {
+      const newUser = new this.userModel(userCreateDto);
+      await newUser.save();
+
+      return newUser;
+    } catch (error) {
+      this.logger.error("Error creating user:", error);
+      throw new BadRequestException(
+        "Error occured while trying to create user",
+      );
+    }
+  }
+
+  async findUserByEmailAndRole(
+    email: string,
+    role: UserRole,
+  ): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ email, role }).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User not found with email: ${email}`);
+    }
+
+    return user;
+  }
+  //#endregion
 }

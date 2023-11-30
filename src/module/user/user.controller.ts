@@ -8,7 +8,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { UserCreateDto } from "./dto/user-create.dto";
 import { UserIdQueryDto } from "./dto/user-id-query.dto";
 import { UserListQuery } from "./dto/user-list-query.dto";
 import { UserService } from "./user.service";
@@ -19,7 +19,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("Create")
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: UserCreateDto) {
     return this.userService.create(createUserDto);
   }
 

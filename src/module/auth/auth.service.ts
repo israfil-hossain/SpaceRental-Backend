@@ -12,10 +12,12 @@ import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserService } from "../user/user.service";
+import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
 import {
   RefreshToken,
+  RefreshTokenDocument,
   RefreshTokenModelType,
 } from "./entities/refresh-token.entity";
 
@@ -23,25 +25,31 @@ import {
 export class AuthService {
   private readonly saltRounds: number = 10;
   private readonly logger: Logger = new Logger("AuthService");
-  public readonly refreshTokenModel: RefreshTokenModelType;
 
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
     @InjectModel(RefreshToken.name)
-    _refreshTokenModel: RefreshTokenModelType,
-  ) {
-    this.refreshTokenModel = _refreshTokenModel;
-  }
+    private refreshTokenModel: RefreshTokenModelType,
+  ) {}
 
-  async signIn(email: string, pass: string): Promise<SuccessResponseDto> {
-    const user = await this.userService.userModel.findOne().where({ email });
-    if (!user || !(await this.verifyPassword(pass, user.password))) {
+  async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
+    const user = await this.userService.findUserByEmailAndRole(
+      signInDto.email,
+      signInDto.role,
+    );
+
+    if (!(await this.verifyPassword(signInDto.password, user.password))) {
       throw new UnauthorizedException("Invalid credentials provided");
     }
 
-    const payload = { sub: user._id.toString() };
-    const accessToken = await this.jwtService.signAsync(payload);
+    if (user.isPasswordLess) {
+      throw new BadRequestException(
+        "To enable password-based login, please set up a password for your account alongside social login.",
+      );
+    }
+
+    const accessToken = await this.generateAccessToken(user?.id);
     const refreshToken = await this.createRefreshTokenWithUserId(
       user._id.toString(),
     );
@@ -56,35 +64,20 @@ export class AuthService {
     ...signupDto
   }: SignUpDto): Promise<SuccessResponseDto> {
     const hashedPassword = await this.hashPassword(password);
-    const newUser = await this.userService.userModel.create({
-      email: signupDto.email,
+    const newUser = await this.userService.createUserFromService({
+      ...signupDto,
       password: hashedPassword,
-      role: signupDto.role,
-      fullName: signupDto.fullName,
-      phoneNumber: signupDto.phoneNumber,
-      countryCode: signupDto.countryCode,
-      dateOfBirth: signupDto.dateOfBirth,
     });
-    await newUser.save();
 
-    const accessToken = await this.generateAccessToken(newUser._id.toString());
-    const refreshToken = await this.createRefreshTokenWithUserId(
-      newUser._id.toString(),
-    );
+    const accessToken = await this.generateAccessToken(newUser?.id);
+    const refreshToken = await this.createRefreshTokenWithUserId(newUser?.id);
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc = await this.refreshTokenModel.findOne({
-      token: refreshToken,
-      expiresAt: { $gt: new Date() },
-    });
-
-    if (!refreshTokenDoc) {
-      throw new BadRequestException("Refresh token is invalid or expired");
-    }
+    const refreshTokenDoc = await this.getRefreshTokenByToken(refreshToken);
 
     const accessToken = await this.generateAccessToken(
       refreshTokenDoc.user.toString(),
@@ -94,8 +87,12 @@ export class AuthService {
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
-  //#region Private Services
+  //#region Internal Private Services
   private async hashPassword(rawPassword: string): Promise<string> {
+    if (!rawPassword) {
+      throw new BadRequestException("Password is required");
+    }
+
     return await bcrypt.hash(rawPassword, this.saltRounds);
   }
 
@@ -103,6 +100,10 @@ export class AuthService {
     rawPassword: string = "",
     hashedPassword: string = "",
   ): Promise<boolean> {
+    if (!rawPassword) {
+      throw new BadRequestException("Password is required");
+    }
+
     return await bcrypt.compare(rawPassword, hashedPassword);
   }
 
@@ -127,6 +128,25 @@ export class AuthService {
       this.logger.log("Error generating token", error);
       throw new InternalServerErrorException("Error generating token");
     }
+  }
+
+  private async getRefreshTokenByToken(
+    refreshToken: string,
+  ): Promise<RefreshTokenDocument> {
+    if (!refreshToken) {
+      throw new BadRequestException("A valid refresh token is required");
+    }
+
+    const refreshTokenDoc = await this.refreshTokenModel.findOne({
+      token: refreshToken,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!refreshTokenDoc) {
+      throw new BadRequestException("Refresh token is invalid or expired");
+    }
+
+    return refreshTokenDoc;
   }
   //#endregion
 }
