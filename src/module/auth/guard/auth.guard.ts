@@ -38,17 +38,20 @@ class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const { sid } = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>(
           "JWT_SECRET",
           "ACOMPLEXSECRETANDKEEPITSAFE",
         ),
       });
 
-      request["user"] = payload;
+      request["userId"] = sid;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "User is not authorized to perform this action",
+      );
     }
+
     return true;
     //#endregion
   }

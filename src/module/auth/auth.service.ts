@@ -33,6 +33,12 @@ export class AuthService {
     private refreshTokenModel: RefreshTokenModelType,
   ) {}
 
+  public verifyAuth(userId: string): SuccessResponseDto {
+    return new SuccessResponseDto("Access granted. User is authorized.", {
+      userId,
+    });
+  }
+
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
     const user = await this.userService.findUserByEmailAndRole(
       signInDto.email,

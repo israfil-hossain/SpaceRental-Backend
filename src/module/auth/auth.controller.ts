@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
+import { UserId } from "./decorator/user-id.decorator";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenRefreshDto } from "./dto/token-refresh.dto";
@@ -10,6 +11,11 @@ import { IsPublic } from "./guard/auth.guard";
 @Controller("Auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get("VerifyAuth")
+  verifyAuth(@UserId() userId: string) {
+    return this.authService.verifyAuth(userId);
+  }
 
   @Post("SignUp")
   @IsPublic()
