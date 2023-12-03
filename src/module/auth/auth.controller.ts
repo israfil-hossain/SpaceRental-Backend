@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { UserId } from "./decorator/user-id.decorator";
+import { AuthUserId } from "./decorator/auth-user-id.decorator";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenRefreshDto } from "./dto/token-refresh.dto";
@@ -13,7 +13,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get("GetLoggedInUser")
-  getLoggedInUser(@UserId() userId: string) {
+  getLoggedInUser(@AuthUserId() userId: string) {
     return this.authService.getLoggedInUser(userId);
   }
 

@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { ObjectId } from "mongodb";
 
-export const UserId = createParamDecorator(
+export const AuthUserId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string => {
     const request = ctx.switchToHttp().getRequest();
 
