@@ -12,6 +12,7 @@ import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserService } from "../user/user.service";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
@@ -32,12 +33,6 @@ export class AuthService {
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: RefreshTokenModelType,
   ) {}
-
-  public async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
-    const user = await this.userService.getUserById(userId);
-
-    return new SuccessResponseDto("Logged in user found", user);
-  }
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
     const user = await this.userService.getUserByEmailAndRole(
@@ -94,6 +89,34 @@ export class AuthService {
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
+  }
+
+  public async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
+    const user = await this.userService.getUserById(userId);
+
+    return new SuccessResponseDto("Logged in user found", user);
+  }
+
+  async changePassword(
+    changePasswordDto: ChangePasswordDto,
+    userId: string,
+  ): Promise<SuccessResponseDto> {
+    const user = await this.userService.getUserById(userId);
+
+    if (
+      !(await this.verifyPassword(changePasswordDto.oldPassword, user.password))
+    ) {
+      throw new BadRequestException("Old Password is incorrect");
+    }
+
+    const hashedPassword = await this.hashPassword(
+      changePasswordDto.newPassword,
+    );
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return new SuccessResponseDto("Password changed successfully");
   }
 
   //#region Internal Private Services

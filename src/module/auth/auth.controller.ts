@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenRefreshDto } from "./dto/token-refresh.dto";
@@ -33,5 +34,14 @@ export class AuthController {
   @Get("GetLoggedInUser")
   getLoggedInUser(@AuthUserId() userId: string) {
     return this.authService.getLoggedInUser(userId);
+  }
+
+  @Post("ChangePassword")
+  @IsPublic()
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @AuthUserId() userId: string,
+  ) {
+    return this.authService.changePassword(changePasswordDto, userId);
   }
 }
