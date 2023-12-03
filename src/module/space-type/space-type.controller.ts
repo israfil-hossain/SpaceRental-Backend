@@ -21,7 +21,7 @@ import { SpaceTypeService } from "./space-type.service";
 export class SpaceTypeController {
   constructor(private readonly spaceTypeService: SpaceTypeService) {}
 
-  @Post()
+  @Post("Create")
   create(
     @AuthUserId() userId: string,
     @Body() createSpaceTypeDto: CreateSpaceTypeDto,
@@ -29,17 +29,17 @@ export class SpaceTypeController {
     return this.spaceTypeService.create(createSpaceTypeDto, userId);
   }
 
-  @Get()
+  @Get("GetAll")
   findAll(@Query() spaceTypeListQuery: SpaceTypeListQuery) {
     return this.spaceTypeService.findAll(spaceTypeListQuery);
   }
 
-  @Get(":DocId")
+  @Get("GetById/:DocId")
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceTypeService.findOne(DocId);
   }
 
-  @Patch(":DocId")
+  @Patch("UpdateById/:DocId")
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() userId: string,
@@ -48,7 +48,7 @@ export class SpaceTypeController {
     return this.spaceTypeService.update(DocId, updateSpaceTypeDto, userId);
   }
 
-  @Delete(":DocId")
+  @Delete("DeleteById/:DocId")
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceTypeService.remove(DocId);
   }
