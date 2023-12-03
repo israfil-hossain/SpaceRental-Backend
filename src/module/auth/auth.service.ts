@@ -60,6 +60,9 @@ export class AuthService {
       user._id.toString(),
     );
 
+    user.lastLogin = new Date();
+    await user.save();
+
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
