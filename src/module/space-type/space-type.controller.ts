@@ -12,7 +12,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
-import { SpaceTypeListQuery } from "./dto/space-type-list-query.dto";
+import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
 import { SpaceTypeService } from "./space-type.service";
 
@@ -30,7 +30,7 @@ export class SpaceTypeController {
   }
 
   @Get("GetAll")
-  findAll(@Query() spaceTypeListQuery: SpaceTypeListQuery) {
+  findAll(@Query() spaceTypeListQuery: ListSpaceTypeQuery) {
     return this.spaceTypeService.findAll(spaceTypeListQuery);
   }
 

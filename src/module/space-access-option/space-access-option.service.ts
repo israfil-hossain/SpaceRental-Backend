@@ -8,42 +8,46 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
-import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
-import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
-import { SpaceType, SpaceTypeModelType } from "./entities/space-type.entity";
+import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto";
+import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
+import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
+import {
+  SpaceAccessOption,
+  SpaceAccessOptionModelType,
+} from "./entities/space-access-option.entity";
 
 @Injectable()
-export class SpaceTypeService {
-  private readonly logger: Logger = new Logger("SpaceTypeService");
+export class SpaceAccessOptionService {
+  private readonly logger: Logger = new Logger("SpaceAccessOptionService");
 
   constructor(
-    @InjectModel(SpaceType.name) private spaceTypeModel: SpaceTypeModelType,
+    @InjectModel(SpaceAccessOption.name)
+    private spaceTypeModel: SpaceAccessOptionModelType,
   ) {}
 
   async create(
-    createSpaceTypeDto: CreateSpaceTypeDto,
+    createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this.spaceTypeModel({
-        ...createSpaceTypeDto,
+      const newSpaceAccessOption = new this.spaceTypeModel({
+        ...createSpaceAccessOptionDto,
         createdBy: userId,
       });
-      await newSpaceType.save();
+      await newSpaceAccessOption.save();
 
       return new SuccessResponseDto(
-        "Space Type created successfully",
-        newSpaceType,
+        "Space Access Option created successfully",
+        newSpaceAccessOption,
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Type already exists");
+        throw new ConflictException("Space Access Option already exists");
       }
 
-      this.logger.error("Error creating new space type:", error);
-      throw new BadRequestException("Error creating new space type");
+      this.logger.error("Error creating new space access option:", error);
+      throw new BadRequestException("Error creating new space access option");
     }
   }
 
@@ -51,7 +55,7 @@ export class SpaceTypeService {
     Page = 1,
     PageSize = 10,
     Name = "",
-  }: ListSpaceTypeQuery): Promise<PaginatedResponseDto> {
+  }: ListSpaceAccessOptionQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
       const totalRecords = await this.spaceTypeModel.countDocuments().exec();
@@ -72,8 +76,8 @@ export class SpaceTypeService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this.logger.error("Error finding all space type:", error);
-      throw new BadRequestException("Could not get all space type");
+      this.logger.error("Error finding all space access option:", error);
+      throw new BadRequestException("Could not get all space access option");
     }
   }
 
@@ -93,23 +97,28 @@ export class SpaceTypeService {
       .exec();
 
     if (!result) {
-      throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      throw new NotFoundException(
+        `Could not find space access option with ID: ${id}`,
+      );
     }
 
-    return new SuccessResponseDto("Space Type found successfully", result);
+    return new SuccessResponseDto(
+      "Space Access Option found successfully",
+      result,
+    );
   }
 
   async update(
     id: string,
-    updateSpaceTypeDto: UpdateSpaceTypeDto,
+    updateSpaceAccessOptionDto: UpdateSpaceAccessOptionDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceType = await this.spaceTypeModel
+      const updatedSpaceAccessOption = await this.spaceTypeModel
         .findByIdAndUpdate(
           id,
           {
-            ...updateSpaceTypeDto,
+            ...updateSpaceAccessOptionDto,
             updatedBy: userId,
             updatedAt: new Date(),
           },
@@ -117,13 +126,15 @@ export class SpaceTypeService {
         )
         .exec();
 
-      if (!updatedSpaceType) {
-        throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      if (!updatedSpaceAccessOption) {
+        throw new NotFoundException(
+          `Could not find space access option with ID: ${id}`,
+        );
       }
 
       return new SuccessResponseDto(
-        "Space Type updated successfully",
-        updatedSpaceType,
+        "Space Access Option updated successfully",
+        updatedSpaceAccessOption,
       );
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -132,11 +143,11 @@ export class SpaceTypeService {
 
       if (error.name === "MongoError" && error.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Type already exists");
+        throw new ConflictException("Space Access Option already exists");
       }
 
-      this.logger.error("Error updating space type:", error);
-      throw new BadRequestException("Error updating space type");
+      this.logger.error("Error updating space access option:", error);
+      throw new BadRequestException("Error updating space access option");
     }
   }
 
@@ -145,10 +156,10 @@ export class SpaceTypeService {
 
     if (!result) {
       throw new BadRequestException(
-        `Could not delete space type with ID: ${id}`,
+        `Could not delete space access option with ID: ${id}`,
       );
     }
 
-    return new SuccessResponseDto("Space Type deleted successfully");
+    return new SuccessResponseDto("Space Access Option deleted successfully");
   }
 }
