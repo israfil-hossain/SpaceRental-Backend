@@ -5,6 +5,7 @@ import { SpaceAccessOptionModule } from "./module/space-access-option/space-acce
 import { SpaceTypeModule } from "./module/space-type/space-type.module";
 import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
+import { SpaceFeaturesModule } from "./module/space-features/space-features.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     UserModule,
     SpaceTypeModule,
     SpaceAccessOptionModule,
+    SpaceFeaturesModule,
   ],
   providers: [ValidationProvider],
 })
