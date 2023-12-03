@@ -6,5 +6,10 @@ export class UserListQuery extends PaginationQuery {
   @Type(() => String)
   @IsString()
   @IsOptional()
-  public readonly EmailSearch?: string;
+  public readonly Email?: string;
+
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  public readonly Name?: string;
 }

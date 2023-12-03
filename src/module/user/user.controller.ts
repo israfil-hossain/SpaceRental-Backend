@@ -8,8 +8,8 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { UserCreateDto } from "./dto/user-create.dto";
-import { UserIdQueryDto } from "./dto/user-id-query.dto";
 import { UserListQuery } from "./dto/user-list-query.dto";
 import { UserService } from "./user.service";
 
@@ -25,20 +25,16 @@ export class UserController {
 
   @Get("GetAll")
   findAll(@Query() query: UserListQuery) {
-    return this.userService.findAll(
-      query.Page,
-      query.PageSize,
-      query.EmailSearch,
-    );
+    return this.userService.findAll(query);
   }
 
-  @Get("GetById/:UserId")
-  findOne(@Param() { UserId }: UserIdQueryDto) {
-    return this.userService.findOne(UserId);
+  @Get("GetById/:DocId")
+  findOne(@Param() { DocId }: DocIdQueryDto) {
+    return this.userService.findOne(DocId);
   }
 
-  @Delete("DeleteById/:UserId")
-  remove(@Param() { UserId }: UserIdQueryDto) {
-    return this.userService.remove(UserId);
+  @Delete("DeleteById/:DocId")
+  remove(@Param() { DocId }: DocIdQueryDto) {
+    return this.userService.remove(DocId);
   }
 }

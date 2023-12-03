@@ -8,6 +8,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { UserCreateDto } from "./dto/user-create.dto";
+import { UserListQuery } from "./dto/user-list-query.dto";
 import { User, UserDocument, UserModelType } from "./entities/user.entity";
 import { UserRole } from "./enum/user-role.enum";
 
@@ -29,35 +30,34 @@ export class UserService {
     }
   }
 
-  async findAll(
-    currentPage: number = 1,
-    pageSize: number = 10,
-    emailSearch: string = "",
-  ): Promise<PaginatedResponseDto> {
+  async findAll({
+    Page = 1,
+    PageSize = 10,
+    Name = "",
+    Email = "",
+  }: UserListQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
       const totalRecords = await this.userModel.countDocuments().exec();
-      const skip = (currentPage - 1) * pageSize;
+      const skip = (Page - 1) * PageSize;
 
       // Search query setup
       const searchQuery: Record<string, any> = {};
-      if (emailSearch) {
-        searchQuery["email"] = { $regex: emailSearch, $options: "i" };
+      if (Email) {
+        searchQuery["email"] = { $regex: Email, $options: "i" };
+      }
+      if (Name) {
+        searchQuery["fullName"] = { $regex: Name, $options: "i" };
       }
 
       const users = await this.userModel
         .where(searchQuery)
         .find()
         .skip(skip)
-        .limit(pageSize)
+        .limit(PageSize)
         .exec();
 
-      return new PaginatedResponseDto(
-        totalRecords,
-        currentPage,
-        pageSize,
-        users,
-      );
+      return new PaginatedResponseDto(totalRecords, Page, PageSize, users);
     } catch (error) {
       this.logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");

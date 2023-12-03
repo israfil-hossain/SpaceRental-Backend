@@ -1,7 +1,7 @@
 import { IsMongoId, IsNotEmpty } from "class-validator";
 
-export class UserIdQueryDto {
+export class DocIdQueryDto {
   @IsMongoId()
   @IsNotEmpty()
-  readonly UserId: string;
+  readonly DocId: string;
 }
