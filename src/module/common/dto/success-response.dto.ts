@@ -1,8 +1,18 @@
-export class SuccessResponseDto {
-  protected readonly message: string;
-  protected readonly data?: any;
+import { ApiProperty } from "@nestjs/swagger";
 
-  constructor(message: string, data?: any) {
+export class SuccessResponseDto<T = any> {
+  @ApiProperty({
+    description: "Message indicating the success status",
+    example: "Success!",
+  })
+  protected readonly message: string;
+
+  @ApiProperty({
+    description: "Optional data associated with the success response",
+  })
+  protected readonly data?: T;
+
+  constructor(message: string, data?: T) {
     this.message = message;
     this.data = data;
   }

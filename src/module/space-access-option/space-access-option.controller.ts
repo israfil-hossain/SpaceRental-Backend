@@ -8,9 +8,11 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
+import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto";
 import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
 import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
@@ -24,6 +26,11 @@ export class SpaceAccessOptionController {
   ) {}
 
   @Post("Create")
+  @ApiBody({ type: CreateSpaceAccessOptionDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   create(
     @AuthUserId() userId: string,
     @Body() createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
@@ -35,16 +42,29 @@ export class SpaceAccessOptionController {
   }
 
   @Get("GetAll")
+  @ApiResponse({
+    status: 200,
+    type: PaginatedResponseDto,
+  })
   findAll(@Query() spaceTypeListQuery: ListSpaceAccessOptionQuery) {
     return this.spaceAccessOptionService.findAll(spaceTypeListQuery);
   }
 
   @Get("GetById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceAccessOptionService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
+  @ApiBody({ type: UpdateSpaceAccessOptionDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() userId: string,
@@ -58,6 +78,10 @@ export class SpaceAccessOptionController {
   }
 
   @Delete("DeleteById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceAccessOptionService.remove(DocId);
   }

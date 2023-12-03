@@ -5,11 +5,7 @@
   "compilerOptions": {
     "builder": "swc",
     "deleteOutDir": true,
-    "plugins": [
-      {
-        "name": "@nestjs/swagger/plugin"
-      }
-    ]
+    "plugins": ["@nestjs/swagger"]
   }
 }
 

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
 import { ChangePasswordDto } from "./dto/change-password.dto";
@@ -15,28 +16,52 @@ export class AuthController {
 
   @Post("SignUp")
   @IsPublic()
+  @ApiBody({ type: SignUpDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
   }
 
   @Post("SignIn")
   @IsPublic()
+  @ApiBody({ type: SignInDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }
 
   @Post("TokenRefresh")
   @IsPublic()
+  @ApiBody({ type: TokenRefreshDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   tokenRefresh(@Body() tokenRefreshDto: TokenRefreshDto) {
     return this.authService.refreshAccessToken(tokenRefreshDto.refreshToken);
   }
 
   @Get("GetLoggedInUser")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   getLoggedInUser(@AuthUserId() userId: string) {
     return this.authService.getLoggedInUser(userId);
   }
 
   @Post("ChangePassword")
+  @ApiBody({ type: ChangePasswordDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
     @AuthUserId() userId: string,

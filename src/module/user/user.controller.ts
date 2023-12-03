@@ -7,8 +7,10 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
+import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UserService } from "./user.service";
@@ -19,21 +21,38 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("Create")
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get("GetAll")
+  @ApiResponse({
+    status: 200,
+    type: PaginatedResponseDto,
+  })
   findAll(@Query() query: ListUserQuery) {
     return this.userService.findAll(query);
   }
 
   @Get("GetById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.findOne(DocId);
   }
 
   @Delete("DeleteById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.remove(DocId);
   }

@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { SpaceFeaturesService } from "./space-features.service";
 
@@ -12,6 +13,11 @@ export class SpaceFeaturesController {
 
   //#region Storage Condition Feature Controller
   @Post("CreateStorageCondition")
+  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   createStorageCondition(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -23,11 +29,19 @@ export class SpaceFeaturesController {
   }
 
   @Get("GetAllStorageCondition")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findAllStorageCondition() {
     return this.spaceFeaturesService.findAllStorageCondition();
   }
 
   @Delete("DeleteStorageConditionById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   removeStorageCondition(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceFeaturesService.removeStorageCondition(DocId);
   }
@@ -35,6 +49,11 @@ export class SpaceFeaturesController {
 
   //#region Unloading and Moving Feature Controller
   @Post("CreateUnloadingMoving")
+  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   createUnloadingMoving(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -46,11 +65,19 @@ export class SpaceFeaturesController {
   }
 
   @Get("GetAllUnloadingMoving")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findAllUnloadingMoving() {
     return this.spaceFeaturesService.findAllUnloadingMoving();
   }
 
   @Delete("DeleteUnloadingMovingById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   removeUnloadingMoving(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceFeaturesService.removeUnloadingMoving(DocId);
   }
@@ -58,6 +85,11 @@ export class SpaceFeaturesController {
 
   //#region Space Security Feature Controller
   @Post("CreateSpaceSecurity")
+  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   createSpaceSecurity(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -69,11 +101,19 @@ export class SpaceFeaturesController {
   }
 
   @Get("GetAllSpaceSecurity")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findAllSpaceSecurity() {
     return this.spaceFeaturesService.findAllSpaceSecurity();
   }
 
   @Delete("DeleteSpaceSecurityById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   removeSpaceSecurity(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceFeaturesService.removeSpaceSecurity(DocId);
   }
@@ -81,6 +121,11 @@ export class SpaceFeaturesController {
 
   //#region Space Schedule Feature Controller
   @Post("CreateSpaceSchedule")
+  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
   createSpaceSchedule(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -92,11 +137,19 @@ export class SpaceFeaturesController {
   }
 
   @Get("GetAllSpaceSchedule")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   findAllSpaceSchedule() {
     return this.spaceFeaturesService.findAllSpaceSchedule();
   }
 
   @Delete("DeleteSpaceScheduleById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
   removeSpaceSchedule(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceFeaturesService.removeSpaceSchedule(DocId);
   }
