@@ -8,9 +8,11 @@ export type UserModelType = Model<User>;
 @Schema({
   toJSON: {
     transform: function (_, ret) {
+      delete ret?._id;
       delete ret?.password;
       delete ret?.isPasswordLess;
     },
+    virtuals: true,
     versionKey: false,
   },
 })
@@ -48,6 +50,9 @@ export class User {
 
   @Prop({ default: () => new Date() })
   lastLogin: Date;
+
+  @Prop({ default: true })
+  isActive: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

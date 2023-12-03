@@ -12,9 +12,9 @@ import { IsPublic } from "./guard/auth.guard";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get("VerifyAuth")
-  verifyAuth(@UserId() userId: string) {
-    return this.authService.verifyAuth(userId);
+  @Get("GetLoggedInUser")
+  getLoggedInUser(@UserId() userId: string) {
+    return this.authService.getLoggedInUser(userId);
   }
 
   @Post("SignUp")

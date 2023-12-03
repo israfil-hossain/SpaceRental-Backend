@@ -33,14 +33,14 @@ export class AuthService {
     private refreshTokenModel: RefreshTokenModelType,
   ) {}
 
-  public verifyAuth(userId: string): SuccessResponseDto {
-    return new SuccessResponseDto("Access granted. User is authorized.", {
-      userId,
-    });
+  public async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
+    const user = await this.userService.getUserById(userId);
+
+    return new SuccessResponseDto("Logged in user found", user);
   }
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
-    const user = await this.userService.findUserByEmailAndRole(
+    const user = await this.userService.getUserByEmailAndRole(
       signInDto.email,
       signInDto.role,
     );

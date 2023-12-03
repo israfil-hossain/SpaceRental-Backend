@@ -45,6 +45,7 @@ class AuthGuard implements CanActivate {
         ),
       });
 
+      if (!sid) throw new Error("Invalid SID");
       request["userId"] = sid;
     } catch {
       throw new UnauthorizedException(
@@ -60,7 +61,9 @@ class AuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string {
     const [type, token] = request?.headers?.authorization?.split(" ") ?? [];
     if (type !== "Bearer" || !token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        "User is not authorized to perform this action",
+      );
     }
 
     return token;

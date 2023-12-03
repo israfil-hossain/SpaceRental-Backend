@@ -100,7 +100,7 @@ export class UserService {
     }
   }
 
-  async findUserByEmailAndRole(
+  async getUserByEmailAndRole(
     email: string,
     role: UserRole,
   ): Promise<UserDocument> {
@@ -108,6 +108,16 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException(`User not found with email: ${email}`);
+    }
+
+    return user;
+  }
+
+  async getUserById(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User not found with Id: ${id}`);
     }
 
     return user;
