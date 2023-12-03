@@ -101,6 +101,12 @@ export class AuthService {
     changePasswordDto: ChangePasswordDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
+    if (changePasswordDto.oldPassword === changePasswordDto.newPassword) {
+      throw new BadRequestException(
+        "Old Password and New Password cannot be the same",
+      );
+    }
+
     const user = await this.userService.getUserById(userId);
 
     if (

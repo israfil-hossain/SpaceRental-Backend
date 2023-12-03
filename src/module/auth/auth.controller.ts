@@ -37,7 +37,6 @@ export class AuthController {
   }
 
   @Post("ChangePassword")
-  @IsPublic()
   changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
     @AuthUserId() userId: string,
