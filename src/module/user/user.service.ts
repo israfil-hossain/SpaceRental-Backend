@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,8 +8,9 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { UserCreateDto } from "./dto/user-create.dto";
-import { UserListQuery } from "./dto/user-list-query.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { ListUserQuery } from "./dto/list-user-query.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { User, UserDocument, UserModelType } from "./entities/user.entity";
 import { UserRole } from "./enum/user-role.enum";
 
@@ -18,13 +20,18 @@ export class UserService {
 
   constructor(@InjectModel(User.name) private userModel: UserModelType) {}
 
-  async create(userCreateDto: UserCreateDto): Promise<SuccessResponseDto> {
+  async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
     try {
       const newUser = new this.userModel(userCreateDto);
       await newUser.save();
 
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
+      if (error?.name === "MongoServerError" && error?.code === 11000) {
+        this.logger.error("Duplicate key error:", error);
+        throw new ConflictException("Useralready exists");
+      }
+
       this.logger.error("Error creating user:", error);
       throw new BadRequestException("Error creating user");
     }
@@ -35,7 +42,7 @@ export class UserService {
     PageSize = 10,
     Name = "",
     Email = "",
-  }: UserListQuery): Promise<PaginatedResponseDto> {
+  }: ListUserQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
       const totalRecords = await this.userModel.countDocuments().exec();
@@ -74,18 +81,44 @@ export class UserService {
     return new SuccessResponseDto("User found successfully", user);
   }
 
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      const result = await this.userModel
+        .findByIdAndUpdate(id, updateUserDto, { new: true })
+        .exec();
+
+      if (!result) {
+        throw new NotFoundException(`Could not find user with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("User updated successfully", result);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      if (error.name === "MongoError" && error.code === 11000) {
+        this.logger.error("Duplicate key error:", error);
+        throw new ConflictException("User already exists");
+      }
+
+      this.logger.error("Error updating user:", error);
+      throw new BadRequestException("Error updating user");
+    }
+  }
+
   async remove(id: string): Promise<SuccessResponseDto> {
-    const deletionResult = await this.userModel.findByIdAndDelete(id).exec();
-    if (deletionResult) {
-      return new SuccessResponseDto("User deleted successfully");
+    const result = await this.userModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new BadRequestException(`Could not delete user with ID: ${id}`);
     }
 
-    throw new BadRequestException(`Could not delete user with ID: ${id}`);
+    return new SuccessResponseDto("User deleted successfully");
   }
 
   //#region Internal Service methods
   async createUserFromService(
-    userCreateDto: UserCreateDto,
+    userCreateDto: CreateUserDto,
   ): Promise<UserDocument> {
     try {
       const newUser = new this.userModel(userCreateDto);

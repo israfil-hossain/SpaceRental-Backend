@@ -9,7 +9,7 @@ import {
 } from "class-validator";
 import { UserRole } from "../enum/user-role.enum";
 
-export class UserCreateDto {
+export class CreateUserDto {
   @IsNotEmpty({ message: "Email is required" })
   @IsEmail({}, { message: "Invalid email format" })
   email: string;

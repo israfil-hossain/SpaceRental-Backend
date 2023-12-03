@@ -5,9 +5,9 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
-import { UserCreateDto } from "../../user/dto/user-create.dto";
+import { CreateUserDto } from "../../user/dto/create-user.dto";
 
-export class SignUpDto extends UserCreateDto {
+export class SignUpDto extends CreateUserDto {
   @IsNotEmpty({ message: "Email should not be empty" })
   @IsEmail({}, { message: "Invalid email format" })
   readonly email: string;
