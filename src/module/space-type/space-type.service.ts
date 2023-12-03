@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -36,6 +37,11 @@ export class SpaceTypeService {
         newSpaceType,
       );
     } catch (error) {
+      if (error?.name === "MongoServerError" && error?.code === 11000) {
+        this.logger.error("Duplicate key error:", error);
+        throw new ConflictException("Space Type already exists");
+      }
+
       this.logger.error("Error creating new space type:", error);
       throw new BadRequestException("Error creating new space type");
     }
@@ -94,28 +100,51 @@ export class SpaceTypeService {
     updateSpaceTypeDto: UpdateSpaceTypeDto,
     userId: string,
   ) {
-    const result = await this.spaceTypeModel
-      .findByIdAndUpdate(
-        id,
-        { ...updateSpaceTypeDto, updatedBy: userId, updatedAt: new Date() },
-        { new: true },
-      )
-      .exec();
+    try {
+      const updatedSpaceType = await this.spaceTypeModel
+        .findByIdAndUpdate(
+          id,
+          {
+            ...updateSpaceTypeDto,
+            updatedBy: userId,
+            updatedAt: new Date(),
+          },
+          { new: true },
+        )
+        .exec();
 
-    if (!result) {
-      throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      if (!updatedSpaceType) {
+        throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto(
+        "Space Type updated successfully",
+        updatedSpaceType,
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      if (error.name === "MongoError" && error.code === 11000) {
+        this.logger.error("Duplicate key error:", error);
+        throw new ConflictException("Space Type already exists");
+      }
+
+      this.logger.error("Error updating space type:", error);
+      throw new BadRequestException("Error updating space type");
     }
-
-    return new SuccessResponseDto("Space Type updated successfully", result);
   }
 
   async remove(id: string) {
     const result = await this.spaceTypeModel.findByIdAndDelete(id).exec();
 
-    if (result) {
-      return new SuccessResponseDto("Space Type deleted successfully");
+    if (!result) {
+      throw new BadRequestException(
+        `Could not delete space type with ID: ${id}`,
+      );
     }
 
-    throw new BadRequestException(`Could not delete space type with ID: ${id}`);
+    return new SuccessResponseDto("Space Type deleted successfully");
   }
 }

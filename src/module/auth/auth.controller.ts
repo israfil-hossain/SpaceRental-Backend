@@ -12,11 +12,6 @@ import { IsPublic } from "./guard/auth.guard";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get("GetLoggedInUser")
-  getLoggedInUser(@AuthUserId() userId: string) {
-    return this.authService.getLoggedInUser(userId);
-  }
-
   @Post("SignUp")
   @IsPublic()
   signUp(@Body() signUpDto: SignUpDto) {
@@ -33,5 +28,10 @@ export class AuthController {
   @IsPublic()
   tokenRefresh(@Body() tokenRefreshDto: TokenRefreshDto) {
     return this.authService.refreshAccessToken(tokenRefreshDto.refreshToken);
+  }
+
+  @Get("GetLoggedInUser")
+  getLoggedInUser(@AuthUserId() userId: string) {
+    return this.authService.getLoggedInUser(userId);
   }
 }
