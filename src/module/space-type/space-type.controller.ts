@@ -17,7 +17,7 @@ import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
 import { SpaceTypeService } from "./space-type.service";
 
 @ApiTags("Space Type")
-@Controller("space-type")
+@Controller("SpaceType")
 export class SpaceTypeController {
   constructor(private readonly spaceTypeService: SpaceTypeService) {}
 

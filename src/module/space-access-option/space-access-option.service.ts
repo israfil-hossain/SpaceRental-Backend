@@ -37,17 +37,17 @@ export class SpaceAccessOptionService {
       await newSpaceAccessOption.save();
 
       return new SuccessResponseDto(
-        "Space Access Option created successfully",
+        "Document created successfully",
         newSpaceAccessOption,
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Access Option already exists");
+        throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new space access option:", error);
-      throw new BadRequestException("Error creating new space access option");
+      this.logger.error("Error creating new document:", error);
+      throw new BadRequestException("Error creating new document");
     }
   }
 
@@ -76,8 +76,8 @@ export class SpaceAccessOptionService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this.logger.error("Error finding all space access option:", error);
-      throw new BadRequestException("Could not get all space access option");
+      this.logger.error("Error finding all document:", error);
+      throw new BadRequestException("Could not get all document");
     }
   }
 
@@ -97,15 +97,10 @@ export class SpaceAccessOptionService {
       .exec();
 
     if (!result) {
-      throw new NotFoundException(
-        `Could not find space access option with ID: ${id}`,
-      );
+      throw new NotFoundException(`Could not find document with ID: ${id}`);
     }
 
-    return new SuccessResponseDto(
-      "Space Access Option found successfully",
-      result,
-    );
+    return new SuccessResponseDto("Document found successfully", result);
   }
 
   async update(
@@ -127,13 +122,11 @@ export class SpaceAccessOptionService {
         .exec();
 
       if (!updatedSpaceAccessOption) {
-        throw new NotFoundException(
-          `Could not find space access option with ID: ${id}`,
-        );
+        throw new NotFoundException(`Could not find document with ID: ${id}`);
       }
 
       return new SuccessResponseDto(
-        "Space Access Option updated successfully",
+        "Document updated successfully",
         updatedSpaceAccessOption,
       );
     } catch (error) {
@@ -143,11 +136,11 @@ export class SpaceAccessOptionService {
 
       if (error.name === "MongoError" && error.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Access Option already exists");
+        throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error updating space access option:", error);
-      throw new BadRequestException("Error updating space access option");
+      this.logger.error("Error updating document:", error);
+      throw new BadRequestException("Error updating document");
     }
   }
 
@@ -155,11 +148,9 @@ export class SpaceAccessOptionService {
     const result = await this.spaceTypeModel.findByIdAndDelete(id).exec();
 
     if (!result) {
-      throw new BadRequestException(
-        `Could not delete space access option with ID: ${id}`,
-      );
+      throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 
-    return new SuccessResponseDto("Space Access Option deleted successfully");
+    return new SuccessResponseDto("Document deleted successfully");
   }
 }

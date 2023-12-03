@@ -1,6 +1,3 @@
-import { IsString } from "class-validator";
+import { CreateWithNameDto } from "../../common/dto/create-with-name.dto";
 
-export class CreateSpaceTypeDto {
-  @IsString({ message: "Name must be a string" })
-  name: string;
-}
+export class CreateSpaceTypeDto extends CreateWithNameDto {}

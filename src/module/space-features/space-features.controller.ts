@@ -6,7 +6,7 @@ import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { SpaceFeaturesService } from "./space-features.service";
 
 @ApiTags("Space Features")
-@Controller("space-features")
+@Controller("SpaceFeatures")
 export class SpaceFeaturesController {
   constructor(private readonly spaceFeaturesService: SpaceFeaturesService) {}
 

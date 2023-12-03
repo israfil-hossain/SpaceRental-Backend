@@ -17,7 +17,7 @@ import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto
 import { SpaceAccessOptionService } from "./space-access-option.service";
 
 @ApiTags("Space Access Option")
-@Controller("space-access-option")
+@Controller("SpaceAccessOption")
 export class SpaceAccessOptionController {
   constructor(
     private readonly spaceAccessOptionService: SpaceAccessOptionService,

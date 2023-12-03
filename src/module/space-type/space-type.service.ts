@@ -33,17 +33,17 @@ export class SpaceTypeService {
       await newSpaceType.save();
 
       return new SuccessResponseDto(
-        "Space Type created successfully",
+        "Document created successfully",
         newSpaceType,
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Type already exists");
+        throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new space type:", error);
-      throw new BadRequestException("Error creating new space type");
+      this.logger.error("Error creating new document:", error);
+      throw new BadRequestException("Error creating new document");
     }
   }
 
@@ -72,8 +72,8 @@ export class SpaceTypeService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this.logger.error("Error finding all space type:", error);
-      throw new BadRequestException("Could not get all space type");
+      this.logger.error("Error finding all document:", error);
+      throw new BadRequestException("Could not get all document");
     }
   }
 
@@ -93,10 +93,10 @@ export class SpaceTypeService {
       .exec();
 
     if (!result) {
-      throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      throw new NotFoundException(`Could not find document with ID: ${id}`);
     }
 
-    return new SuccessResponseDto("Space Type found successfully", result);
+    return new SuccessResponseDto("Document found successfully", result);
   }
 
   async update(
@@ -122,7 +122,7 @@ export class SpaceTypeService {
       }
 
       return new SuccessResponseDto(
-        "Space Type updated successfully",
+        "Document updated successfully",
         updatedSpaceType,
       );
     } catch (error) {
@@ -132,11 +132,11 @@ export class SpaceTypeService {
 
       if (error.name === "MongoError" && error.code === 11000) {
         this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Space Type already exists");
+        throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error updating space type:", error);
-      throw new BadRequestException("Error updating space type");
+      this.logger.error("Error updating document:", error);
+      throw new BadRequestException("Error updating document");
     }
   }
 
@@ -144,11 +144,9 @@ export class SpaceTypeService {
     const result = await this.spaceTypeModel.findByIdAndDelete(id).exec();
 
     if (!result) {
-      throw new BadRequestException(
-        `Could not delete space type with ID: ${id}`,
-      );
+      throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 
-    return new SuccessResponseDto("Space Type deleted successfully");
+    return new SuccessResponseDto("Document deleted successfully");
   }
 }
