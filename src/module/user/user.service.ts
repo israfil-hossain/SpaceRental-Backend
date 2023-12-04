@@ -17,7 +17,7 @@ import { UserRole } from "./enum/user-role.enum";
 
 @Injectable()
 export class UserService {
-  private readonly logger: Logger = new Logger("UserService");
+  private readonly logger: Logger = new Logger(UserService.name);
 
   constructor(
     private encryptionService: EncryptionService,

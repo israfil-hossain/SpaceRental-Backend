@@ -15,7 +15,7 @@ import { SpaceType, SpaceTypeModelType } from "./entities/space-type.entity";
 
 @Injectable()
 export class SpaceTypeService {
-  private readonly logger: Logger = new Logger("SpaceTypeService");
+  private readonly logger: Logger = new Logger(SpaceTypeService.name);
 
   constructor(
     @InjectModel(SpaceType.name) private spaceTypeModel: SpaceTypeModelType,

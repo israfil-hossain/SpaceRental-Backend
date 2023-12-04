@@ -18,7 +18,7 @@ import {
 
 @Injectable()
 export class SpaceAccessOptionService {
-  private readonly logger: Logger = new Logger("SpaceAccessOptionService");
+  private readonly logger: Logger = new Logger(SpaceAccessOptionService.name);
 
   constructor(
     @InjectModel(SpaceAccessOption.name)
