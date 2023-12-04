@@ -42,7 +42,7 @@ export class TokenService {
       await refreshToken.save();
       return refreshToken.token;
     } catch (error) {
-      this._logger.log("Error generating token", error);
+      this._logger.error("Error generating token", error);
       throw new InternalServerErrorException("Error generating token");
     }
   }

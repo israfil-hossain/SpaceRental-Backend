@@ -35,7 +35,7 @@ export class AuthService {
         user.password,
       ))
     ) {
-      this._logger.log(
+      this._logger.error(
         `Invalid credentials provided with email: ${signInDto.email}`,
       );
       throw new UnauthorizedException("Invalid credentials provided");
