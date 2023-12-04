@@ -35,6 +35,9 @@ export class AuthService {
         user.password,
       ))
     ) {
+      this.logger.log(
+        `Invalid credentials provided with email: ${signInDto.email}`,
+      );
       throw new UnauthorizedException("Invalid credentials provided");
     }
 
@@ -57,15 +60,11 @@ export class AuthService {
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
-  async signUp({
-    password,
-    ...signupDto
-  }: SignUpDto): Promise<SuccessResponseDto> {
-    const hashedPassword = await this.encryptionService.hashPassword(password);
-    const newUser = await this.userService.createUserFromService({
-      ...signupDto,
-      password: hashedPassword,
-    });
+  async signUp(signupDto: SignUpDto): Promise<SuccessResponseDto> {
+    signupDto["password"] = await this.encryptionService.hashPassword(
+      signupDto.password,
+    );
+    const newUser = await this.userService.createUserFromService(signupDto);
 
     const accessToken = await this.tokenService.generateAccessToken(
       newUser?.id,

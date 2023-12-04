@@ -8,6 +8,7 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { EncryptionService } from "../encryption/encryption.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -18,10 +19,16 @@ import { UserRole } from "./enum/user-role.enum";
 export class UserService {
   private readonly logger: Logger = new Logger("UserService");
 
-  constructor(@InjectModel(User.name) private userModel: UserModelType) {}
+  constructor(
+    private encryptionService: EncryptionService,
+    @InjectModel(User.name) private userModel: UserModelType,
+  ) {}
 
   async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
     try {
+      userCreateDto["password"] = await this.encryptionService.hashPassword(
+        userCreateDto.password,
+      );
       const newUser = new this.userModel(userCreateDto);
       await newUser.save();
 

@@ -9,7 +9,7 @@ export class SignUpDto extends CreateUserDto {
   })
   @IsNotEmpty({ message: "Email should not be empty" })
   @IsEmail({}, { message: "Invalid email format" })
-  readonly email: string;
+  email: string;
 
   @ApiProperty({
     description: "User's password",
@@ -21,5 +21,5 @@ export class SignUpDto extends CreateUserDto {
     message:
       "Password must contain at least one uppercase letter, one lowercase letter, and one number",
   })
-  readonly password: string;
+  password: string;
 }
