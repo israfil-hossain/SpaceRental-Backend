@@ -3,7 +3,6 @@ import { ApiProperty } from "@nestjs/swagger";
 export class SuccessResponseDto<T = any> {
   @ApiProperty({
     description: "Message indicating the success status",
-    example: "Success!",
   })
   protected readonly message: string;
 

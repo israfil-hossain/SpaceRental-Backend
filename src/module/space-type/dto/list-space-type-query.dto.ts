@@ -6,7 +6,6 @@ import { PaginationQuery } from "../../common/dto/pagintation-query.dto";
 export class ListSpaceTypeQuery extends PaginationQuery {
   @ApiProperty({
     description: "Name of the space type",
-    example: "Meeting Room",
     required: false,
   })
   @Type(() => String)

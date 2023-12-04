@@ -5,7 +5,6 @@ import { IsInt, IsOptional } from "class-validator";
 export class PaginationQuery {
   @ApiProperty({
     description: "Page number",
-    example: 1,
     required: false,
   })
   @Type(() => Number)
@@ -15,7 +14,6 @@ export class PaginationQuery {
 
   @ApiProperty({
     description: "Number of items per page",
-    example: 10,
     required: false,
   })
   @Type(() => Number)

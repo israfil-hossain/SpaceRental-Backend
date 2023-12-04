@@ -4,7 +4,6 @@ import { IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
 export class ChangePasswordDto {
   @ApiProperty({
     description: "The user's old password",
-    example: "oldPassword123",
   })
   @IsNotEmpty({ message: "Old password is required" })
   @IsString({ message: "Old password must be a string" })
@@ -12,7 +11,6 @@ export class ChangePasswordDto {
 
   @ApiProperty({
     description: "The user's new password",
-    example: "NewPassw0rd!",
   })
   @IsNotEmpty({ message: "New password should not be empty" })
   @MinLength(8, { message: "New password must be at least 8 characters long" })
