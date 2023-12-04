@@ -36,7 +36,7 @@ export class UserService {
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("Useralready exists");
+        throw new ConflictException("User already exists");
       }
 
       this._logger.error("Error creating user:", error);
@@ -82,6 +82,7 @@ export class UserService {
     const user = await this._userModel.findById(id).exec();
 
     if (!user) {
+      this._logger.error(`User Document not found with ID: ${id}`);
       throw new NotFoundException(`Could not find user with ID: ${id}`);
     }
 
@@ -95,6 +96,7 @@ export class UserService {
         .exec();
 
       if (!result) {
+        this._logger.error(`User Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find user with ID: ${id}`);
       }
 
@@ -117,6 +119,7 @@ export class UserService {
   async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._userModel.findByIdAndDelete(id).exec();
     if (!result) {
+      this._logger.error(`User Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete user with ID: ${id}`);
     }
 
@@ -147,6 +150,7 @@ export class UserService {
     const user = await this._userModel.findOne({ email, role }).exec();
 
     if (!user) {
+      this._logger.error(`User Document not found with Email: ${email}`);
       throw new NotFoundException(`User not found with email: ${email}`);
     }
 
@@ -157,6 +161,7 @@ export class UserService {
     const user = await this._userModel.findById(id).exec();
 
     if (!user) {
+      this._logger.error(`User Document not found with ID: ${id}`);
       throw new NotFoundException(`User not found with Id: ${id}`);
     }
 

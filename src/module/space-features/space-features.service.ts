@@ -83,6 +83,7 @@ export class SpaceFeaturesService {
       .exec();
 
     if (!result) {
+      this._logger.error(`Document not deleted with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 
@@ -134,6 +135,7 @@ export class SpaceFeaturesService {
       .exec();
 
     if (!result) {
+      this._logger.error(`Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 
@@ -185,6 +187,7 @@ export class SpaceFeaturesService {
       .exec();
 
     if (!result) {
+      this._logger.error(`Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 
@@ -236,6 +239,7 @@ export class SpaceFeaturesService {
       .exec();
 
     if (!result) {
+      this._logger.error(`Document not deleted with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

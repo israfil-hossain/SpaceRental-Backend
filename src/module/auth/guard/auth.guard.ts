@@ -4,6 +4,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   SetMetadata,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -16,6 +17,8 @@ export const IsPublic = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Injectable()
 class AuthGuard implements CanActivate {
+  private readonly _logger = new Logger(AuthGuard.name);
+
   constructor(
     private _configService: ConfigService,
     private _jwtService: JwtService,
@@ -45,9 +48,22 @@ class AuthGuard implements CanActivate {
         ),
       });
 
-      if (!sid) throw new Error("Invalid SID");
+      if (!sid) {
+        this._logger.error(`Invalid SID found in token: ${token}`);
+        throw new UnauthorizedException(
+          "User is not authorized to perform this action",
+        );
+      }
+
       request["userId"] = sid;
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      this._logger.error(
+        `User is not authorized to perform this action with token: ${token}`,
+      );
       throw new UnauthorizedException(
         "User is not authorized to perform this action",
       );
@@ -61,6 +77,9 @@ class AuthGuard implements CanActivate {
   private _extractTokenFromHeader(request: Request): string {
     const [type, token] = request?.headers?.authorization?.split(" ") ?? [];
     if (type !== "Bearer" || !token) {
+      this._logger.error(
+        `Invalid authorization header: ${request?.headers?.authorization}`,
+      );
       throw new UnauthorizedException(
         "User is not authorized to perform this action",
       );

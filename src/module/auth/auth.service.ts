@@ -42,6 +42,9 @@ export class AuthService {
     }
 
     if (user.isPasswordLess) {
+      this._logger.error(
+        `Password-less login attempted with email: ${signInDto.email}`,
+      );
       throw new BadRequestException(
         "To enable password-based login, please set up a password for your account alongside social login.",
       );
@@ -100,6 +103,9 @@ export class AuthService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     if (changePasswordDto.oldPassword === changePasswordDto.newPassword) {
+      this._logger.error(
+        `User ${userId} tried to change password with the same old and new password`,
+      );
       throw new BadRequestException(
         "Old Password and New Password cannot be the same",
       );
@@ -113,6 +119,9 @@ export class AuthService {
         user.password,
       ))
     ) {
+      this._logger.error(
+        `User ${userId} tried to change password with an incorrect old password`,
+      );
       throw new BadRequestException("Old Password is incorrect");
     }
 

@@ -93,6 +93,7 @@ export class SpaceTypeService {
       .exec();
 
     if (!result) {
+      this._logger.error(`Document not found with ID: ${id}`);
       throw new NotFoundException(`Could not find document with ID: ${id}`);
     }
 
@@ -118,6 +119,7 @@ export class SpaceTypeService {
         .exec();
 
       if (!updatedSpaceType) {
+        this._logger.error(`Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find space type with ID: ${id}`);
       }
 
@@ -144,6 +146,7 @@ export class SpaceTypeService {
     const result = await this._spaceTypeModel.findByIdAndDelete(id).exec();
 
     if (!result) {
+      this._logger.error(`Document not deleted with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

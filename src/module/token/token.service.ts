@@ -51,6 +51,7 @@ export class TokenService {
     refreshToken: string,
   ): Promise<RefreshTokenDocument> {
     if (!refreshToken) {
+      this._logger.error("A valid refresh token is required");
       throw new BadRequestException("A valid refresh token is required");
     }
 
@@ -60,6 +61,7 @@ export class TokenService {
     });
 
     if (!refreshTokenDoc) {
+      this._logger.error("Refresh token is invalid or expired");
       throw new BadRequestException("Refresh token is invalid or expired");
     }
 
