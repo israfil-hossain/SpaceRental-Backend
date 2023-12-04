@@ -21,7 +21,7 @@ export class UnloadingMovingService {
     private _unloadingMovingFeature: UnloadingMovingFeatureModelType,
   ) {}
 
-  async createUnloadingMoving(
+  async create(
     createSpaceFeatureDto: CreateSpaceFeatureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
@@ -47,7 +47,7 @@ export class UnloadingMovingService {
     }
   }
 
-  async findAllUnloadingMoving(): Promise<SuccessResponseDto> {
+  async findAll(): Promise<SuccessResponseDto> {
     try {
       const results = await this._unloadingMovingFeature.find().exec();
 
@@ -58,7 +58,7 @@ export class UnloadingMovingService {
     }
   }
 
-  async removeUnloadingMoving(id: string): Promise<SuccessResponseDto> {
+  async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._unloadingMovingFeature
       .findByIdAndDelete(id)
       .exec();

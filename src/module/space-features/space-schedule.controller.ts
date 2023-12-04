@@ -7,41 +7,38 @@ import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { SpaceScheduleService } from "./space-schedule.service";
 
 @ApiTags("Space Schedule Features")
-@Controller("SpaceScheduleFeatures")
+@Controller("SpaceScheduleFeature")
 export class SpaceScheduleController {
   constructor(private readonly _spaceScheduleService: SpaceScheduleService) {}
 
-  @Post("CreateSpaceSchedule")
+  @Post("Create")
   @ApiBody({ type: CreateSpaceFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  createSpaceSchedule(
+  create(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
-    return this._spaceScheduleService.createSpaceSchedule(
-      createSpaceFeatureDto,
-      userId,
-    );
+    return this._spaceScheduleService.create(createSpaceFeatureDto, userId);
   }
 
-  @Get("GetAllSpaceSchedule")
+  @Get("GetAll")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  findAllSpaceSchedule() {
-    return this._spaceScheduleService.findAllSpaceSchedule();
+  findAll() {
+    return this._spaceScheduleService.findAll();
   }
 
-  @Delete("DeleteSpaceScheduleById/:DocId")
+  @Delete("DeleteById/:DocId")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  removeSpaceSchedule(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceScheduleService.removeSpaceSchedule(DocId);
+  remove(@Param() { DocId }: DocIdQueryDto) {
+    return this._spaceScheduleService.remove(DocId);
   }
 }

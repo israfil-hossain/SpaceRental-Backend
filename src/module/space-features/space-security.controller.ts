@@ -7,41 +7,38 @@ import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { SpaceSecurityService } from "./space-security.service";
 
 @ApiTags("Space Security Features")
-@Controller("SpaceSecurityFeatures")
+@Controller("SpaceSecurityFeature")
 export class SpaceSecurityController {
   constructor(private readonly _spaceSecurityService: SpaceSecurityService) {}
 
-  @Post("CreateSpaceSecurity")
+  @Post("Create")
   @ApiBody({ type: CreateSpaceFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  createSpaceSecurity(
+  create(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
-    return this._spaceSecurityService.createSpaceSecurity(
-      createSpaceFeatureDto,
-      userId,
-    );
+    return this._spaceSecurityService.create(createSpaceFeatureDto, userId);
   }
 
-  @Get("GetAllSpaceSecurity")
+  @Get("GetAll")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  findAllSpaceSecurity() {
-    return this._spaceSecurityService.findAllSpaceSecurity();
+  findAll() {
+    return this._spaceSecurityService.findAll();
   }
 
-  @Delete("DeleteSpaceSecurityById/:DocId")
+  @Delete("DeleteById/:DocId")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  removeSpaceSecurity(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceSecurityService.removeSpaceSecurity(DocId);
+  remove(@Param() { DocId }: DocIdQueryDto) {
+    return this._spaceSecurityService.remove(DocId);
   }
 }

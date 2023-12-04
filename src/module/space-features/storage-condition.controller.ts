@@ -7,43 +7,40 @@ import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { StorageConditionService } from "./storage-condition.service";
 
 @ApiTags("Storage Condition Features")
-@Controller("StorageConditionFeatures")
+@Controller("StorageConditionFeature")
 export class StorageConditionController {
   constructor(
     private readonly _storageConditionService: StorageConditionService,
   ) {}
 
-  @Post("CreateStorageCondition")
+  @Post("Create")
   @ApiBody({ type: CreateSpaceFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  createStorageCondition(
+  create(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
-    return this._storageConditionService.createStorageCondition(
-      createSpaceFeatureDto,
-      userId,
-    );
+    return this._storageConditionService.create(createSpaceFeatureDto, userId);
   }
 
-  @Get("GetAllStorageCondition")
+  @Get("GetAll")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  findAllStorageCondition() {
-    return this._storageConditionService.findAllStorageCondition();
+  findAll() {
+    return this._storageConditionService.findAll();
   }
 
-  @Delete("DeleteStorageConditionById/:DocId")
+  @Delete("DeleteById/:DocId")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  removeStorageCondition(@Param() { DocId }: DocIdQueryDto) {
-    return this._storageConditionService.removeStorageCondition(DocId);
+  remove(@Param() { DocId }: DocIdQueryDto) {
+    return this._storageConditionService.remove(DocId);
   }
 }

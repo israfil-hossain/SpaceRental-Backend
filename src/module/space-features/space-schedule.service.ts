@@ -21,7 +21,7 @@ export class SpaceScheduleService {
     private _spaceScheduleFeature: SpaceScheduleFeatureModelType,
   ) {}
 
-  async createSpaceSchedule(
+  async create(
     createSpaceFeatureDto: CreateSpaceFeatureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
@@ -47,7 +47,7 @@ export class SpaceScheduleService {
     }
   }
 
-  async findAllSpaceSchedule(): Promise<SuccessResponseDto> {
+  async findAll(): Promise<SuccessResponseDto> {
     try {
       const results = await this._spaceScheduleFeature.find().exec();
 
@@ -58,7 +58,7 @@ export class SpaceScheduleService {
     }
   }
 
-  async removeSpaceSchedule(id: string): Promise<SuccessResponseDto> {
+  async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._spaceScheduleFeature
       .findByIdAndDelete(id)
       .exec();

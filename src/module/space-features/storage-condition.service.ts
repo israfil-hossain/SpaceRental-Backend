@@ -21,7 +21,7 @@ export class StorageConditionService {
     private _storageConditionFeatureModel: StorageConditionFeatureModelType,
   ) {}
 
-  async createStorageCondition(
+  async create(
     createSpaceFeatureDto: CreateSpaceFeatureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
@@ -47,7 +47,7 @@ export class StorageConditionService {
     }
   }
 
-  async findAllStorageCondition(): Promise<SuccessResponseDto> {
+  async findAll(): Promise<SuccessResponseDto> {
     try {
       const results = await this._storageConditionFeatureModel.find().exec();
 
@@ -58,7 +58,7 @@ export class StorageConditionService {
     }
   }
 
-  async removeStorageCondition(id: string): Promise<SuccessResponseDto> {
+  async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._storageConditionFeatureModel
       .findByIdAndDelete(id)
       .exec();

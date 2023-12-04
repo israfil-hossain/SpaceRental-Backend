@@ -7,43 +7,40 @@ import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { UnloadingMovingService } from "./unloading-moving.service";
 
 @ApiTags("Unloading Moving Features")
-@Controller("UnloadingMovingFeatures")
+@Controller("UnloadingMovingFeature")
 export class UnloadingMovingController {
   constructor(
     private readonly _unloadingMovingService: UnloadingMovingService,
   ) {}
 
-  @Post("CreateUnloadingMoving")
+  @Post("Create")
   @ApiBody({ type: CreateSpaceFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  createUnloadingMoving(
+  create(
     @AuthUserId() userId: string,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
-    return this._unloadingMovingService.createUnloadingMoving(
-      createSpaceFeatureDto,
-      userId,
-    );
+    return this._unloadingMovingService.create(createSpaceFeatureDto, userId);
   }
 
-  @Get("GetAllUnloadingMoving")
+  @Get("GetAll")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  findAllUnloadingMoving() {
-    return this._unloadingMovingService.findAllUnloadingMoving();
+  findAll() {
+    return this._unloadingMovingService.findAll();
   }
 
-  @Delete("DeleteUnloadingMovingById/:DocId")
+  @Delete("DeleteById/:DocId")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  removeUnloadingMoving(@Param() { DocId }: DocIdQueryDto) {
-    return this._unloadingMovingService.removeUnloadingMoving(DocId);
+  remove(@Param() { DocId }: DocIdQueryDto) {
+    return this._unloadingMovingService.remove(DocId);
   }
 }

@@ -21,7 +21,7 @@ export class SpaceSecurityService {
     private _spaceSecurityFeature: SpaceSecurityFeatureModelType,
   ) {}
 
-  async createSpaceSecurity(
+  async create(
     createSpaceFeatureDto: CreateSpaceFeatureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
@@ -47,7 +47,7 @@ export class SpaceSecurityService {
     }
   }
 
-  async findAllSpaceSecurity(): Promise<SuccessResponseDto> {
+  async findAll(): Promise<SuccessResponseDto> {
     try {
       const results = await this._spaceSecurityFeature.find().exec();
 
@@ -58,7 +58,7 @@ export class SpaceSecurityService {
     }
   }
 
-  async removeSpaceSecurity(id: string): Promise<SuccessResponseDto> {
+  async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._spaceSecurityFeature
       .findByIdAndDelete(id)
       .exec();
