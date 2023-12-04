@@ -1,37 +1,26 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { InjectModel } from "@nestjs/mongoose";
-import * as base64url from "base64url";
-import * as bcrypt from "bcrypt";
-import * as uuid from "uuid";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { EncryptionService } from "../encryption/encryption.service";
+import { TokenService } from "../token/token.service";
 import { UserService } from "../user/user.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
-import {
-  RefreshToken,
-  RefreshTokenDocument,
-  RefreshTokenModelType,
-} from "./entities/refresh-token.entity";
 
 @Injectable()
 export class AuthService {
-  private readonly saltRounds: number = 10;
-  private readonly logger: Logger = new Logger("AuthService");
+  private readonly logger: Logger = new Logger(AuthService.name);
 
   constructor(
     private userService: UserService,
-    private jwtService: JwtService,
-    @InjectModel(RefreshToken.name)
-    private refreshTokenModel: RefreshTokenModelType,
+    private tokenService: TokenService,
+    private encryptionService: EncryptionService,
   ) {}
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
@@ -40,7 +29,12 @@ export class AuthService {
       signInDto.role,
     );
 
-    if (!(await this.verifyPassword(signInDto.password, user.password))) {
+    if (
+      !(await this.encryptionService.verifyPassword(
+        signInDto.password,
+        user.password,
+      ))
+    ) {
       throw new UnauthorizedException("Invalid credentials provided");
     }
 
@@ -50,8 +44,8 @@ export class AuthService {
       );
     }
 
-    const accessToken = await this.generateAccessToken(user?.id);
-    const refreshToken = await this.createRefreshTokenWithUserId(
+    const accessToken = await this.tokenService.generateAccessToken(user?.id);
+    const refreshToken = await this.tokenService.createRefreshTokenWithUserId(
       user._id.toString(),
     );
 
@@ -67,23 +61,28 @@ export class AuthService {
     password,
     ...signupDto
   }: SignUpDto): Promise<SuccessResponseDto> {
-    const hashedPassword = await this.hashPassword(password);
+    const hashedPassword = await this.encryptionService.hashPassword(password);
     const newUser = await this.userService.createUserFromService({
       ...signupDto,
       password: hashedPassword,
     });
 
-    const accessToken = await this.generateAccessToken(newUser?.id);
-    const refreshToken = await this.createRefreshTokenWithUserId(newUser?.id);
+    const accessToken = await this.tokenService.generateAccessToken(
+      newUser?.id,
+    );
+    const refreshToken = await this.tokenService.createRefreshTokenWithUserId(
+      newUser?.id,
+    );
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc = await this.getRefreshTokenByToken(refreshToken);
+    const refreshTokenDoc =
+      await this.tokenService.getRefreshTokenByToken(refreshToken);
 
-    const accessToken = await this.generateAccessToken(
+    const accessToken = await this.tokenService.generateAccessToken(
       refreshTokenDoc.user.toString(),
     );
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
@@ -110,12 +109,15 @@ export class AuthService {
     const user = await this.userService.getUserById(userId);
 
     if (
-      !(await this.verifyPassword(changePasswordDto.oldPassword, user.password))
+      !(await this.encryptionService.verifyPassword(
+        changePasswordDto.oldPassword,
+        user.password,
+      ))
     ) {
       throw new BadRequestException("Old Password is incorrect");
     }
 
-    const hashedPassword = await this.hashPassword(
+    const hashedPassword = await this.encryptionService.hashPassword(
       changePasswordDto.newPassword,
     );
 
@@ -124,67 +126,4 @@ export class AuthService {
 
     return new SuccessResponseDto("Password changed successfully");
   }
-
-  //#region Internal Private Services
-  private async hashPassword(rawPassword: string): Promise<string> {
-    if (!rawPassword) {
-      throw new BadRequestException("Password is required");
-    }
-
-    return await bcrypt.hash(rawPassword, this.saltRounds);
-  }
-
-  private async verifyPassword(
-    rawPassword: string = "",
-    hashedPassword: string = "",
-  ): Promise<boolean> {
-    if (!rawPassword) {
-      throw new BadRequestException("Password is required");
-    }
-
-    return await bcrypt.compare(rawPassword, hashedPassword);
-  }
-
-  private async generateAccessToken(userId: string) {
-    return await this.jwtService.signAsync({ sid: userId });
-  }
-
-  private async createRefreshTokenWithUserId(userId: string): Promise<string> {
-    try {
-      const token = base64url.default(
-        Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
-      );
-
-      const refreshToken = await this.refreshTokenModel.create({
-        token,
-        user: userId,
-      });
-
-      await refreshToken.save();
-      return refreshToken.token;
-    } catch (error) {
-      this.logger.log("Error generating token", error);
-      throw new InternalServerErrorException("Error generating token");
-    }
-  }
-
-  private async getRefreshTokenByToken(
-    refreshToken: string,
-  ): Promise<RefreshTokenDocument> {
-    if (!refreshToken) {
-      throw new BadRequestException("A valid refresh token is required");
-    }
-
-    const refreshTokenDoc = await this.refreshTokenModel.findOne({
-      token: refreshToken,
-      expiresAt: { $gt: new Date() },
-    });
-
-    if (!refreshTokenDoc) {
-      throw new BadRequestException("Refresh token is invalid or expired");
-    }
-
-    return refreshTokenDoc;
-  }
-  //#endregion
 }
