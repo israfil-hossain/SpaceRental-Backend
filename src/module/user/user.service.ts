@@ -17,29 +17,29 @@ import { UserRole } from "./enum/user-role.enum";
 
 @Injectable()
 export class UserService {
-  private readonly logger: Logger = new Logger(UserService.name);
+  private readonly _logger: Logger = new Logger(UserService.name);
 
   constructor(
-    private encryptionService: EncryptionService,
-    @InjectModel(User.name) private userModel: UserModelType,
+    private _encryptionService: EncryptionService,
+    @InjectModel(User.name) private _userModel: UserModelType,
   ) {}
 
   async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
     try {
-      userCreateDto["password"] = await this.encryptionService.hashPassword(
+      userCreateDto["password"] = await this._encryptionService.hashPassword(
         userCreateDto.password,
       );
-      const newUser = new this.userModel(userCreateDto);
+      const newUser = new this._userModel(userCreateDto);
       await newUser.save();
 
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Useralready exists");
       }
 
-      this.logger.error("Error creating user:", error);
+      this._logger.error("Error creating user:", error);
       throw new BadRequestException("Error creating user");
     }
   }
@@ -52,7 +52,7 @@ export class UserService {
   }: ListUserQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this.userModel.countDocuments().exec();
+      const totalRecords = await this._userModel.countDocuments().exec();
       const skip = (Page - 1) * PageSize;
 
       // Search query setup
@@ -64,7 +64,7 @@ export class UserService {
         searchQuery["fullName"] = { $regex: Name, $options: "i" };
       }
 
-      const users = await this.userModel
+      const users = await this._userModel
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -73,13 +73,13 @@ export class UserService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, users);
     } catch (error) {
-      this.logger.error("Error finding users:", error);
+      this._logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const user = await this.userModel.findById(id).exec();
+    const user = await this._userModel.findById(id).exec();
 
     if (!user) {
       throw new NotFoundException(`Could not find user with ID: ${id}`);
@@ -90,7 +90,7 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.userModel
+      const result = await this._userModel
         .findByIdAndUpdate(id, updateUserDto, { new: true })
         .exec();
 
@@ -105,17 +105,17 @@ export class UserService {
       }
 
       if (error.name === "MongoError" && error.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("User already exists");
       }
 
-      this.logger.error("Error updating user:", error);
+      this._logger.error("Error updating user:", error);
       throw new BadRequestException("Error updating user");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.userModel.findByIdAndDelete(id).exec();
+    const result = await this._userModel.findByIdAndDelete(id).exec();
     if (!result) {
       throw new BadRequestException(`Could not delete user with ID: ${id}`);
     }
@@ -128,12 +128,12 @@ export class UserService {
     userCreateDto: CreateUserDto,
   ): Promise<UserDocument> {
     try {
-      const newUser = new this.userModel(userCreateDto);
+      const newUser = new this._userModel(userCreateDto);
       await newUser.save();
 
       return newUser;
     } catch (error) {
-      this.logger.error("Error creating user:", error);
+      this._logger.error("Error creating user:", error);
       throw new BadRequestException(
         "Error occured while trying to create user",
       );
@@ -144,7 +144,7 @@ export class UserService {
     email: string,
     role: UserRole,
   ): Promise<UserDocument> {
-    const user = await this.userModel.findOne({ email, role }).exec();
+    const user = await this._userModel.findOne({ email, role }).exec();
 
     if (!user) {
       throw new NotFoundException(`User not found with email: ${email}`);
@@ -154,7 +154,7 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    const user = await this.userModel.findById(id).exec();
+    const user = await this._userModel.findById(id).exec();
 
     if (!user) {
       throw new NotFoundException(`User not found with Id: ${id}`);

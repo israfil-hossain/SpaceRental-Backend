@@ -21,7 +21,7 @@ import { SpaceTypeService } from "./space-type.service";
 @ApiTags("Space Type")
 @Controller("SpaceType")
 export class SpaceTypeController {
-  constructor(private readonly spaceTypeService: SpaceTypeService) {}
+  constructor(private readonly _spaceTypeService: SpaceTypeService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateSpaceTypeDto })
@@ -33,7 +33,7 @@ export class SpaceTypeController {
     @AuthUserId() userId: string,
     @Body() createSpaceTypeDto: CreateSpaceTypeDto,
   ) {
-    return this.spaceTypeService.create(createSpaceTypeDto, userId);
+    return this._spaceTypeService.create(createSpaceTypeDto, userId);
   }
 
   @Get("GetAll")
@@ -42,7 +42,7 @@ export class SpaceTypeController {
     type: PaginatedResponseDto,
   })
   findAll(@Query() spaceTypeListQuery: ListSpaceTypeQuery) {
-    return this.spaceTypeService.findAll(spaceTypeListQuery);
+    return this._spaceTypeService.findAll(spaceTypeListQuery);
   }
 
   @Get("GetById/:DocId")
@@ -51,7 +51,7 @@ export class SpaceTypeController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceTypeService.findOne(DocId);
+    return this._spaceTypeService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -65,7 +65,7 @@ export class SpaceTypeController {
     @AuthUserId() userId: string,
     @Body() updateSpaceTypeDto: UpdateSpaceTypeDto,
   ) {
-    return this.spaceTypeService.update(DocId, updateSpaceTypeDto, userId);
+    return this._spaceTypeService.update(DocId, updateSpaceTypeDto, userId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -74,6 +74,6 @@ export class SpaceTypeController {
     type: SuccessResponseDto,
   })
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceTypeService.remove(DocId);
+    return this._spaceTypeService.remove(DocId);
   }
 }

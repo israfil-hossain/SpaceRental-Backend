@@ -16,16 +16,16 @@ import {
 
 @Injectable()
 export class TokenService {
-  private readonly logger: Logger = new Logger(TokenService.name);
+  private readonly _logger: Logger = new Logger(TokenService.name);
 
   constructor(
-    private jwtService: JwtService,
+    private _jwtService: JwtService,
     @InjectModel(RefreshToken.name)
-    private refreshTokenModel: RefreshTokenModelType,
+    private _refreshTokenModel: RefreshTokenModelType,
   ) {}
 
   public async generateAccessToken(userId: string) {
-    return await this.jwtService.signAsync({ sid: userId });
+    return await this._jwtService.signAsync({ sid: userId });
   }
 
   public async createRefreshTokenWithUserId(userId: string): Promise<string> {
@@ -34,7 +34,7 @@ export class TokenService {
         Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
       );
 
-      const refreshToken = await this.refreshTokenModel.create({
+      const refreshToken = await this._refreshTokenModel.create({
         token,
         user: userId,
       });
@@ -42,7 +42,7 @@ export class TokenService {
       await refreshToken.save();
       return refreshToken.token;
     } catch (error) {
-      this.logger.log("Error generating token", error);
+      this._logger.log("Error generating token", error);
       throw new InternalServerErrorException("Error generating token");
     }
   }
@@ -54,7 +54,7 @@ export class TokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this.refreshTokenModel.findOne({
+    const refreshTokenDoc = await this._refreshTokenModel.findOne({
       token: refreshToken,
       expiresAt: { $gt: new Date() },
     });

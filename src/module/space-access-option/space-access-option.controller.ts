@@ -22,7 +22,7 @@ import { SpaceAccessOptionService } from "./space-access-option.service";
 @Controller("SpaceAccessOption")
 export class SpaceAccessOptionController {
   constructor(
-    private readonly spaceAccessOptionService: SpaceAccessOptionService,
+    private readonly _spaceAccessOptionService: SpaceAccessOptionService,
   ) {}
 
   @Post("Create")
@@ -35,7 +35,7 @@ export class SpaceAccessOptionController {
     @AuthUserId() userId: string,
     @Body() createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
   ) {
-    return this.spaceAccessOptionService.create(
+    return this._spaceAccessOptionService.create(
       createSpaceAccessOptionDto,
       userId,
     );
@@ -47,7 +47,7 @@ export class SpaceAccessOptionController {
     type: PaginatedResponseDto,
   })
   findAll(@Query() spaceTypeListQuery: ListSpaceAccessOptionQuery) {
-    return this.spaceAccessOptionService.findAll(spaceTypeListQuery);
+    return this._spaceAccessOptionService.findAll(spaceTypeListQuery);
   }
 
   @Get("GetById/:DocId")
@@ -56,7 +56,7 @@ export class SpaceAccessOptionController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceAccessOptionService.findOne(DocId);
+    return this._spaceAccessOptionService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -70,7 +70,7 @@ export class SpaceAccessOptionController {
     @AuthUserId() userId: string,
     @Body() updateSpaceAccessOptionDto: UpdateSpaceAccessOptionDto,
   ) {
-    return this.spaceAccessOptionService.update(
+    return this._spaceAccessOptionService.update(
       DocId,
       updateSpaceAccessOptionDto,
       userId,
@@ -83,6 +83,6 @@ export class SpaceAccessOptionController {
     type: SuccessResponseDto,
   })
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceAccessOptionService.remove(DocId);
+    return this._spaceAccessOptionService.remove(DocId);
   }
 }

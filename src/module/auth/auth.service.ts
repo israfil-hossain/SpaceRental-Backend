@@ -15,27 +15,27 @@ import { TokenResponseDto } from "./dto/token-response.dto";
 
 @Injectable()
 export class AuthService {
-  private readonly logger: Logger = new Logger(AuthService.name);
+  private readonly _logger: Logger = new Logger(AuthService.name);
 
   constructor(
-    private userService: UserService,
-    private tokenService: TokenService,
-    private encryptionService: EncryptionService,
+    private _userService: UserService,
+    private _tokenService: TokenService,
+    private _encryptionService: EncryptionService,
   ) {}
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
-    const user = await this.userService.getUserByEmailAndRole(
+    const user = await this._userService.getUserByEmailAndRole(
       signInDto.email,
       signInDto.role,
     );
 
     if (
-      !(await this.encryptionService.verifyPassword(
+      !(await this._encryptionService.verifyPassword(
         signInDto.password,
         user.password,
       ))
     ) {
-      this.logger.log(
+      this._logger.log(
         `Invalid credentials provided with email: ${signInDto.email}`,
       );
       throw new UnauthorizedException("Invalid credentials provided");
@@ -47,8 +47,8 @@ export class AuthService {
       );
     }
 
-    const accessToken = await this.tokenService.generateAccessToken(user?.id);
-    const refreshToken = await this.tokenService.createRefreshTokenWithUserId(
+    const accessToken = await this._tokenService.generateAccessToken(user?.id);
+    const refreshToken = await this._tokenService.createRefreshTokenWithUserId(
       user._id.toString(),
     );
 
@@ -61,15 +61,15 @@ export class AuthService {
   }
 
   async signUp(signupDto: SignUpDto): Promise<SuccessResponseDto> {
-    signupDto["password"] = await this.encryptionService.hashPassword(
+    signupDto["password"] = await this._encryptionService.hashPassword(
       signupDto.password,
     );
-    const newUser = await this.userService.createUserFromService(signupDto);
+    const newUser = await this._userService.createUserFromService(signupDto);
 
-    const accessToken = await this.tokenService.generateAccessToken(
+    const accessToken = await this._tokenService.generateAccessToken(
       newUser?.id,
     );
-    const refreshToken = await this.tokenService.createRefreshTokenWithUserId(
+    const refreshToken = await this._tokenService.createRefreshTokenWithUserId(
       newUser?.id,
     );
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
@@ -79,9 +79,9 @@ export class AuthService {
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
     const refreshTokenDoc =
-      await this.tokenService.getRefreshTokenByToken(refreshToken);
+      await this._tokenService.getRefreshTokenByToken(refreshToken);
 
-    const accessToken = await this.tokenService.generateAccessToken(
+    const accessToken = await this._tokenService.generateAccessToken(
       refreshTokenDoc.user.toString(),
     );
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
@@ -90,7 +90,7 @@ export class AuthService {
   }
 
   public async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
-    const user = await this.userService.getUserById(userId);
+    const user = await this._userService.getUserById(userId);
 
     return new SuccessResponseDto("Logged in user found", user);
   }
@@ -105,10 +105,10 @@ export class AuthService {
       );
     }
 
-    const user = await this.userService.getUserById(userId);
+    const user = await this._userService.getUserById(userId);
 
     if (
-      !(await this.encryptionService.verifyPassword(
+      !(await this._encryptionService.verifyPassword(
         changePasswordDto.oldPassword,
         user.password,
       ))
@@ -116,7 +116,7 @@ export class AuthService {
       throw new BadRequestException("Old Password is incorrect");
     }
 
-    const hashedPassword = await this.encryptionService.hashPassword(
+    const hashedPassword = await this._encryptionService.hashPassword(
       changePasswordDto.newPassword,
     );
 

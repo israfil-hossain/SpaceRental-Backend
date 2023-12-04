@@ -18,7 +18,7 @@ import { UserService } from "./user.service";
 @ApiTags("Users")
 @Controller("User")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly _userService: UserService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateUserDto })
@@ -27,7 +27,7 @@ export class UserController {
     type: SuccessResponseDto,
   })
   create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    return this._userService.create(createUserDto);
   }
 
   @Get("GetAll")
@@ -36,7 +36,7 @@ export class UserController {
     type: PaginatedResponseDto,
   })
   findAll(@Query() query: ListUserQuery) {
-    return this.userService.findAll(query);
+    return this._userService.findAll(query);
   }
 
   @Get("GetById/:DocId")
@@ -45,7 +45,7 @@ export class UserController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.userService.findOne(DocId);
+    return this._userService.findOne(DocId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -54,6 +54,6 @@ export class UserController {
     type: SuccessResponseDto,
   })
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this.userService.remove(DocId);
+    return this._userService.remove(DocId);
   }
 }

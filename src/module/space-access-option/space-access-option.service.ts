@@ -18,11 +18,11 @@ import {
 
 @Injectable()
 export class SpaceAccessOptionService {
-  private readonly logger: Logger = new Logger(SpaceAccessOptionService.name);
+  private readonly _logger: Logger = new Logger(SpaceAccessOptionService.name);
 
   constructor(
     @InjectModel(SpaceAccessOption.name)
-    private spaceTypeModel: SpaceAccessOptionModelType,
+    private _spaceTypeModel: SpaceAccessOptionModelType,
   ) {}
 
   async create(
@@ -30,7 +30,7 @@ export class SpaceAccessOptionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceAccessOption = new this.spaceTypeModel({
+      const newSpaceAccessOption = new this._spaceTypeModel({
         ...createSpaceAccessOptionDto,
         createdBy: userId,
       });
@@ -42,11 +42,11 @@ export class SpaceAccessOptionService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new document:", error);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -58,7 +58,7 @@ export class SpaceAccessOptionService {
   }: ListSpaceAccessOptionQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this.spaceTypeModel.countDocuments().exec();
+      const totalRecords = await this._spaceTypeModel.countDocuments().exec();
       const skip = (Page - 1) * PageSize;
 
       // Search query setup
@@ -67,7 +67,7 @@ export class SpaceAccessOptionService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this.spaceTypeModel
+      const result = await this._spaceTypeModel
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -76,13 +76,13 @@ export class SpaceAccessOptionService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this.logger.error("Error finding all document:", error);
+      this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceTypeModel
+    const result = await this._spaceTypeModel
       .findById(id)
       .populate([
         {
@@ -109,7 +109,7 @@ export class SpaceAccessOptionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceAccessOption = await this.spaceTypeModel
+      const updatedSpaceAccessOption = await this._spaceTypeModel
         .findByIdAndUpdate(
           id,
           {
@@ -135,17 +135,17 @@ export class SpaceAccessOptionService {
       }
 
       if (error.name === "MongoError" && error.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error updating document:", error);
+      this._logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceTypeModel.findByIdAndDelete(id).exec();
+    const result = await this._spaceTypeModel.findByIdAndDelete(id).exec();
 
     if (!result) {
       throw new BadRequestException(`Could not delete document with ID: ${id}`);

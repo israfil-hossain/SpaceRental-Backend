@@ -17,14 +17,14 @@ export const IsPublic = () => SetMetadata(IS_PUBLIC_KEY, true);
 @Injectable()
 class AuthGuard implements CanActivate {
   constructor(
-    private configService: ConfigService,
-    private jwtService: JwtService,
-    private reflector: Reflector,
+    private _configService: ConfigService,
+    private _jwtService: JwtService,
+    private _reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     //#region Allow when IsPublic is used
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this._reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -35,11 +35,11 @@ class AuthGuard implements CanActivate {
 
     //#region Verify jwt token from request or throw
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this._extractTokenFromHeader(request);
 
     try {
-      const { sid } = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>(
+      const { sid } = await this._jwtService.verifyAsync(token, {
+        secret: this._configService.get<string>(
           "JWT_SECRET",
           "ACOMPLEXSECRETANDKEEPITSAFE",
         ),
@@ -58,7 +58,7 @@ class AuthGuard implements CanActivate {
   }
 
   //#region Private helper methods
-  private extractTokenFromHeader(request: Request): string {
+  private _extractTokenFromHeader(request: Request): string {
     const [type, token] = request?.headers?.authorization?.split(" ") ?? [];
     if (type !== "Bearer" || !token) {
       throw new UnauthorizedException(

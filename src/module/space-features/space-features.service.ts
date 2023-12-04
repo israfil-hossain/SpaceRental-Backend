@@ -26,17 +26,17 @@ import {
 
 @Injectable()
 export class SpaceFeaturesService {
-  private readonly logger: Logger = new Logger(SpaceFeaturesService.name);
+  private readonly _logger: Logger = new Logger(SpaceFeaturesService.name);
 
   constructor(
     @InjectModel(StorageConditionFeature.name)
-    private storageConditionFeatureModel: StorageConditionFeatureModelType,
+    private _storageConditionFeatureModel: StorageConditionFeatureModelType,
     @InjectModel(UnloadingMovingFeature.name)
-    private unloadingMovingFeature: UnloadingMovingFeatureModelType,
+    private _unloadingMovingFeature: UnloadingMovingFeatureModelType,
     @InjectModel(SpaceSecurityFeature.name)
-    private spaceSecurityFeature: SpaceSecurityFeatureModelType,
+    private _spaceSecurityFeature: SpaceSecurityFeatureModelType,
     @InjectModel(SpaceScheduleFeature.name)
-    private spaceScheduleFeature: SpaceScheduleFeatureModelType,
+    private _spaceScheduleFeature: SpaceScheduleFeatureModelType,
   ) {}
 
   //#region Storage Condition Feature Service
@@ -45,7 +45,7 @@ export class SpaceFeaturesService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this.storageConditionFeatureModel({
+      const newSpaceType = new this._storageConditionFeatureModel({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -57,28 +57,28 @@ export class SpaceFeaturesService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new document:", error);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAllStorageCondition(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.storageConditionFeatureModel.find().exec();
+      const results = await this._storageConditionFeatureModel.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this.logger.error("Error finding all document:", error);
+      this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async removeStorageCondition(id: string): Promise<SuccessResponseDto> {
-    const result = await this.storageConditionFeatureModel
+    const result = await this._storageConditionFeatureModel
       .findByIdAndDelete(id)
       .exec();
 
@@ -96,7 +96,7 @@ export class SpaceFeaturesService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this.unloadingMovingFeature({
+      const newSpaceType = new this._unloadingMovingFeature({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -108,28 +108,28 @@ export class SpaceFeaturesService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new document:", error);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAllUnloadingMoving(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.unloadingMovingFeature.find().exec();
+      const results = await this._unloadingMovingFeature.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this.logger.error("Error finding all document:", error);
+      this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async removeUnloadingMoving(id: string): Promise<SuccessResponseDto> {
-    const result = await this.unloadingMovingFeature
+    const result = await this._unloadingMovingFeature
       .findByIdAndDelete(id)
       .exec();
 
@@ -147,7 +147,7 @@ export class SpaceFeaturesService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this.spaceSecurityFeature({
+      const newSpaceType = new this._spaceSecurityFeature({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -159,28 +159,30 @@ export class SpaceFeaturesService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new document:", error);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAllSpaceSecurity(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.spaceSecurityFeature.find().exec();
+      const results = await this._spaceSecurityFeature.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this.logger.error("Error finding all document:", error);
+      this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async removeSpaceSecurity(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceSecurityFeature.findByIdAndDelete(id).exec();
+    const result = await this._spaceSecurityFeature
+      .findByIdAndDelete(id)
+      .exec();
 
     if (!result) {
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
@@ -196,7 +198,7 @@ export class SpaceFeaturesService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this.spaceScheduleFeature({
+      const newSpaceType = new this._spaceScheduleFeature({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -208,28 +210,30 @@ export class SpaceFeaturesService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
+        this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this.logger.error("Error creating new document:", error);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAllSpaceSchedule(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.spaceScheduleFeature.find().exec();
+      const results = await this._spaceScheduleFeature.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this.logger.error("Error finding all document:", error);
+      this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async removeSpaceSchedule(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceScheduleFeature.findByIdAndDelete(id).exec();
+    const result = await this._spaceScheduleFeature
+      .findByIdAndDelete(id)
+      .exec();
 
     if (!result) {
       throw new BadRequestException(`Could not delete document with ID: ${id}`);

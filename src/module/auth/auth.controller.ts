@@ -12,7 +12,7 @@ import { IsPublic } from "./guard/auth.guard";
 @ApiTags("Authentication")
 @Controller("Auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly _authService: AuthService) {}
 
   @Post("SignUp")
   @IsPublic()
@@ -22,7 +22,7 @@ export class AuthController {
     type: SuccessResponseDto,
   })
   signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+    return this._authService.signUp(signUpDto);
   }
 
   @Post("SignIn")
@@ -33,7 +33,7 @@ export class AuthController {
     type: SuccessResponseDto,
   })
   signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
+    return this._authService.signIn(signInDto);
   }
 
   @Post("TokenRefresh")
@@ -44,7 +44,7 @@ export class AuthController {
     type: SuccessResponseDto,
   })
   tokenRefresh(@Body() tokenRefreshDto: TokenRefreshDto) {
-    return this.authService.refreshAccessToken(tokenRefreshDto.refreshToken);
+    return this._authService.refreshAccessToken(tokenRefreshDto.refreshToken);
   }
 
   @Get("GetLoggedInUser")
@@ -53,7 +53,7 @@ export class AuthController {
     type: SuccessResponseDto,
   })
   getLoggedInUser(@AuthUserId() userId: string) {
-    return this.authService.getLoggedInUser(userId);
+    return this._authService.getLoggedInUser(userId);
   }
 
   @Post("ChangePassword")
@@ -66,6 +66,6 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
     @AuthUserId() userId: string,
   ) {
-    return this.authService.changePassword(changePasswordDto, userId);
+    return this._authService.changePassword(changePasswordDto, userId);
   }
 }
