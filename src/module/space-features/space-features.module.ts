@@ -16,8 +16,14 @@ import {
   UnloadingMovingFeature,
   UnloadingMovingFeatureSchema,
 } from "./entities/unloading-moving-feature";
-import { SpaceFeaturesController } from "./space-features.controller";
-import { SpaceFeaturesService } from "./space-features.service";
+import { SpaceScheduleController } from "./space-schedule.controller";
+import { SpaceScheduleService } from "./space-schedule.service";
+import { SpaceSecurityController } from "./space-security.controller";
+import { SpaceSecurityService } from "./space-security.service";
+import { StorageConditionController } from "./storage-condition.controller";
+import { StorageConditionService } from "./storage-condition.service";
+import { UnloadingMovingController } from "./unloading-moving.controller";
+import { UnloadingMovingService } from "./unloading-moving.service";
 
 @Module({
   imports: [
@@ -34,7 +40,17 @@ import { SpaceFeaturesService } from "./space-features.service";
       { name: SpaceScheduleFeature.name, schema: SpaceScheduleFeatureSchema },
     ]),
   ],
-  controllers: [SpaceFeaturesController],
-  providers: [SpaceFeaturesService],
+  controllers: [
+    SpaceScheduleController,
+    SpaceSecurityController,
+    StorageConditionController,
+    UnloadingMovingController,
+  ],
+  providers: [
+    SpaceScheduleService,
+    SpaceSecurityService,
+    StorageConditionService,
+    UnloadingMovingService,
+  ],
 })
 export class SpaceFeaturesModule {}
