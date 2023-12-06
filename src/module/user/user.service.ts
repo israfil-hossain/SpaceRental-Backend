@@ -12,7 +12,7 @@ import { EncryptionService } from "../encryption/encryption.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { User, UserDocument, UserModelType } from "./entities/user.entity";
+import { UserDocument, UserModel, UserModelType } from "./entities/user.entity";
 import { UserRole } from "./enum/user-role.enum";
 
 @Injectable()
@@ -21,7 +21,7 @@ export class UserService {
 
   constructor(
     private _encryptionService: EncryptionService,
-    @InjectModel(User.name) private _userModel: UserModelType,
+    @InjectModel(UserModel.name) private _userModel: UserModelType,
   ) {}
 
   async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {

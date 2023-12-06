@@ -2,8 +2,9 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
-export type SpaceAccessOptionDocument = HydratedDocument<SpaceAccessOption>;
-export type SpaceAccessOptionModelType = Model<SpaceAccessOption>;
+export type SpaceAccessOptionDocument =
+  HydratedDocument<SpaceAccessOptionModel>;
+export type SpaceAccessOptionModelType = Model<SpaceAccessOptionModel>;
 
 @Schema({
   toJSON: {
@@ -14,10 +15,11 @@ export type SpaceAccessOptionModelType = Model<SpaceAccessOption>;
     versionKey: false,
   },
 })
-export class SpaceAccessOption extends BaseEntity {
+export class SpaceAccessOptionModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;
 }
 
-export const SpaceAccessOptionSchema =
-  SchemaFactory.createForClass(SpaceAccessOption);
+export const SpaceAccessOptionSchema = SchemaFactory.createForClass(
+  SpaceAccessOptionModel,
+);

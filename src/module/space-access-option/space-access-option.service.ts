@@ -12,7 +12,7 @@ import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto
 import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
 import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
 import {
-  SpaceAccessOption,
+  SpaceAccessOptionModel,
   SpaceAccessOptionModelType,
 } from "./entities/space-access-option.entity";
 
@@ -21,7 +21,7 @@ export class SpaceAccessOptionService {
   private readonly _logger: Logger = new Logger(SpaceAccessOptionService.name);
 
   constructor(
-    @InjectModel(SpaceAccessOption.name)
+    @InjectModel(SpaceAccessOptionModel.name)
     private _spaceTypeModel: SpaceAccessOptionModelType,
   ) {}
 

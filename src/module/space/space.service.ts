@@ -8,13 +8,13 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { SpaceAccessOption } from "../space-access-option/entities/space-access-option.entity";
-import { SpaceScheduleFeature } from "../space-features/entities/space-schedule-feature";
-import { SpaceSecurityFeature } from "../space-features/entities/space-security-feature";
-import { StorageConditionFeature } from "../space-features/entities/storage-condition-feature";
-import { UnloadingMovingFeature } from "../space-features/entities/unloading-moving-feature";
-import { SpaceType } from "../space-type/entities/space-type.entity";
-import { User } from "../user/entities/user.entity";
+import { SpaceAccessOptionModel } from "../space-access-option/entities/space-access-option.entity";
+import { SpaceScheduleFeatureModel } from "../space-features/entities/space-schedule-feature";
+import { SpaceSecurityFeatureModel } from "../space-features/entities/space-security-feature";
+import { StorageConditionFeatureModel } from "../space-features/entities/storage-condition-feature";
+import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
+import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
+import { UserModel } from "../user/entities/user.entity";
 import { CreateSpaceDto } from "./dto/create-space.dto";
 import { ListSpaceQuery } from "./dto/list-space-query.dto";
 import { UpdateSpaceDto } from "./dto/update-space.dto";
@@ -89,42 +89,42 @@ export class SpaceService {
       .populate([
         {
           path: "createdBy",
-          model: User.name,
+          model: UserModel.name,
           select: "id email fullName",
         },
         {
           path: "updatedBy",
-          model: User.name,
+          model: UserModel.name,
           select: "id email fullName",
         },
         {
           path: "type",
-          model: SpaceType.name,
+          model: SpaceTypeModel.name,
           select: "id name",
         },
         {
           path: "accessMethod",
-          model: SpaceAccessOption.name,
+          model: SpaceAccessOptionModel.name,
           select: "id name",
         },
         {
           path: "storageConditions",
-          model: StorageConditionFeature.name,
+          model: StorageConditionFeatureModel.name,
           select: "id name",
         },
         {
           path: "unloadingMovings",
-          model: UnloadingMovingFeature.name,
+          model: UnloadingMovingFeatureModel.name,
           select: "id name",
         },
         {
           path: "spaceSecurities",
-          model: SpaceSecurityFeature.name,
+          model: SpaceSecurityFeatureModel.name,
           select: "id name",
         },
         {
           path: "spaceSchedules",
-          model: SpaceScheduleFeature.name,
+          model: SpaceScheduleFeatureModel.name,
           select: "id name",
         },
       ])

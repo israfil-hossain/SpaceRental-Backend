@@ -8,7 +8,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import {
-  SpaceScheduleFeature,
+  SpaceScheduleFeatureModel,
   SpaceScheduleFeatureModelType,
 } from "./entities/space-schedule-feature";
 
@@ -17,7 +17,7 @@ export class SpaceScheduleService {
   private readonly _logger: Logger = new Logger(SpaceScheduleService.name);
 
   constructor(
-    @InjectModel(SpaceScheduleFeature.name)
+    @InjectModel(SpaceScheduleFeatureModel.name)
     private _spaceScheduleFeature: SpaceScheduleFeatureModelType,
   ) {}
 

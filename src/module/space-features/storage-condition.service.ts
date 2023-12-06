@@ -8,7 +8,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import {
-  StorageConditionFeature,
+  StorageConditionFeatureModel,
   StorageConditionFeatureModelType,
 } from "./entities/storage-condition-feature";
 
@@ -17,7 +17,7 @@ export class StorageConditionService {
   private readonly _logger: Logger = new Logger(StorageConditionService.name);
 
   constructor(
-    @InjectModel(StorageConditionFeature.name)
+    @InjectModel(StorageConditionFeatureModel.name)
     private _storageConditionFeatureModel: StorageConditionFeatureModelType,
   ) {}
 

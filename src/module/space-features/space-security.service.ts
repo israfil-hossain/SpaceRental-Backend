@@ -8,7 +8,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import {
-  SpaceSecurityFeature,
+  SpaceSecurityFeatureModel,
   SpaceSecurityFeatureModelType,
 } from "./entities/space-security-feature";
 
@@ -17,7 +17,7 @@ export class SpaceSecurityService {
   private readonly _logger: Logger = new Logger(SpaceSecurityService.name);
 
   constructor(
-    @InjectModel(SpaceSecurityFeature.name)
+    @InjectModel(SpaceSecurityFeatureModel.name)
     private _spaceSecurityFeature: SpaceSecurityFeatureModelType,
   ) {}
 

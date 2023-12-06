@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
-import { SpaceAccessOption } from "../../space-access-option/entities/space-access-option.entity";
-import { SpaceScheduleFeature } from "../../space-features/entities/space-schedule-feature";
-import { SpaceSecurityFeature } from "../../space-features/entities/space-security-feature";
-import { StorageConditionFeature } from "../../space-features/entities/storage-condition-feature";
-import { UnloadingMovingFeature } from "../../space-features/entities/unloading-moving-feature";
-import { SpaceType } from "../../space-type/entities/space-type.entity";
+import { SpaceAccessOptionModel } from "../../space-access-option/entities/space-access-option.entity";
+import { SpaceScheduleFeatureModel } from "../../space-features/entities/space-schedule-feature";
+import { SpaceSecurityFeatureModel } from "../../space-features/entities/space-security-feature";
+import { StorageConditionFeatureModel } from "../../space-features/entities/storage-condition-feature";
+import { UnloadingMovingFeatureModel } from "../../space-features/entities/unloading-moving-feature";
+import { SpaceTypeModel } from "../../space-type/entities/space-type.entity";
 
 export type SpaceDocument = HydratedDocument<SpaceModel>;
 export type SpaceModelType = Model<SpaceModel>;
@@ -44,45 +44,45 @@ export class SpaceModel extends BaseEntity {
 
   @Prop({
     type: Types.ObjectId,
-    ref: SpaceType.name,
+    ref: SpaceTypeModel.name,
     required: true,
   })
-  type: SpaceType;
+  type: SpaceTypeModel;
 
   @Prop({
     type: Types.ObjectId,
-    ref: SpaceAccessOption.name,
+    ref: SpaceAccessOptionModel.name,
     required: true,
   })
-  accessMethod: SpaceAccessOption;
+  accessMethod: SpaceAccessOptionModel;
 
   @Prop({
     type: [Types.ObjectId],
-    ref: StorageConditionFeature.name,
+    ref: StorageConditionFeatureModel.name,
     required: true,
   })
-  storageConditions: StorageConditionFeature[];
+  storageConditions: StorageConditionFeatureModel[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: UnloadingMovingFeature.name,
+    ref: UnloadingMovingFeatureModel.name,
     required: true,
   })
-  unloadingMovings: UnloadingMovingFeature[];
+  unloadingMovings: UnloadingMovingFeatureModel[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceSecurityFeature.name,
+    ref: SpaceSecurityFeatureModel.name,
     required: true,
   })
-  spaceSecurities: SpaceSecurityFeature[];
+  spaceSecurities: SpaceSecurityFeatureModel[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceScheduleFeature.name,
+    ref: SpaceScheduleFeatureModel.name,
     required: true,
   })
-  spaceSchedules: SpaceScheduleFeature[];
+  spaceSchedules: SpaceScheduleFeatureModel[];
 }
 
 export const SpaceSchema = SchemaFactory.createForClass(SpaceModel);

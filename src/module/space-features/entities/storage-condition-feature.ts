@@ -3,8 +3,9 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type StorageConditionFeatureDocument =
-  HydratedDocument<StorageConditionFeature>;
-export type StorageConditionFeatureModelType = Model<StorageConditionFeature>;
+  HydratedDocument<StorageConditionFeatureModel>;
+export type StorageConditionFeatureModelType =
+  Model<StorageConditionFeatureModel>;
 
 @Schema({
   toJSON: {
@@ -15,11 +16,11 @@ export type StorageConditionFeatureModelType = Model<StorageConditionFeature>;
     versionKey: false,
   },
 })
-export class StorageConditionFeature extends BaseEntity {
+export class StorageConditionFeatureModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;
 }
 
 export const StorageConditionFeatureSchema = SchemaFactory.createForClass(
-  StorageConditionFeature,
+  StorageConditionFeatureModel,
 );

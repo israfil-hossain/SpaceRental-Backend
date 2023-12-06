@@ -1,19 +1,19 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  SpaceScheduleFeature,
+  SpaceScheduleFeatureModel,
   SpaceScheduleFeatureSchema,
 } from "./entities/space-schedule-feature";
 import {
-  SpaceSecurityFeature,
+  SpaceSecurityFeatureModel,
   SpaceSecurityFeatureSchema,
 } from "./entities/space-security-feature";
 import {
-  StorageConditionFeature,
+  StorageConditionFeatureModel,
   StorageConditionFeatureSchema,
 } from "./entities/storage-condition-feature";
 import {
-  UnloadingMovingFeature,
+  UnloadingMovingFeatureModel,
   UnloadingMovingFeatureSchema,
 } from "./entities/unloading-moving-feature";
 import { SpaceScheduleController } from "./space-schedule.controller";
@@ -29,15 +29,21 @@ import { UnloadingMovingService } from "./unloading-moving.service";
   imports: [
     MongooseModule.forFeature([
       {
-        name: StorageConditionFeature.name,
+        name: StorageConditionFeatureModel.name,
         schema: StorageConditionFeatureSchema,
       },
       {
-        name: UnloadingMovingFeature.name,
+        name: UnloadingMovingFeatureModel.name,
         schema: UnloadingMovingFeatureSchema,
       },
-      { name: SpaceSecurityFeature.name, schema: SpaceSecurityFeatureSchema },
-      { name: SpaceScheduleFeature.name, schema: SpaceScheduleFeatureSchema },
+      {
+        name: SpaceSecurityFeatureModel.name,
+        schema: SpaceSecurityFeatureSchema,
+      },
+      {
+        name: SpaceScheduleFeatureModel.name,
+        schema: SpaceScheduleFeatureSchema,
+      },
     ]),
   ],
   controllers: [

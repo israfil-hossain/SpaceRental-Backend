@@ -9,8 +9,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import * as base64url from "base64url";
 import * as uuid from "uuid";
 import {
-  RefreshToken,
   RefreshTokenDocument,
+  RefreshTokenModel,
   RefreshTokenModelType,
 } from "./entities/refresh-token.entity";
 
@@ -20,7 +20,7 @@ export class TokenService {
 
   constructor(
     private _jwtService: JwtService,
-    @InjectModel(RefreshToken.name)
+    @InjectModel(RefreshTokenModel.name)
     private _refreshTokenModel: RefreshTokenModelType,
   ) {}
 

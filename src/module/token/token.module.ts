@@ -3,7 +3,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
 import { jwtConfig } from "../../config/jwt.config";
 import {
-  RefreshToken,
+  RefreshTokenModel,
   RefreshTokenSchema,
 } from "./entities/refresh-token.entity";
 import { TokenService } from "./token.service";
@@ -11,7 +11,7 @@ import { TokenService } from "./token.service";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: RefreshToken.name, schema: RefreshTokenSchema },
+      { name: RefreshTokenModel.name, schema: RefreshTokenSchema },
     ]),
     JwtModule.registerAsync(jwtConfig),
   ],

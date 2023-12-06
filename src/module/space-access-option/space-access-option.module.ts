@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  SpaceAccessOption,
+  SpaceAccessOptionModel,
   SpaceAccessOptionSchema,
 } from "./entities/space-access-option.entity";
 import { SpaceAccessOptionController } from "./space-access-option.controller";
@@ -10,7 +10,7 @@ import { SpaceAccessOptionService } from "./space-access-option.service";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: SpaceAccessOption.name, schema: SpaceAccessOptionSchema },
+      { name: SpaceAccessOptionModel.name, schema: SpaceAccessOptionSchema },
     ]),
   ],
   controllers: [SpaceAccessOptionController],

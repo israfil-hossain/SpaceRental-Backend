@@ -8,7 +8,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import {
-  UnloadingMovingFeature,
+  UnloadingMovingFeatureModel,
   UnloadingMovingFeatureModelType,
 } from "./entities/unloading-moving-feature";
 
@@ -17,7 +17,7 @@ export class UnloadingMovingService {
   private readonly _logger: Logger = new Logger(UnloadingMovingService.name);
 
   constructor(
-    @InjectModel(UnloadingMovingFeature.name)
+    @InjectModel(UnloadingMovingFeatureModel.name)
     private _unloadingMovingFeature: UnloadingMovingFeatureModelType,
   ) {}
 

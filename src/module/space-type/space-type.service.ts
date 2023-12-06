@@ -11,14 +11,18 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
 import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
-import { SpaceType, SpaceTypeModelType } from "./entities/space-type.entity";
+import {
+  SpaceTypeModel,
+  SpaceTypeModelType,
+} from "./entities/space-type.entity";
 
 @Injectable()
 export class SpaceTypeService {
   private readonly _logger: Logger = new Logger(SpaceTypeService.name);
 
   constructor(
-    @InjectModel(SpaceType.name) private _spaceTypeModel: SpaceTypeModelType,
+    @InjectModel(SpaceTypeModel.name)
+    private _spaceTypeModel: SpaceTypeModelType,
   ) {}
 
   async create(
