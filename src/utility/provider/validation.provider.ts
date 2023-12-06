@@ -6,9 +6,29 @@ import {
 import { APP_PIPE } from "@nestjs/core";
 import { ValidationError } from "class-validator";
 
-interface FormattedErrors {
-  [key: string]: string[];
-}
+const exceptionFactory = (errors: ValidationError[]) => {
+  const formattedErrors: any = {};
+  errors.forEach((error) => {
+    const propertyName = error.property;
+    if (error.children && error.children.length > 0) {
+      // Handle nested errors recursively
+      formattedErrors[propertyName] = exceptionFactory(
+        error.children as ValidationError[],
+      );
+    } else {
+      const constraints = error.constraints || {};
+      if (!formattedErrors[propertyName]) {
+        formattedErrors[propertyName] = [];
+      }
+      Object.values(constraints).forEach((constraint) => {
+        if (typeof constraint === "string") {
+          formattedErrors[propertyName].push(constraint);
+        }
+      });
+    }
+  });
+  return formattedErrors;
+};
 
 export const ValidationProvider = {
   provide: APP_PIPE,
@@ -18,16 +38,7 @@ export const ValidationProvider = {
       whitelist: true,
       transformOptions: { enableImplicitConversion: true },
       exceptionFactory: (errors: ValidationError[]) => {
-        const formattedErrors: FormattedErrors = {};
-        errors.forEach((error) => {
-          const propertyName = error.property;
-          Object.entries(error.constraints || {}).forEach((constraint) => {
-            if (!formattedErrors[propertyName]) {
-              formattedErrors[propertyName] = [];
-            }
-            formattedErrors[propertyName].push(constraint[1]);
-          });
-        });
+        const formattedErrors = exceptionFactory(errors);
         return new BadRequestException({
           message: "Validation failed",
           error: formattedErrors,
