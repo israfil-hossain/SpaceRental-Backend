@@ -83,6 +83,13 @@ export class SpaceModel extends BaseEntity {
     required: true,
   })
   spaceSchedules: SpaceScheduleFeatureModel[];
+
+  // @Prop({
+  //   type: [Types.ObjectId],
+  //   ref: SpaceImageModel.name,
+  //   required: true,
+  // })
+  // spaceImages: SpaceImageModel[];
 }
 
 export const SpaceSchema = SchemaFactory.createForClass(SpaceModel);

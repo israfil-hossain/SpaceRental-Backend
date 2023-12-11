@@ -4,10 +4,10 @@ import { UserModel } from "../../user/entities/user.entity";
 
 export class BaseEntity {
   @Prop({ default: () => new Date() })
-  createdAt: Date;
+  createdAt?: Date;
 
   @Prop({ type: Types.ObjectId, ref: UserModel.name, required: true })
-  createdBy: UserModel;
+  createdBy?: UserModel;
 
   @Prop({ default: null })
   updatedAt?: Date;

@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import {
   IsArray,
   IsMongoId,
@@ -8,6 +9,7 @@ import {
 } from "class-validator";
 
 export class CreateSpaceDto {
+  //#region Space Core Properties
   @ApiProperty({ required: true, description: "The name of the space" })
   @IsNotEmpty({ message: "Name is required" })
   @IsString({ message: "Name must be a string" })
@@ -54,7 +56,9 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Minimum period is required" })
   @IsString({ message: "Minimum period must be a string" })
   minimumPeriod: string;
+  //#endregion
 
+  //#region Space related features
   @ApiProperty({
     required: true,
     description: "The type of space (e.g., office, storage, warehouse)",
@@ -70,7 +74,9 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Access method is required" })
   @IsMongoId({ message: "Invalid access method" })
   accessMethod: string;
+  //#endregion
 
+  //#region List of Space related features
   @ApiProperty({
     required: true,
     description:
@@ -79,6 +85,7 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Storage conditions are required" })
   @IsArray({ message: "Storage conditions must be an array" })
   @IsMongoId({ each: true, message: "Invalid storage condition" })
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   storageConditions: string[];
 
   @ApiProperty({
@@ -89,6 +96,7 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Unloading/moving options are required" })
   @IsArray({ message: "Unloading/moving options must be an array" })
   @IsMongoId({ each: true, message: "Invalid unloading/moving option" })
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   unloadingMovings: string[];
 
   @ApiProperty({
@@ -99,6 +107,7 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Space security features are required" })
   @IsArray({ message: "Space security features must be an array" })
   @IsMongoId({ each: true, message: "Invalid space security feature" })
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   spaceSecurities: string[];
 
   @ApiProperty({
@@ -109,5 +118,15 @@ export class CreateSpaceDto {
   @IsNotEmpty({ message: "Space schedules are required" })
   @IsArray({ message: "Space schedules must be an array" })
   @IsMongoId({ each: true, message: "Invalid space schedule" })
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   spaceSchedules: string[];
+
+  @ApiProperty({
+    required: true,
+    description: "An array of space images",
+    type: "file",
+    isArray: true,
+  })
+  spaceImages: File[];
+  //#endregion
 }

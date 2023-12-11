@@ -39,7 +39,7 @@ export class SpaceService {
         ...createSpaceDto,
         createdBy: userId,
       });
-      await newItem.save();
+      // await newItem.save();
 
       return new SuccessResponseDto("New Space created successfully", newItem);
     } catch (error) {

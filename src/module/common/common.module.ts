@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
+import { MulterModule } from "@nestjs/platform-express";
 import { mongooseConfig } from "../../config/mongoose.config";
 
 @Module({
@@ -15,6 +16,12 @@ import { mongooseConfig } from "../../config/mongoose.config";
     // Database Configurations //
     // -------------------------//
     MongooseModule.forRootAsync(mongooseConfig),
+    // -------------------------//
+    // Multer Configurations //
+    // -------------------------//
+    MulterModule.register({
+      // storage: memoryStorage(),
+    }),
   ],
 })
 export class CommonModule {}

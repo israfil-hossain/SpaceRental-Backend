@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from "@nestjs/common";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { FilesInterceptor } from "@nestjs/platform-express";
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
@@ -29,8 +32,14 @@ export class SpaceController {
     status: 201,
     type: SuccessResponseDto,
   })
-  create(@AuthUserId() userId: string, @Body() createSpaceDto: CreateSpaceDto) {
-    return this.spaceService.create(createSpaceDto, userId);
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FilesInterceptor("spaceImages"))
+  create(
+    @AuthUserId() userId: string,
+    @UploadedFiles() spaceImages: Array<File>,
+    @Body() createSpaceDto: CreateSpaceDto,
+  ) {
+    return this.spaceService.create({ ...createSpaceDto, spaceImages }, userId);
   }
 
   @Get("GetAll")
@@ -57,6 +66,7 @@ export class SpaceController {
     status: 200,
     type: SuccessResponseDto,
   })
+  @ApiConsumes("multipart/form-data")
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() userId: string,
