@@ -18,6 +18,7 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
+import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
 import { SpaceForRentService } from "./space-for-rent.service";
@@ -110,12 +111,12 @@ export class SpaceForRentController {
     );
   }
 
-  @Delete("DeleteSpaceImageById/:DocId")
+  @Delete("DeleteSpaceImageById/:SpaceId/:ImageId")
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
   })
-  removeSpaceImage(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceForRentService.removeSpaceImage(DocId);
+  removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
+    return this._spaceForRentService.removeSpaceImage(ImageId, SpaceId);
   }
 }

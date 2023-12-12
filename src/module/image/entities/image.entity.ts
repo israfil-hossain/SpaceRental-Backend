@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument, Model } from "mongoose";
+import { HydratedDocument, Model, Types } from "mongoose";
 
 export type ImageDocument = HydratedDocument<ImageModel>;
 export type ImageModelType = Model<ImageModel>;
@@ -8,6 +8,7 @@ export type ImageModelType = Model<ImageModel>;
   toJSON: {
     transform: function (_, ret) {
       delete ret?._id;
+      delete ret?.ownerId;
     },
     virtuals: true,
     versionKey: false,
@@ -28,6 +29,12 @@ export class ImageModel {
 
   @Prop({ type: String, required: true })
   mimeType: string;
+
+  @Prop({
+    type: Types.ObjectId,
+    required: true,
+  })
+  ownerId: Types.ObjectId;
 }
 
 export const ImageSchema = SchemaFactory.createForClass(ImageModel);

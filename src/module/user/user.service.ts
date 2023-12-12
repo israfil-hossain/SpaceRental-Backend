@@ -181,24 +181,28 @@ export class UserService {
   }
 
   async updateUserProfilePicById(
-    id: string,
+    userId: string,
     image: Express.Multer.File,
   ): Promise<UserDocument> {
     try {
-      const user = await this._userModel.findById(id).exec();
+      const user = await this._userModel.findById(userId).exec();
 
       if (!user) {
-        this._logger.error(`User Document not found with ID: ${id}`);
-        throw new NotFoundException(`Could not find user with ID: ${id}`);
+        this._logger.error(`User Document not found with ID: ${userId}`);
+        throw new NotFoundException(`Could not find user with ID: ${userId}`);
       }
 
       if (user?.profilePicture) {
         await this._imageService.removeImage(
           user?.profilePicture as unknown as string,
+          userId,
         );
       }
 
-      const createdImage = await this._imageService.createSingleImage(image);
+      const createdImage = await this._imageService.createSingleImage(
+        image,
+        userId,
+      );
 
       await user.updateOne(
         {

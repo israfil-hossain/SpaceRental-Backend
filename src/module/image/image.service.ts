@@ -23,6 +23,7 @@ export class ImageService {
 
   async createSingleImage(
     singleImageFile: Express.Multer.File,
+    ownerId: string,
   ): Promise<ImageDocument> {
     if (!singleImageFile) {
       throw new Error("No image file provided");
@@ -37,6 +38,7 @@ export class ImageService {
       extension: extension,
       size: singleImageFile.size,
       mimeType: singleImageFile.mimetype,
+      ownerId: ownerId,
     });
 
     await singleImage.save();
@@ -45,6 +47,7 @@ export class ImageService {
 
   async createMultipleImages(
     multipleImageFiles: Express.Multer.File[],
+    ownerId: string,
   ): Promise<ImageDocument[]> {
     if (!multipleImageFiles.length) {
       throw new Error("No image files provided");
@@ -52,16 +55,21 @@ export class ImageService {
 
     const multipleImages = await Promise.all(
       multipleImageFiles.map(
-        async (image) => await this.createSingleImage(image),
+        async (image) => await this.createSingleImage(image, ownerId),
       ),
     );
 
     return multipleImages;
   }
 
-  async removeImage(imageId: string): Promise<boolean> {
+  async removeImage(imageId: string, ownerId: string): Promise<boolean> {
     try {
-      const image = await this.imageModel.findById(imageId);
+      const image = await this.imageModel
+        .findOne({
+          id: imageId,
+          ownerId: ownerId,
+        })
+        .exec();
 
       if (!image) {
         throw new Error(`Could not find image with id: ${imageId}`);

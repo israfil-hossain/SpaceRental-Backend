@@ -41,16 +41,17 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const createdImages = await this._imageService.createMultipleImages(
-        createSpaceDto.spaceImages,
-      );
-      const spaceImagesIDs = createdImages.map((image) => image.id);
-
       const newItem = new this._spaceForRentModel({
         ...createSpaceDto,
-        spaceImages: spaceImagesIDs,
         createdBy: userId,
       });
+
+      const createdImages = await this._imageService.createMultipleImages(
+        createSpaceDto.spaceImages,
+        newItem.id,
+      );
+      const spaceImagesIDs = createdImages.map((image) => image.id);
+      newItem.spaceImages = spaceImagesIDs;
 
       await newItem.save();
       return new SuccessResponseDto("New Space created successfully", newItem);
@@ -225,6 +226,7 @@ export class SpaceForRentService {
 
       const createdImages = await this._imageService.createMultipleImages(
         addSpaceImageDto.spaceImages,
+        existingSpace.id,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
 
@@ -261,8 +263,11 @@ export class SpaceForRentService {
     }
   }
 
-  async removeSpaceImage(id: string): Promise<SuccessResponseDto> {
-    const result = await this._imageService.removeImage(id);
+  async removeSpaceImage(
+    id: string,
+    ownerId: string,
+  ): Promise<SuccessResponseDto> {
+    const result = await this._imageService.removeImage(id, ownerId);
 
     if (!result) {
       this._logger.error(`Image not deleted with ID: ${id}`);
