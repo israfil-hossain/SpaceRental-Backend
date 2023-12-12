@@ -9,8 +9,8 @@ import { StorageConditionFeatureModel } from "../../space-features/entities/stor
 import { UnloadingMovingFeatureModel } from "../../space-features/entities/unloading-moving-feature";
 import { SpaceTypeModel } from "../../space-type/entities/space-type.entity";
 
-export type SpaceDocument = HydratedDocument<SpaceModel>;
-export type SpaceModelType = Model<SpaceModel>;
+export type SpaceForRentDocument = HydratedDocument<SpaceForRentModel>;
+export type SpaceForRentModelType = Model<SpaceForRentModel>;
 
 @Schema({
   toJSON: {
@@ -21,7 +21,7 @@ export type SpaceModelType = Model<SpaceModel>;
     versionKey: false,
   },
 })
-export class SpaceModel extends BaseEntity {
+export class SpaceForRentModel extends BaseEntity {
   @Prop({ type: String, required: true })
   name: string;
 
@@ -93,4 +93,5 @@ export class SpaceModel extends BaseEntity {
   spaceImages: ImageModel[];
 }
 
-export const SpaceSchema = SchemaFactory.createForClass(SpaceModel);
+export const SpaceForRentSchema =
+  SchemaFactory.createForClass(SpaceForRentModel);

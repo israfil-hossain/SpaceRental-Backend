@@ -16,18 +16,18 @@ import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceDto } from "./dto/create-space.dto";
-import { ListSpaceQuery } from "./dto/list-space-query.dto";
-import { UpdateSpaceDto } from "./dto/update-space.dto";
-import { SpaceService } from "./space.service";
+import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
+import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
+import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
+import { SpaceForRentService } from "./space-for-rent.service";
 
 @ApiTags("Space for Rent")
-@Controller("Space")
-export class SpaceController {
-  constructor(private readonly spaceService: SpaceService) {}
+@Controller("SpaceForRent")
+export class SpaceForRentController {
+  constructor(private readonly _spaceForRentService: SpaceForRentService) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceDto })
+  @ApiBody({ type: CreateSpaceForRentDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -37,11 +37,11 @@ export class SpaceController {
   create(
     @AuthUserId() userId: string,
     @UploadedFiles() spaceImages: Array<Express.Multer.File>,
-    @Body() createSpaceDto: CreateSpaceDto,
+    @Body() createSpaceDto: CreateSpaceForRentDto,
   ) {
     createSpaceDto.spaceImages = spaceImages;
 
-    return this.spaceService.create(createSpaceDto, userId);
+    return this._spaceForRentService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -49,8 +49,8 @@ export class SpaceController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  findAll(@Query() listSpaceQuery: ListSpaceQuery) {
-    return this.spaceService.findAll(listSpaceQuery);
+  findAll(@Query() listSpaceForRentQuery: ListSpaceForRentQuery) {
+    return this._spaceForRentService.findAll(listSpaceForRentQuery);
   }
 
   @Get("GetById/:DocId")
@@ -59,11 +59,11 @@ export class SpaceController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceService.findOne(DocId);
+    return this._spaceForRentService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
-  @ApiBody({ type: UpdateSpaceDto })
+  @ApiBody({ type: UpdateSpaceForRentDto })
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
@@ -72,9 +72,9 @@ export class SpaceController {
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() userId: string,
-    @Body() updateSpaceDto: UpdateSpaceDto,
+    @Body() updateSpaceDto: UpdateSpaceForRentDto,
   ) {
-    return this.spaceService.update(DocId, updateSpaceDto, userId);
+    return this._spaceForRentService.update(DocId, updateSpaceDto, userId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -83,6 +83,6 @@ export class SpaceController {
     type: SuccessResponseDto,
   })
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceService.remove(DocId);
+    return this._spaceForRentService.remove(DocId);
   }
 }

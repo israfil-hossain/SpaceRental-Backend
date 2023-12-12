@@ -47,16 +47,16 @@ import { UnloadingMovingService } from "./unloading-moving.service";
     ]),
   ],
   controllers: [
-    SpaceScheduleController,
-    SpaceSecurityController,
     StorageConditionController,
     UnloadingMovingController,
+    SpaceSecurityController,
+    SpaceScheduleController,
   ],
   providers: [
-    SpaceScheduleService,
-    SpaceSecurityService,
     StorageConditionService,
     UnloadingMovingService,
+    SpaceSecurityService,
+    SpaceScheduleService,
   ],
 })
 export class SpaceFeaturesModule {}

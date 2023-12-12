@@ -8,7 +8,7 @@ import {
   IsString,
 } from "class-validator";
 
-export class CreateSpaceDto {
+export class CreateSpaceForRentDto {
   //#region Space Core Properties
   @ApiProperty({ required: true, description: "The name of the space" })
   @IsNotEmpty({ message: "Name is required" })

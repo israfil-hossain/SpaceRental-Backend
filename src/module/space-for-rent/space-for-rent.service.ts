@@ -17,22 +17,26 @@ import { StorageConditionFeatureModel } from "../space-features/entities/storage
 import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { UserModel } from "../user/entities/user.entity";
-import { CreateSpaceDto } from "./dto/create-space.dto";
-import { ListSpaceQuery } from "./dto/list-space-query.dto";
-import { UpdateSpaceDto } from "./dto/update-space.dto";
-import { SpaceModel, SpaceModelType } from "./entities/space.entity";
+import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
+import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
+import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
+import {
+  SpaceForRentModel,
+  SpaceForRentModelType,
+} from "./entities/space-for-rent.entity";
 
 @Injectable()
-export class SpaceService {
-  private readonly _logger: Logger = new Logger(SpaceService.name);
+export class SpaceForRentService {
+  private readonly _logger: Logger = new Logger(SpaceForRentService.name);
 
   constructor(
-    @InjectModel(SpaceModel.name) private _spaceModel: SpaceModelType,
+    @InjectModel(SpaceForRentModel.name)
+    private _spaceForRentModel: SpaceForRentModelType,
     private readonly _imageService: ImageService,
   ) {}
 
   async create(
-    createSpaceDto: CreateSpaceDto,
+    createSpaceDto: CreateSpaceForRentDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
@@ -43,7 +47,7 @@ export class SpaceService {
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
 
-      const newItem = new this._spaceModel({
+      const newItem = new this._spaceForRentModel({
         ...createSpaceDto,
         spaceImages: spaceImagesIDs,
         createdBy: userId,
@@ -66,10 +70,12 @@ export class SpaceService {
     Page = 1,
     PageSize = 10,
     Name = "",
-  }: ListSpaceQuery): Promise<PaginatedResponseDto> {
+  }: ListSpaceForRentQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceModel.countDocuments().exec();
+      const totalRecords = await this._spaceForRentModel
+        .countDocuments()
+        .exec();
       const skip = (Page - 1) * PageSize;
 
       // Search query setup
@@ -78,7 +84,7 @@ export class SpaceService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this._spaceModel
+      const result = await this._spaceForRentModel
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -93,7 +99,7 @@ export class SpaceService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceModel
+    const result = await this._spaceForRentModel
       .findById(id)
       .populate([
         {
@@ -154,11 +160,11 @@ export class SpaceService {
 
   async update(
     id: string,
-    updateSpaceDto: UpdateSpaceDto,
+    updateSpaceDto: UpdateSpaceForRentDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedItem = await this._spaceModel
+      const updatedItem = await this._spaceForRentModel
         .findByIdAndUpdate(
           id,
           {
@@ -195,7 +201,7 @@ export class SpaceService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceModel.findByIdAndDelete(id).exec();
+    const result = await this._spaceForRentModel.findByIdAndDelete(id).exec();
 
     if (!result) {
       this._logger.error(`Document not deleted with ID: ${id}`);
