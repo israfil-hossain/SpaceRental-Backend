@@ -22,7 +22,7 @@ export class SpaceAccessOptionService {
 
   constructor(
     @InjectModel(SpaceAccessOptionModel.name)
-    private _spaceTypeModel: SpaceAccessOptionModelType,
+    private _spaceAccessOptionModelType: SpaceAccessOptionModelType,
   ) {}
 
   async create(
@@ -30,7 +30,7 @@ export class SpaceAccessOptionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceAccessOption = new this._spaceTypeModel({
+      const newSpaceAccessOption = new this._spaceAccessOptionModelType({
         ...createSpaceAccessOptionDto,
         createdBy: userId,
       });
@@ -58,7 +58,9 @@ export class SpaceAccessOptionService {
   }: ListSpaceAccessOptionQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceTypeModel.countDocuments().exec();
+      const totalRecords = await this._spaceAccessOptionModelType
+        .countDocuments()
+        .exec();
       const skip = (Page - 1) * PageSize;
 
       // Search query setup
@@ -67,7 +69,7 @@ export class SpaceAccessOptionService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this._spaceTypeModel
+      const result = await this._spaceAccessOptionModelType
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -82,7 +84,7 @@ export class SpaceAccessOptionService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeModel
+    const result = await this._spaceAccessOptionModelType
       .findById(id)
       .populate([
         {
@@ -110,7 +112,7 @@ export class SpaceAccessOptionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceAccessOption = await this._spaceTypeModel
+      const updatedSpaceAccessOption = await this._spaceAccessOptionModelType
         .findByIdAndUpdate(
           id,
           {
@@ -147,7 +149,9 @@ export class SpaceAccessOptionService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeModel.findByIdAndDelete(id).exec();
+    const result = await this._spaceAccessOptionModelType
+      .findByIdAndDelete(id)
+      .exec();
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -156,4 +160,18 @@ export class SpaceAccessOptionService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  //#region InternalMethods
+  async validateObjectId(id: string): Promise<void> {
+    const result = await this._spaceAccessOptionModelType
+      .findById(id)
+      .select("_id")
+      .exec();
+
+    if (!result) {
+      this._logger.error(`Invalid space access option ID: ${id}`);
+      throw new BadRequestException("Invalid space access option ID");
+    }
+  }
+  //#endregion
 }

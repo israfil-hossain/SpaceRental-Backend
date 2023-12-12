@@ -70,4 +70,18 @@ export class StorageConditionService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  //#region InternalMethods
+  async validateObjectIds(listOfIds: string[] = []): Promise<void> {
+    const result = await this._storageConditionFeatureModel
+      .find({ _id: { $in: listOfIds } })
+      .select("_id")
+      .exec();
+
+    if (listOfIds.length !== result.length) {
+      this._logger.error(`Invalid space condition IDs: ${listOfIds}`);
+      throw new BadRequestException("Invalid space condition IDs");
+    }
+  }
+  //#endregion
 }

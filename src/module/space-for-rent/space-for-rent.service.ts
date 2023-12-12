@@ -11,11 +11,17 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageModel } from "../image/entities/image.entity";
 import { ImageService } from "../image/image.service";
 import { SpaceAccessOptionModel } from "../space-access-option/entities/space-access-option.entity";
+import { SpaceAccessOptionService } from "../space-access-option/space-access-option.service";
 import { SpaceScheduleFeatureModel } from "../space-features/entities/space-schedule-feature";
 import { SpaceSecurityFeatureModel } from "../space-features/entities/space-security-feature";
 import { StorageConditionFeatureModel } from "../space-features/entities/storage-condition-feature";
 import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
+import { SpaceScheduleService } from "../space-features/space-schedule.service";
+import { SpaceSecurityService } from "../space-features/space-security.service";
+import { StorageConditionService } from "../space-features/storage-condition.service";
+import { UnloadingMovingService } from "../space-features/unloading-moving.service";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
+import { SpaceTypeService } from "../space-type/space-type.service";
 import { UserModel } from "../user/entities/user.entity";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
@@ -33,6 +39,13 @@ export class SpaceForRentService {
   constructor(
     @InjectModel(SpaceForRentModel.name)
     private _spaceForRentModel: SpaceForRentModelType,
+
+    private _spaceTypeService: SpaceTypeService,
+    private _spaceAccessOptionService: SpaceAccessOptionService,
+    private _storageConditionService: StorageConditionService,
+    private _unloadingMovingService: UnloadingMovingService,
+    private _spaceSecurityService: SpaceSecurityService,
+    private _spaceScheduleService: SpaceScheduleService,
     private readonly _imageService: ImageService,
   ) {}
 
@@ -41,6 +54,25 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
+      // validate relations
+      await this._spaceTypeService.validateObjectId(createSpaceDto.type);
+      await this._spaceAccessOptionService.validateObjectId(
+        createSpaceDto.accessMethod,
+      );
+      await this._storageConditionService.validateObjectIds(
+        createSpaceDto.storageConditions,
+      );
+      await this._unloadingMovingService.validateObjectIds(
+        createSpaceDto.unloadingMovings,
+      );
+      await this._spaceSecurityService.validateObjectIds(
+        createSpaceDto.spaceSecurities,
+      );
+      await this._spaceScheduleService.validateObjectIds(
+        createSpaceDto.spaceSchedules,
+      );
+
+      // create new document
       const newItem = new this._spaceForRentModel({
         ...createSpaceDto,
         createdBy: userId,
@@ -56,6 +88,10 @@ export class SpaceForRentService {
       await newItem.save();
       return new SuccessResponseDto("New Space created successfully", newItem);
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this._logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
@@ -164,6 +200,37 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
+      // validate relations
+      if (updateSpaceDto.type) {
+        await this._spaceTypeService.validateObjectId(updateSpaceDto.type);
+      }
+      if (updateSpaceDto.accessMethod) {
+        await this._spaceAccessOptionService.validateObjectId(
+          updateSpaceDto.accessMethod,
+        );
+      }
+      if (updateSpaceDto.storageConditions?.length) {
+        await this._storageConditionService.validateObjectIds(
+          updateSpaceDto.storageConditions,
+        );
+      }
+      if (updateSpaceDto.unloadingMovings?.length) {
+        await this._unloadingMovingService.validateObjectIds(
+          updateSpaceDto.unloadingMovings,
+        );
+      }
+      if (updateSpaceDto.spaceSecurities?.length) {
+        await this._spaceSecurityService.validateObjectIds(
+          updateSpaceDto.spaceSecurities,
+        );
+      }
+      if (updateSpaceDto.spaceSchedules?.length) {
+        await this._spaceScheduleService.validateObjectIds(
+          updateSpaceDto.spaceSchedules,
+        );
+      }
+
+      // update document
       const updatedItem = await this._spaceForRentModel
         .findByIdAndUpdate(
           id,
@@ -186,7 +253,10 @@ export class SpaceForRentService {
         updatedItem,
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
 

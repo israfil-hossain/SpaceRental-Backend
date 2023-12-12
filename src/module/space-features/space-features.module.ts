@@ -58,5 +58,11 @@ import { UnloadingMovingService } from "./unloading-moving.service";
     SpaceSecurityService,
     SpaceScheduleService,
   ],
+  exports: [
+    StorageConditionService,
+    UnloadingMovingService,
+    SpaceSecurityService,
+    SpaceScheduleService,
+  ],
 })
 export class SpaceFeaturesModule {}

@@ -85,7 +85,7 @@ export class CreateSpaceForRentDto {
   @IsNotEmpty({ message: "Storage conditions are required" })
   @IsArray({ message: "Storage conditions must be an array" })
   @IsMongoId({ each: true, message: "Invalid storage condition" })
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
   storageConditions: string[];
 
   @ApiProperty({
@@ -96,7 +96,7 @@ export class CreateSpaceForRentDto {
   @IsNotEmpty({ message: "Unloading/moving options are required" })
   @IsArray({ message: "Unloading/moving options must be an array" })
   @IsMongoId({ each: true, message: "Invalid unloading/moving option" })
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
   unloadingMovings: string[];
 
   @ApiProperty({
@@ -107,7 +107,7 @@ export class CreateSpaceForRentDto {
   @IsNotEmpty({ message: "Space security features are required" })
   @IsArray({ message: "Space security features must be an array" })
   @IsMongoId({ each: true, message: "Invalid space security feature" })
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
   spaceSecurities: string[];
 
   @ApiProperty({
@@ -118,7 +118,7 @@ export class CreateSpaceForRentDto {
   @IsNotEmpty({ message: "Space schedules are required" })
   @IsArray({ message: "Space schedules must be an array" })
   @IsMongoId({ each: true, message: "Invalid space schedule" })
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
   spaceSchedules: string[];
 
   @ApiProperty({

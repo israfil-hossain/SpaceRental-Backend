@@ -70,4 +70,18 @@ export class UnloadingMovingService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  //#region InternalMethods
+  async validateObjectIds(listOfIds: string[] = []): Promise<void> {
+    const result = await this._unloadingMovingFeature
+      .find({ _id: { $in: listOfIds } })
+      .select("_id")
+      .exec();
+
+    if (listOfIds.length !== result.length) {
+      this._logger.error(`Invalid unloading moving IDs: ${listOfIds}`);
+      throw new BadRequestException("Invalid unloading moving IDs");
+    }
+  }
+  //#endregion
 }

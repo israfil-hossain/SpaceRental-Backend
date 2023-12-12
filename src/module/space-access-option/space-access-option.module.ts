@@ -15,5 +15,6 @@ import { SpaceAccessOptionService } from "./space-access-option.service";
   ],
   controllers: [SpaceAccessOptionController],
   providers: [SpaceAccessOptionService],
+  exports: [SpaceAccessOptionService],
 })
 export class SpaceAccessOptionModule {}

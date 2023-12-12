@@ -12,5 +12,6 @@ import { SpaceTypeService } from "./space-type.service";
   ],
   controllers: [SpaceTypeController],
   providers: [SpaceTypeService],
+  exports: [SpaceTypeService],
 })
 export class SpaceTypeModule {}

@@ -156,4 +156,15 @@ export class SpaceTypeService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  //#region InternalMethods
+  async validateObjectId(id: string): Promise<void> {
+    const result = await this._spaceTypeModel.findById(id).select("_id").exec();
+
+    if (!result) {
+      this._logger.error(`Invalid space type ID: ${id}`);
+      throw new BadRequestException("Invalid space type ID");
+    }
+  }
+  //#endregion
 }
