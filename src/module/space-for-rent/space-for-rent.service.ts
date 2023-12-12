@@ -17,6 +17,7 @@ import { StorageConditionFeatureModel } from "../space-features/entities/storage
 import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { UserModel } from "../user/entities/user.entity";
+import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
@@ -40,7 +41,6 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      // Create new space document
       const createdImages = await this._imageService.createMultipleImages(
         createSpaceDto.spaceImages,
         userId,
@@ -209,6 +209,58 @@ export class SpaceForRentService {
     }
 
     return new SuccessResponseDto("Document deleted successfully");
+  }
+
+  async addSpaceImage(
+    id: string,
+    addSpaceImageDto: AddSpaceImageDto,
+    userId: string,
+  ): Promise<SuccessResponseDto> {
+    try {
+      const existingSpace = await this._spaceForRentModel.findById(id).exec();
+
+      if (!existingSpace) {
+        this._logger.error(`Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      }
+
+      const createdImages = await this._imageService.createMultipleImages(
+        addSpaceImageDto.spaceImages,
+        userId,
+      );
+      const spaceImagesIDs = createdImages.map((image) => image.id);
+
+      const result = await this._spaceForRentModel
+        .findByIdAndUpdate(
+          id,
+          {
+            spaceImages: spaceImagesIDs,
+            updatedBy: userId,
+            updatedAt: new Date(),
+          },
+          { new: true },
+        )
+        .exec();
+
+      if (!result) {
+        this._logger.error(`Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find space type with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("Document updated successfully", result);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      if (error.name === "MongoError" && error.code === 11000) {
+        this._logger.error("Duplicate key error:", error);
+        throw new ConflictException("Document already exists");
+      }
+
+      this._logger.error("Error updating document:", error);
+      throw new BadRequestException("Error updating document");
+    }
   }
 
   async removeSpaceImage(id: string): Promise<SuccessResponseDto> {

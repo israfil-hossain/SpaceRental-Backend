@@ -16,6 +16,7 @@ import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
@@ -84,6 +85,25 @@ export class SpaceForRentController {
   })
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceForRentService.remove(DocId);
+  }
+
+  @Post("AddSpaceImageById/:DocId")
+  @ApiBody({ type: AddSpaceImageDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @ApiConsumes("multipart/form-data")
+  addImages(
+    @Param() { DocId }: DocIdQueryDto,
+    @AuthUserId() userId: string,
+    @Body() addSpaceImageDto: AddSpaceImageDto,
+  ) {
+    return this._spaceForRentService.addSpaceImage(
+      DocId,
+      addSpaceImageDto,
+      userId,
+    );
   }
 
   @Delete("DeleteSpaceImageById/:DocId")
