@@ -20,14 +20,12 @@ export class ImageService {
     singleImageFile: Express.Multer.File,
     createdBy: string,
   ) {
-    const { name, extension } = this._separateFileNameAndExtension(
-      singleImageFile.originalname,
-    );
+    const extension = this._getFileExtension(singleImageFile.originalname);
     const url = await this._generateImageUrl(singleImageFile);
 
     const singleImage = new this.imageModel({
       url: url,
-      name: name,
+      name: singleImageFile.originalname,
       extension: extension,
       size: singleImageFile.size,
       mimeType: singleImageFile.mimetype,
@@ -82,19 +80,13 @@ export class ImageService {
     });
   }
 
-  private _separateFileNameAndExtension(originalName: string): {
-    name: string;
-    extension: string;
-  } {
+  private _getFileExtension(originalName: string): string {
     const lastDotIndex = originalName?.lastIndexOf(".");
 
     if (lastDotIndex === -1) {
-      return { name: originalName, extension: "" };
+      return "";
     }
 
-    const name = originalName?.slice(0, lastDotIndex);
-    const extension = originalName?.slice(lastDotIndex + 1);
-
-    return { name, extension };
+    return originalName?.slice(lastDotIndex + 1);
   }
 }
