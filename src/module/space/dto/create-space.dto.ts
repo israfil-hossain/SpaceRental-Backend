@@ -127,6 +127,6 @@ export class CreateSpaceDto {
     type: "file",
     isArray: true,
   })
-  spaceImages: File[];
+  spaceImages: Express.Multer.File[];
   //#endregion
 }

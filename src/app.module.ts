@@ -9,6 +9,7 @@ import { SpaceModule } from "./module/space/space.module";
 import { TokenModule } from "./module/token/token.module";
 import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
+import { ImageModule } from "./module/image/image.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     SpaceAccessOptionModule,
     SpaceFeaturesModule,
     SpaceModule,
+    ImageModule,
   ],
   providers: [ValidationProvider],
 })

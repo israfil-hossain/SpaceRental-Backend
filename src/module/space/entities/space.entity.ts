@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
+import { ImageModel } from "../../image/entities/image.entity";
 import { SpaceAccessOptionModel } from "../../space-access-option/entities/space-access-option.entity";
 import { SpaceScheduleFeatureModel } from "../../space-features/entities/space-schedule-feature";
 import { SpaceSecurityFeatureModel } from "../../space-features/entities/space-security-feature";
@@ -84,12 +85,12 @@ export class SpaceModel extends BaseEntity {
   })
   spaceSchedules: SpaceScheduleFeatureModel[];
 
-  // @Prop({
-  //   type: [Types.ObjectId],
-  //   ref: SpaceImageModel.name,
-  //   required: true,
-  // })
-  // spaceImages: SpaceImageModel[];
+  @Prop({
+    type: [Types.ObjectId],
+    ref: ImageModel.name,
+    required: true,
+  })
+  spaceImages: ImageModel[];
 }
 
 export const SpaceSchema = SchemaFactory.createForClass(SpaceModel);

@@ -36,10 +36,12 @@ export class SpaceController {
   @UseInterceptors(FilesInterceptor("spaceImages"))
   create(
     @AuthUserId() userId: string,
-    @UploadedFiles() spaceImages: Array<File>,
+    @UploadedFiles() spaceImages: Array<Express.Multer.File>,
     @Body() createSpaceDto: CreateSpaceDto,
   ) {
-    return this.spaceService.create({ ...createSpaceDto, spaceImages }, userId);
+    createSpaceDto.spaceImages = spaceImages;
+
+    return this.spaceService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")

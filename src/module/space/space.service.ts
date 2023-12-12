@@ -8,6 +8,8 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { ImageModel } from "../image/entities/image.entity";
+import { ImageService } from "../image/image.service";
 import { SpaceAccessOptionModel } from "../space-access-option/entities/space-access-option.entity";
 import { SpaceScheduleFeatureModel } from "../space-features/entities/space-schedule-feature";
 import { SpaceSecurityFeatureModel } from "../space-features/entities/space-security-feature";
@@ -26,6 +28,7 @@ export class SpaceService {
 
   constructor(
     @InjectModel(SpaceModel.name) private _spaceModel: SpaceModelType,
+    private readonly _imageService: ImageService,
   ) {}
 
   async create(
@@ -33,14 +36,20 @@ export class SpaceService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      this._logger.log(JSON.stringify(createSpaceDto));
+      // Create new space document
+      const createdImages = await this._imageService.createMultipleImages(
+        createSpaceDto.spaceImages,
+        userId,
+      );
+      const spaceImagesIDs = createdImages.map((image) => image.id);
 
       const newItem = new this._spaceModel({
         ...createSpaceDto,
+        spaceImages: spaceImagesIDs,
         createdBy: userId,
       });
-      // await newItem.save();
 
+      await newItem.save();
       return new SuccessResponseDto("New Space created successfully", newItem);
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
@@ -126,6 +135,11 @@ export class SpaceService {
           path: "spaceSchedules",
           model: SpaceScheduleFeatureModel.name,
           select: "id name",
+        },
+        {
+          path: "spaceImages",
+          model: ImageModel.name,
+          select: "id url name extension size mimeType",
         },
       ])
       .exec();
