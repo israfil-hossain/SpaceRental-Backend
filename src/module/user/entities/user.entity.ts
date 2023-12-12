@@ -58,9 +58,8 @@ export class UserModel {
   @Prop({
     type: Types.ObjectId,
     ref: ImageModel.name,
-    required: true,
   })
-  profilePicture: ImageModel;
+  profilePicture?: ImageModel;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);

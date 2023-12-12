@@ -264,14 +264,29 @@ export class SpaceForRentService {
   }
 
   async removeSpaceImage(
-    id: string,
-    ownerId: string,
+    imageId: string,
+    spaceForRentId: string,
   ): Promise<SuccessResponseDto> {
-    const result = await this._imageService.removeImage(id, ownerId);
+    const existingSpaceForRent = await this._spaceForRentModel
+      .findById(spaceForRentId)
+      .exec();
+
+    if (!existingSpaceForRent) {
+      throw new NotFoundException(
+        `Could not find space for rent with ID: ${spaceForRentId}`,
+      );
+    }
+
+    const result = await this._imageService.removeImage(
+      imageId,
+      spaceForRentId,
+    );
 
     if (!result) {
-      this._logger.error(`Image not deleted with ID: ${id}`);
-      throw new BadRequestException(`Could not delete image with ID: ${id}`);
+      this._logger.error(`Image not deleted with ID: ${imageId}`);
+      throw new BadRequestException(
+        `Could not delete image with ID: ${imageId}`,
+      );
     }
 
     return new SuccessResponseDto("Image deleted successfully");

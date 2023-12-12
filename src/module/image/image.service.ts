@@ -62,27 +62,25 @@ export class ImageService {
     return multipleImages;
   }
 
-  async removeImage(imageId: string, ownerId: string): Promise<boolean> {
-    try {
-      const image = await this.imageModel
-        .findOne({
-          id: imageId,
-          ownerId: ownerId,
-        })
-        .exec();
+  async removeImage(
+    imageId: string,
+    ownerId: string,
+  ): Promise<ImageDocument | null> {
+    const deletedImage = await this.imageModel
+      .findOneAndDelete({
+        _id: imageId,
+        ownerId: ownerId,
+      })
+      .exec();
 
-      if (!image) {
-        throw new Error(`Could not find image with id: ${imageId}`);
-      }
-
-      await this._deleteImageFromCloudinary(image.name);
-      await this.imageModel.findByIdAndDelete(imageId);
-
-      return true;
-    } catch (error) {
-      this._logger.error(`Failed to delete image: ${error}`);
-      return false;
+    if (!deletedImage) {
+      throw new Error(`Could not find image with id: ${imageId}`);
     }
+
+    await this._deleteImageFromCloudinary(deletedImage.name);
+    await this.imageModel.findByIdAndDelete(imageId).exec();
+
+    return deletedImage;
   }
 
   private async _uploadImageToCloudinary(
