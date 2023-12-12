@@ -210,4 +210,15 @@ export class SpaceForRentService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  async removeSpaceImage(id: string): Promise<SuccessResponseDto> {
+    const result = await this._imageService.removeImage(id);
+
+    if (!result) {
+      this._logger.error(`Image not deleted with ID: ${id}`);
+      throw new BadRequestException(`Could not delete image with ID: ${id}`);
+    }
+
+    return new SuccessResponseDto("Image deleted successfully");
+  }
 }

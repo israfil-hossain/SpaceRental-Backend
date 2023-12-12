@@ -3,10 +3,15 @@ import { InjectModel } from "@nestjs/mongoose";
 import toStream from "buffer-to-stream";
 import {
   v2 as CloudinaryAPI,
+  DeleteApiResponse,
   UploadApiErrorResponse,
   UploadApiResponse,
 } from "cloudinary";
-import { ImageModel, ImageModelType } from "./entities/image.entity";
+import {
+  ImageDocument,
+  ImageModel,
+  ImageModelType,
+} from "./entities/image.entity";
 
 @Injectable()
 export class ImageService {
@@ -19,13 +24,13 @@ export class ImageService {
   async createSingleImage(
     singleImageFile: Express.Multer.File,
     createdBy: string,
-  ) {
+  ): Promise<ImageDocument> {
     const extension = this._getFileExtension(singleImageFile.originalname);
-    const url = await this._generateImageUrl(singleImageFile);
+    const uploadResult = await this._uploadImageToCloudinary(singleImageFile);
 
     const singleImage = new this.imageModel({
-      url: url,
-      name: singleImageFile.originalname,
+      url: uploadResult.secure_url,
+      name: uploadResult.public_id,
       extension: extension,
       size: singleImageFile.size,
       mimeType: singleImageFile.mimetype,
@@ -39,7 +44,7 @@ export class ImageService {
   async createMultipleImages(
     multipleImageFiles: Express.Multer.File[],
     createdBy: string,
-  ) {
+  ): Promise<ImageDocument[]> {
     const multipleImages = await Promise.all(
       multipleImageFiles.map(
         async (image) => await this.createSingleImage(image, createdBy),
@@ -49,18 +54,25 @@ export class ImageService {
     return multipleImages;
   }
 
-  private async _generateImageUrl(file: Express.Multer.File): Promise<string> {
-    const result = await this._uploadImage(file);
+  async removeImage(imageId: string): Promise<boolean> {
+    try {
+      const image = await this.imageModel.findById(imageId);
 
-    if (result && result.secure_url) {
-      return result.secure_url;
-    } else {
-      this._logger.error("Failed to upload image to Cloudinary");
-      throw new Error("Failed to upload image to Cloudinary");
+      if (!image) {
+        throw new Error(`Could not find image with id: ${imageId}`);
+      }
+
+      await this._deleteImageFromCloudinary(image.name);
+      await image.deleteOne();
+
+      return true;
+    } catch (error) {
+      this._logger.error(`Failed to delete image: ${error}`);
+      return false;
     }
   }
 
-  private async _uploadImage(
+  private async _uploadImageToCloudinary(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse> {
     return new Promise<UploadApiResponse>((resolve, reject) => {
@@ -69,15 +81,30 @@ export class ImageService {
           error: UploadApiErrorResponse | undefined,
           result: UploadApiResponse | undefined,
         ) => {
-          if (error) return reject(error);
-          if (!result) {
-            return reject(new Error("Upload result is undefined"));
+          if (error) {
+            this._logger.error(
+              `Failed to upload image to Cloudinary: ${error.message}`,
+            );
+            reject(error);
+          } else if (!result) {
+            const errorMessage = "Upload result is undefined";
+            this._logger.error(
+              `Failed to upload image to Cloudinary: ${errorMessage}`,
+            );
+            reject(new Error(errorMessage));
+          } else {
+            resolve(result);
           }
-          resolve(result);
         },
       );
       toStream(file.buffer).pipe(upload);
     });
+  }
+
+  private async _deleteImageFromCloudinary(
+    publicId: string,
+  ): Promise<DeleteApiResponse> {
+    return CloudinaryAPI.uploader.destroy(publicId);
   }
 
   private _getFileExtension(originalName: string): string {

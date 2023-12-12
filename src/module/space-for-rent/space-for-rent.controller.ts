@@ -85,4 +85,13 @@ export class SpaceForRentController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceForRentService.remove(DocId);
   }
+
+  @Delete("DeleteSpaceImageById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  removeSpaceImage(@Param() { DocId }: DocIdQueryDto) {
+    return this._spaceForRentService.removeSpaceImage(DocId);
+  }
 }
