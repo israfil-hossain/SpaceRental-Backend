@@ -9,6 +9,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
+import { ImageModel } from "../image/entities/image.entity";
+import { ImageService } from "../image/image.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -22,6 +24,7 @@ export class UserService {
   constructor(
     private _encryptionService: EncryptionService,
     @InjectModel(UserModel.name) private _userModel: UserModelType,
+    private readonly _imageService: ImageService,
   ) {}
 
   async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
@@ -158,7 +161,16 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    const user = await this._userModel.findById(id).exec();
+    const user = await this._userModel
+      .findById(id)
+      .populate([
+        {
+          path: "profilePicture",
+          model: ImageModel.name,
+          select: "url",
+        },
+      ])
+      .exec();
 
     if (!user) {
       this._logger.error(`User Document not found with ID: ${id}`);
@@ -166,6 +178,53 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async updateUserProfilePicById(
+    id: string,
+    image: Express.Multer.File,
+  ): Promise<UserDocument> {
+    try {
+      const user = await this._userModel
+        .findById(id)
+        .populate([
+          {
+            path: "profilePicture",
+            model: ImageModel.name,
+            select: "name",
+          },
+        ])
+        .exec();
+
+      if (!user) {
+        this._logger.error(`User Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find user with ID: ${id}`);
+      }
+
+      if (user?.profilePicture?.name) {
+        await this._imageService.removeImage(user.profilePicture.name);
+      }
+
+      const createdImage = await this._imageService.createSingleImage(image);
+
+      await user.updateOne(
+        {
+          profilePicture: createdImage.id,
+        },
+        {
+          new: true,
+        },
+      );
+
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      this._logger.error("Error updating user:", error);
+      throw new BadRequestException("Error updating user");
+    }
   }
   //#endregion
 }

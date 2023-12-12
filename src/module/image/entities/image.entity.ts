@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model } from "mongoose";
-import { BaseEntity } from "../../common/entities/base.entity";
 
 export type ImageDocument = HydratedDocument<ImageModel>;
 export type ImageModelType = Model<ImageModel>;
@@ -14,7 +13,7 @@ export type ImageModelType = Model<ImageModel>;
     versionKey: false,
   },
 })
-export class ImageModel extends BaseEntity {
+export class ImageModel {
   @Prop({ type: String, required: true, unique: true })
   url: string;
 

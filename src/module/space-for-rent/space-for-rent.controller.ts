@@ -94,11 +94,15 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FilesInterceptor("spaceImages"))
   addImages(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() userId: string,
+    @UploadedFiles() spaceImages: Array<Express.Multer.File>,
     @Body() addSpaceImageDto: AddSpaceImageDto,
   ) {
+    addSpaceImageDto.spaceImages = spaceImages;
+
     return this._spaceForRentService.addSpaceImage(
       DocId,
       addSpaceImageDto,

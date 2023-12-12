@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument, Model } from "mongoose";
+import { HydratedDocument, Model, Types } from "mongoose";
+import { ImageModel } from "../../image/entities/image.entity";
 import { UserRole } from "../enum/user-role.enum";
 
 export type UserDocument = HydratedDocument<UserModel>;
@@ -53,6 +54,13 @@ export class UserModel {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: ImageModel.name,
+    required: true,
+  })
+  profilePicture: ImageModel;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);

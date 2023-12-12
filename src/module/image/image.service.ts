@@ -23,8 +23,11 @@ export class ImageService {
 
   async createSingleImage(
     singleImageFile: Express.Multer.File,
-    createdBy: string,
   ): Promise<ImageDocument> {
+    if (!singleImageFile) {
+      throw new Error("No image file provided");
+    }
+
     const extension = this._getFileExtension(singleImageFile.originalname);
     const uploadResult = await this._uploadImageToCloudinary(singleImageFile);
 
@@ -34,7 +37,6 @@ export class ImageService {
       extension: extension,
       size: singleImageFile.size,
       mimeType: singleImageFile.mimetype,
-      createdBy,
     });
 
     await singleImage.save();
@@ -43,11 +45,14 @@ export class ImageService {
 
   async createMultipleImages(
     multipleImageFiles: Express.Multer.File[],
-    createdBy: string,
   ): Promise<ImageDocument[]> {
+    if (!multipleImageFiles.length) {
+      throw new Error("No image files provided");
+    }
+
     const multipleImages = await Promise.all(
       multipleImageFiles.map(
-        async (image) => await this.createSingleImage(image, createdBy),
+        async (image) => await this.createSingleImage(image),
       ),
     );
 

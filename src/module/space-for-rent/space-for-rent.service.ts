@@ -43,7 +43,6 @@ export class SpaceForRentService {
     try {
       const createdImages = await this._imageService.createMultipleImages(
         createSpaceDto.spaceImages,
-        userId,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
 
@@ -226,7 +225,6 @@ export class SpaceForRentService {
 
       const createdImages = await this._imageService.createMultipleImages(
         addSpaceImageDto.spaceImages,
-        userId,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
 

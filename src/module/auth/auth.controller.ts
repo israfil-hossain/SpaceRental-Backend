@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
@@ -7,6 +16,7 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenRefreshDto } from "./dto/token-refresh.dto";
+import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
 import { IsPublic } from "./guard/auth.guard";
 
 @ApiTags("Authentication")
@@ -47,15 +57,6 @@ export class AuthController {
     return this._authService.refreshAccessToken(tokenRefreshDto.refreshToken);
   }
 
-  @Get("GetLoggedInUser")
-  @ApiResponse({
-    status: 200,
-    type: SuccessResponseDto,
-  })
-  getLoggedInUser(@AuthUserId() userId: string) {
-    return this._authService.getLoggedInUser(userId);
-  }
-
   @Post("ChangePassword")
   @ApiBody({ type: ChangePasswordDto })
   @ApiResponse({
@@ -67,5 +68,36 @@ export class AuthController {
     @AuthUserId() userId: string,
   ) {
     return this._authService.changePassword(changePasswordDto, userId);
+  }
+
+  @Get("GetLoggedInUser")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  getLoggedInUser(@AuthUserId() userId: string) {
+    return this._authService.getLoggedInUser(userId);
+  }
+
+  @Patch("UpdateProfilePicture")
+  @ApiBody({ type: UpdateProfilePictureDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("profilePicture"))
+  updateProfilePicture(
+    @AuthUserId() userId: string,
+    @UploadedFile() profilePicture: Express.Multer.File,
+    @Body() updateProfilePictureDto: UpdateProfilePictureDto,
+  ) {
+    updateProfilePictureDto.profilePicture = profilePicture;
+    console.log(profilePicture);
+
+    return this._authService.updateProfilePicture(
+      updateProfilePictureDto,
+      userId,
+    );
   }
 }
