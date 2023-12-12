@@ -1,7 +1,7 @@
 import { ConfigService } from "@nestjs/config";
 import { v2 as CloudinaryAPI } from "cloudinary";
 
-export const CLOUDINARY = "Cloudinary";
+export const CLOUDINARY = "CLOUDINARY";
 
 export const CloudinaryProvider = {
   provide: CLOUDINARY,
