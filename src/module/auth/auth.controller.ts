@@ -93,7 +93,6 @@ export class AuthController {
     @Body() updateProfilePictureDto: UpdateProfilePictureDto,
   ) {
     updateProfilePictureDto.profilePicture = profilePicture;
-    console.log(profilePicture);
 
     return this._authService.updateProfilePicture(
       updateProfilePictureDto,

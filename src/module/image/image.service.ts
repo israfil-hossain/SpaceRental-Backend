@@ -68,7 +68,7 @@ export class ImageService {
       }
 
       await this._deleteImageFromCloudinary(image.name);
-      await image.deleteOne();
+      await this.imageModel.findByIdAndDelete(imageId);
 
       return true;
     } catch (error) {

@@ -185,24 +185,17 @@ export class UserService {
     image: Express.Multer.File,
   ): Promise<UserDocument> {
     try {
-      const user = await this._userModel
-        .findById(id)
-        .populate([
-          {
-            path: "profilePicture",
-            model: ImageModel.name,
-            select: "name",
-          },
-        ])
-        .exec();
+      const user = await this._userModel.findById(id).exec();
 
       if (!user) {
         this._logger.error(`User Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find user with ID: ${id}`);
       }
 
-      if (user?.profilePicture?.name) {
-        await this._imageService.removeImage(user.profilePicture.name);
+      if (user?.profilePicture) {
+        await this._imageService.removeImage(
+          user?.profilePicture as unknown as string,
+        );
       }
 
       const createdImage = await this._imageService.createSingleImage(image);
