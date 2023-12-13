@@ -93,6 +93,12 @@ export class AuthService {
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
+  async revokeRefreshToken(refreshToken: string): Promise<SuccessResponseDto> {
+    await this._tokenService.revokeRefreshTokenByToken(refreshToken);
+
+    return new SuccessResponseDto("Refresh token revoked successfully");
+  }
+
   async changePassword(
     changePasswordDto: ChangePasswordDto,
     userId: string,

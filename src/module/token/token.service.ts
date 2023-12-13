@@ -55,10 +55,43 @@ export class TokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this._refreshTokenModel.findOne({
-      token: refreshToken,
-      expiresAt: { $gt: new Date() },
-    });
+    const refreshTokenDoc = await this._refreshTokenModel
+      .findOne({
+        token: refreshToken,
+        expiresAt: { $gt: new Date() },
+      })
+      .exec();
+
+    if (!refreshTokenDoc) {
+      this._logger.error("Refresh token is invalid or expired");
+      throw new BadRequestException("Refresh token is invalid or expired");
+    }
+
+    return refreshTokenDoc;
+  }
+
+  public async revokeRefreshTokenByToken(
+    refreshToken: string,
+  ): Promise<RefreshTokenDocument> {
+    if (!refreshToken) {
+      this._logger.error("A valid refresh token is required");
+      throw new BadRequestException("A valid refresh token is required");
+    }
+
+    const refreshTokenDoc = await this._refreshTokenModel
+      .findOneAndUpdate(
+        {
+          token: refreshToken,
+          expiresAt: { $gt: new Date() },
+        },
+        {
+          expiresAt: new Date(),
+        },
+        {
+          new: true,
+        },
+      )
+      .exec();
 
     if (!refreshTokenDoc) {
       this._logger.error("Refresh token is invalid or expired");

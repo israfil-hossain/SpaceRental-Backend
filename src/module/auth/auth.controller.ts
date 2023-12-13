@@ -13,9 +13,9 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
-import { TokenRefreshDto } from "./dto/token-refresh.dto";
 import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
 import { IsPublic } from "./guard/auth.guard";
 
@@ -48,13 +48,24 @@ export class AuthController {
 
   @Post("TokenRefresh")
   @IsPublic()
-  @ApiBody({ type: TokenRefreshDto })
+  @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  tokenRefresh(@Body() tokenRefreshDto: TokenRefreshDto) {
+  tokenRefresh(@Body() tokenRefreshDto: RefreshTokenDto) {
     return this._authService.refreshAccessToken(tokenRefreshDto.refreshToken);
+  }
+
+  @Post("TokenRevoke")
+  @IsPublic()
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({
+    status: 201,
+    type: SuccessResponseDto,
+  })
+  tokenRevoke(@Body() tokenRefreshDto: RefreshTokenDto) {
+    return this._authService.revokeRefreshToken(tokenRefreshDto.refreshToken);
   }
 
   @Post("ChangePassword")
