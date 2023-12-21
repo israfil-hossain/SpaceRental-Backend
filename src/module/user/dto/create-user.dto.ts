@@ -8,7 +8,11 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-import { UserRole } from "../enum/user-role.enum";
+
+enum UserRole {
+  RENTER = "RENTER",
+  SPACE_OWNER = "OWNER",
+}
 
 export class CreateUserDto {
   @ApiProperty({ description: "User's email", example: "user@example.com" })

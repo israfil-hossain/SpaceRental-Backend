@@ -12,7 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { APP_GUARD, Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 
-const IS_PUBLIC_KEY = "isPublic";
+const IS_PUBLIC_KEY = "IS_PUBLIC_KEY";
 export const IsPublic = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Injectable()
