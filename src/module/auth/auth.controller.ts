@@ -76,7 +76,7 @@ export class AuthController {
   })
   changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
   ) {
     return this._authService.changePassword(changePasswordDto, userId);
   }
@@ -86,7 +86,7 @@ export class AuthController {
     status: 200,
     type: SuccessResponseDto,
   })
-  getLoggedInUser(@AuthUserId() userId: string) {
+  getLoggedInUser(@AuthUserId() { userId }: ITokenPayload) {
     return this._authService.getLoggedInUser(userId);
   }
 
@@ -99,7 +99,7 @@ export class AuthController {
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("profilePicture"))
   updateProfilePicture(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @UploadedFile() profilePicture: Express.Multer.File,
     @Body() updateProfilePictureDto: UpdateProfilePictureDto,
   ) {

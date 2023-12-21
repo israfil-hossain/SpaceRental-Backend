@@ -7,6 +7,7 @@ import {
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
 import { TokenService } from "../token/token.service";
+import { UserDocument } from "../user/entities/user.entity";
 import { UserService } from "../user/user.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
@@ -51,10 +52,9 @@ export class AuthService {
       );
     }
 
-    const accessToken = await this._tokenService.generateAccessToken(user?.id);
-    const refreshToken = await this._tokenService.createRefreshTokenWithUserId(
-      user._id.toString(),
-    );
+    const accessToken = await this._tokenService.generateAccessToken(user);
+    const refreshToken =
+      await this._tokenService.createRefreshTokenWithUserId(user);
 
     user.lastLogin = new Date();
     await user.save();
@@ -70,23 +70,20 @@ export class AuthService {
     );
     const newUser = await this._userService.createUserFromService(signupDto);
 
-    const accessToken = await this._tokenService.generateAccessToken(
-      newUser?.id,
-    );
-    const refreshToken = await this._tokenService.createRefreshTokenWithUserId(
-      newUser?.id,
-    );
+    const accessToken = await this._tokenService.generateAccessToken(newUser);
+    const refreshToken =
+      await this._tokenService.createRefreshTokenWithUserId(newUser);
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc =
+    const { user } =
       await this._tokenService.getRefreshTokenByToken(refreshToken);
 
     const accessToken = await this._tokenService.generateAccessToken(
-      refreshTokenDoc.user.toString(),
+      user as UserDocument,
     );
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 

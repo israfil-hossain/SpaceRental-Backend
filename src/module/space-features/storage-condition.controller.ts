@@ -20,7 +20,7 @@ export class StorageConditionController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
     return this._storageConditionService.create(createSpaceFeatureDto, userId);

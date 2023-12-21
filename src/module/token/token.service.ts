@@ -8,6 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/mongoose";
 import * as base64url from "base64url";
 import * as uuid from "uuid";
+import { UserDocument, UserModel } from "../user/entities/user.entity";
 import {
   RefreshTokenDocument,
   RefreshTokenModel,
@@ -24,11 +25,18 @@ export class TokenService {
     private _refreshTokenModel: RefreshTokenModelType,
   ) {}
 
-  public async generateAccessToken(userId: string) {
-    return await this._jwtService.signAsync({ sid: userId });
+  public async generateAccessToken(user: UserDocument) {
+    const tokenPayload: ITokenPayload = {
+      userId: user?.id?.toString(),
+      userRole: user.role,
+    };
+
+    return await this._jwtService.signAsync(tokenPayload);
   }
 
-  public async createRefreshTokenWithUserId(userId: string): Promise<string> {
+  public async createRefreshTokenWithUserId(
+    user: UserDocument,
+  ): Promise<string> {
     try {
       const token = base64url.default(
         Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
@@ -36,7 +44,7 @@ export class TokenService {
 
       const refreshToken = await this._refreshTokenModel.create({
         token,
-        user: userId,
+        user: user?.id?.toString(),
       });
 
       await refreshToken.save();
@@ -60,6 +68,13 @@ export class TokenService {
         token: refreshToken,
         expiresAt: { $gt: new Date() },
       })
+      .populate([
+        {
+          path: "user",
+          model: UserModel.name,
+          select: "id role",
+        },
+      ])
       .exec();
 
     if (!refreshTokenDoc) {

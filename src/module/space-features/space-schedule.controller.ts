@@ -18,7 +18,7 @@ export class SpaceScheduleController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
     return this._spaceScheduleService.create(createSpaceFeatureDto, userId);

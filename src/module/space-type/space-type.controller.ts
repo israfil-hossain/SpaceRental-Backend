@@ -30,7 +30,7 @@ export class SpaceTypeController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceTypeDto: CreateSpaceTypeDto,
   ) {
     return this._spaceTypeService.create(createSpaceTypeDto, userId);
@@ -62,7 +62,7 @@ export class SpaceTypeController {
   })
   update(
     @Param() { DocId }: DocIdQueryDto,
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() updateSpaceTypeDto: UpdateSpaceTypeDto,
   ) {
     return this._spaceTypeService.update(DocId, updateSpaceTypeDto, userId);

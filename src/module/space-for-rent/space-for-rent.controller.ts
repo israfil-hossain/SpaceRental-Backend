@@ -37,7 +37,7 @@ export class SpaceForRentController {
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @UploadedFiles() spaceImages: Array<Express.Multer.File>,
     @Body() createSpaceDto: CreateSpaceForRentDto,
   ) {
@@ -73,7 +73,7 @@ export class SpaceForRentController {
   @ApiConsumes("multipart/form-data")
   update(
     @Param() { DocId }: DocIdQueryDto,
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() updateSpaceDto: UpdateSpaceForRentDto,
   ) {
     return this._spaceForRentService.update(DocId, updateSpaceDto, userId);
@@ -98,7 +98,7 @@ export class SpaceForRentController {
   @UseInterceptors(FilesInterceptor("spaceImages"))
   addImages(
     @Param() { DocId }: DocIdQueryDto,
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @UploadedFiles() spaceImages: Array<Express.Multer.File>,
     @Body() addSpaceImageDto: AddSpaceImageDto,
   ) {

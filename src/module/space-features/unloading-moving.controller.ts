@@ -20,7 +20,7 @@ export class UnloadingMovingController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
     return this._unloadingMovingService.create(createSpaceFeatureDto, userId);

@@ -18,7 +18,7 @@ export class SpaceSecurityController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
   ) {
     return this._spaceSecurityService.create(createSpaceFeatureDto, userId);

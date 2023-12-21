@@ -32,7 +32,7 @@ export class SpaceAccessOptionController {
     type: SuccessResponseDto,
   })
   create(
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
   ) {
     return this._spaceAccessOptionService.create(
@@ -67,7 +67,7 @@ export class SpaceAccessOptionController {
   })
   update(
     @Param() { DocId }: DocIdQueryDto,
-    @AuthUserId() userId: string,
+    @AuthUserId() { userId }: ITokenPayload,
     @Body() updateSpaceAccessOptionDto: UpdateSpaceAccessOptionDto,
   ) {
     return this._spaceAccessOptionService.update(
