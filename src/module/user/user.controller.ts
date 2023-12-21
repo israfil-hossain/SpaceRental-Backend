@@ -28,6 +28,7 @@ export class UserController {
     status: 201,
     type: SuccessResponseDto,
   })
+  @RequiredRoles([UserRole.ADMIN])
   create(@Body() createUserDto: CreateUserDto) {
     return this._userService.create(createUserDto);
   }
@@ -47,6 +48,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
+  @RequiredRoles([UserRole.ADMIN])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.findOne(DocId);
   }
@@ -56,6 +58,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
+  @RequiredRoles([UserRole.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.remove(DocId);
   }
