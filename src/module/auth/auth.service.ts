@@ -8,7 +8,9 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
 import { TokenService } from "../token/token.service";
 import { UserDocument } from "../user/entities/user.entity";
+import { UserRole } from "../user/enum/user-role.enum";
 import { UserService } from "../user/user.service";
+import { AdminSignInDto } from "./dto/admin-sign-in.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
@@ -24,6 +26,47 @@ export class AuthService {
     private _tokenService: TokenService,
     private _encryptionService: EncryptionService,
   ) {}
+
+  async adminSignIn(
+    adminSignInDto: AdminSignInDto,
+  ): Promise<SuccessResponseDto> {
+    const user = await this._userService.getUserByEmailAndRole(
+      adminSignInDto.email,
+      UserRole.ADMIN,
+    );
+
+    if (
+      !(await this._encryptionService.verifyPassword(
+        adminSignInDto.password,
+        user.password,
+      ))
+    ) {
+      this._logger.error(
+        `Invalid credentials provided with email: ${adminSignInDto.email}`,
+      );
+      throw new UnauthorizedException("Invalid credentials provided");
+    }
+
+    if (user.isPasswordLess) {
+      this._logger.error(
+        `Password-less login attempted with email: ${adminSignInDto.email}`,
+      );
+      throw new BadRequestException(
+        "To enable password-based login, please set up a password for your account alongside social login.",
+      );
+    }
+
+    const accessToken = await this._tokenService.generateAccessToken(user);
+    const refreshToken =
+      await this._tokenService.createRefreshTokenWithUserId(user);
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+
+    return new SuccessResponseDto("Authenticated successfully", tokenDto);
+  }
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
     const user = await this._userService.getUserByEmailAndRole(

@@ -12,6 +12,7 @@ import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
+import { AdminSignInDto } from "./dto/admin-sign-in.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
@@ -28,7 +29,7 @@ export class AuthController {
   @IsPublic()
   @ApiBody({ type: SignUpDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: SuccessResponseDto,
   })
   signUp(@Body() signUpDto: SignUpDto) {
@@ -39,18 +40,29 @@ export class AuthController {
   @IsPublic()
   @ApiBody({ type: SignInDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: SuccessResponseDto,
   })
   signIn(@Body() signInDto: SignInDto) {
     return this._authService.signIn(signInDto);
   }
 
+  @Post("AdminSignIn")
+  @IsPublic()
+  @ApiBody({ type: AdminSignInDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  adminSignIn(@Body() adminSignInDto: AdminSignInDto) {
+    return this._authService.adminSignIn(adminSignInDto);
+  }
+
   @Post("TokenRefresh")
   @IsPublic()
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: SuccessResponseDto,
   })
   tokenRefresh(@Body() tokenRefreshDto: RefreshTokenDto) {
@@ -61,7 +73,7 @@ export class AuthController {
   @IsPublic()
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: SuccessResponseDto,
   })
   tokenRevoke(@Body() tokenRefreshDto: RefreshTokenDto) {
@@ -71,7 +83,7 @@ export class AuthController {
   @Post("ChangePassword")
   @ApiBody({ type: ChangePasswordDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     type: SuccessResponseDto,
   })
   changePassword(
