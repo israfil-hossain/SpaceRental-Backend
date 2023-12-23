@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Patch,
   Post,
   UploadedFile,
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(private readonly _authService: AuthService) {}
 
   @Post("SignUp")
+  @HttpCode(200)
   @IsPublic()
   @ApiBody({ type: SignUpDto })
   @ApiResponse({
@@ -37,6 +39,7 @@ export class AuthController {
   }
 
   @Post("SignIn")
+  @HttpCode(200)
   @IsPublic()
   @ApiBody({ type: SignInDto })
   @ApiResponse({
@@ -48,6 +51,7 @@ export class AuthController {
   }
 
   @Post("AdminSignIn")
+  @HttpCode(200)
   @IsPublic()
   @ApiBody({ type: AdminSignInDto })
   @ApiResponse({
@@ -59,6 +63,7 @@ export class AuthController {
   }
 
   @Post("TokenRefresh")
+  @HttpCode(200)
   @IsPublic()
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
@@ -70,6 +75,7 @@ export class AuthController {
   }
 
   @Post("TokenRevoke")
+  @HttpCode(200)
   @IsPublic()
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
@@ -81,6 +87,7 @@ export class AuthController {
   }
 
   @Post("ChangePassword")
+  @HttpCode(200)
   @ApiBody({ type: ChangePasswordDto })
   @ApiResponse({
     status: 200,
