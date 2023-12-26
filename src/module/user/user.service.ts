@@ -160,6 +160,19 @@ export class UserService {
     return user;
   }
 
+  async getAdminUserByEmail(email: string): Promise<UserDocument> {
+    const user = await this._userModel
+      .findOne({ email, role: { $in: [UserRole.ADMIN, UserRole.SUPER_ADMIN] } })
+      .exec();
+
+    if (!user) {
+      this._logger.error(`Admin User Document not found with Email: ${email}`);
+      throw new NotFoundException(`Admin user not found with email: ${email}`);
+    }
+
+    return user;
+  }
+
   async getUserById(id: string): Promise<UserDocument> {
     const user = await this._userModel
       .findById(id)

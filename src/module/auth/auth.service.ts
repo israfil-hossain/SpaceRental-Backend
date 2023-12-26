@@ -8,7 +8,6 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
 import { TokenService } from "../token/token.service";
 import { UserDocument } from "../user/entities/user.entity";
-import { UserRole } from "../user/enum/user-role.enum";
 import { UserService } from "../user/user.service";
 import { AdminSignInDto } from "./dto/admin-sign-in.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
@@ -30,9 +29,8 @@ export class AuthService {
   async adminSignIn(
     adminSignInDto: AdminSignInDto,
   ): Promise<SuccessResponseDto> {
-    const user = await this._userService.getUserByEmailAndRole(
+    const user = await this._userService.getAdminUserByEmail(
       adminSignInDto.email,
-      UserRole.ADMIN,
     );
 
     if (
