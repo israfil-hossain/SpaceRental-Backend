@@ -15,7 +15,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserDocument, UserModel, UserModelType } from "./entities/user.entity";
-import { UserRoleEnum } from "./enum/user-role.enum";
+import { UserRoleDtoEnum, UserRoleEnum } from "./enum/user-role.enum";
 
 @Injectable()
 export class UserService {
@@ -148,7 +148,7 @@ export class UserService {
 
   async getUserByEmailAndRole(
     email: string,
-    role: UserRoleEnum,
+    role: UserRoleDtoEnum,
   ): Promise<UserDocument> {
     const user = await this._userModel.findOne({ email, role }).exec();
 
