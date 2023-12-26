@@ -8,11 +8,7 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-
-enum UserRole {
-  RENTER = "RENTER",
-  SPACE_OWNER = "OWNER",
-}
+import { UserRoleDtoEnum } from "../enum/user-role.enum";
 
 export class CreateUserDto {
   @ApiProperty({ description: "User's email", example: "user@example.com" })
@@ -27,11 +23,11 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: "User's role",
-    enum: UserRole,
-    example: UserRole.RENTER,
+    enum: UserRoleDtoEnum,
+    example: UserRoleDtoEnum.RENTER,
   })
-  @IsEnum(UserRole, { message: "Invalid user role" })
-  role: UserRole;
+  @IsEnum(UserRoleDtoEnum, { message: "Invalid user role" })
+  role: UserRoleDtoEnum;
 
   @ApiProperty({ description: "User's full name", required: false })
   @IsOptional()

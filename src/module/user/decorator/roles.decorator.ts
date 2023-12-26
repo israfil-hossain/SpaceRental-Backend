@@ -7,9 +7,9 @@ import {
 } from "@nestjs/common";
 import { APP_GUARD, Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
-import { UserRole } from "../enum/user-role.enum";
+import { UserRoleEnum } from "../enum/user-role.enum";
 
-export const RequiredRoles = Reflector.createDecorator<UserRole[]>();
+export const RequiredRoles = Reflector.createDecorator<UserRoleEnum[]>();
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const roles = this._reflector.get<UserRole[]>(
+    const roles = this._reflector.get<UserRoleEnum[]>(
       RequiredRoles,
       context.getHandler(),
     );
@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: ITokenPayload = request.user;
 
-    if (!user || !roles.some((role: UserRole) => user.userRole === role)) {
+    if (!user || !roles.some((role: UserRoleEnum) => user.userRole === role)) {
       this._logger.error(
         `User does not have required roles: ${roles.join(", ")}`,
       );

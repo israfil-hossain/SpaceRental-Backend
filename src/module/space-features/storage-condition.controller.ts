@@ -4,7 +4,7 @@ import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRole } from "../user/enum/user-role.enum";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
 import { StorageConditionService } from "./storage-condition.service";
 
@@ -21,7 +21,7 @@ export class StorageConditionController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -43,7 +43,7 @@ export class StorageConditionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._storageConditionService.remove(DocId);
   }

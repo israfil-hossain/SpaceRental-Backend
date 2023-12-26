@@ -14,7 +14,7 @@ import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRole } from "../user/enum/user-role.enum";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto";
 import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
 import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
@@ -33,7 +33,7 @@ export class SpaceAccessOptionController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
@@ -68,7 +68,7 @@ export class SpaceAccessOptionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -86,7 +86,7 @@ export class SpaceAccessOptionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceAccessOptionService.remove(DocId);
   }

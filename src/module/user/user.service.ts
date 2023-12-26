@@ -15,7 +15,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserDocument, UserModel, UserModelType } from "./entities/user.entity";
-import { UserRole } from "./enum/user-role.enum";
+import { UserRoleEnum } from "./enum/user-role.enum";
 
 @Injectable()
 export class UserService {
@@ -148,7 +148,7 @@ export class UserService {
 
   async getUserByEmailAndRole(
     email: string,
-    role: UserRole,
+    role: UserRoleEnum,
   ): Promise<UserDocument> {
     const user = await this._userModel.findOne({ email, role }).exec();
 
@@ -162,7 +162,10 @@ export class UserService {
 
   async getAdminUserByEmail(email: string): Promise<UserDocument> {
     const user = await this._userModel
-      .findOne({ email, role: { $in: [UserRole.ADMIN, UserRole.SUPER_ADMIN] } })
+      .findOne({
+        email,
+        role: { $in: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN] },
+      })
       .exec();
 
     if (!user) {

@@ -14,7 +14,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "./decorator/roles.decorator";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
-import { UserRole } from "./enum/user-role.enum";
+import { UserRoleEnum } from "./enum/user-role.enum";
 import { UserService } from "./user.service";
 
 @ApiTags("Users")
@@ -28,7 +28,7 @@ export class UserController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   create(@Body() createUserDto: CreateUserDto) {
     return this._userService.create(createUserDto);
   }
@@ -38,7 +38,7 @@ export class UserController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   findAll(@Query() query: ListUserQuery) {
     return this._userService.findAll(query);
   }
@@ -48,7 +48,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.findOne(DocId);
   }
@@ -58,7 +58,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN])
+  @RequiredRoles([UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.remove(DocId);
   }

@@ -17,7 +17,7 @@ import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRole } from "../user/enum/user-role.enum";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
@@ -36,7 +36,7 @@ export class SpaceForRentController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN, UserRole.SPACE_OWNER])
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
   create(
@@ -73,7 +73,7 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN, UserRole.SPACE_OWNER])
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
   @ApiConsumes("multipart/form-data")
   update(
     @Param() { DocId }: DocIdQueryDto,
@@ -88,7 +88,7 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN, UserRole.SPACE_OWNER])
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceForRentService.remove(DocId);
   }
@@ -99,7 +99,7 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN, UserRole.SPACE_OWNER])
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
   addImages(
@@ -122,7 +122,7 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRole.ADMIN, UserRole.SPACE_OWNER])
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
     return this._spaceForRentService.removeSpaceImage(ImageId, SpaceId);
   }

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { ImageModel } from "../../image/entities/image.entity";
-import { UserRole } from "../enum/user-role.enum";
+import { UserRoleEnum } from "../enum/user-role.enum";
 
 export type UserDocument = HydratedDocument<UserModel>;
 export type UserModelType = Model<UserModel>;
@@ -29,10 +29,10 @@ export class UserModel {
 
   @Prop({
     type: String,
-    enum: Object.values(UserRole),
-    default: UserRole.RENTER,
+    enum: Object.values(UserRoleEnum),
+    default: UserRoleEnum.RENTER,
   })
-  role: UserRole;
+  role: UserRoleEnum;
 
   @Prop({ default: null })
   fullName?: string;

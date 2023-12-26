@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsEnum, IsNotEmpty, IsString } from "class-validator";
-import { UserRole } from "../../user/enum/user-role.enum";
+import { UserRoleDtoEnum } from "../../user/enum/user-role.enum";
 
 export class SignInDto {
   @ApiProperty({
@@ -21,9 +21,9 @@ export class SignInDto {
 
   @ApiProperty({
     description: "User's role",
-    enum: UserRole,
-    example: UserRole.RENTER,
+    enum: UserRoleDtoEnum,
+    example: UserRoleDtoEnum.RENTER,
   })
-  @IsEnum(UserRole, { message: "Invalid user role" })
-  role: UserRole;
+  @IsEnum(UserRoleDtoEnum, { message: "Invalid user role" })
+  role: UserRoleDtoEnum;
 }
