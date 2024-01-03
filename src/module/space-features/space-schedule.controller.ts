@@ -19,7 +19,7 @@ export class SpaceScheduleController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
@@ -41,7 +41,7 @@ export class SpaceScheduleController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceScheduleService.remove(DocId);
   }

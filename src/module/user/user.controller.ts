@@ -28,7 +28,7 @@ export class UserController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(@Body() createUserDto: CreateUserDto) {
     return this._userService.create(createUserDto);
   }
@@ -38,7 +38,7 @@ export class UserController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   findAll(@Query() query: ListUserQuery) {
     return this._userService.findAll(query);
   }
@@ -48,7 +48,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.findOne(DocId);
   }
@@ -58,7 +58,7 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.remove(DocId);
   }

@@ -31,7 +31,7 @@ export class SpaceTypeController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceTypeDto: CreateSpaceTypeDto,
@@ -63,7 +63,7 @@ export class SpaceTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -77,7 +77,7 @@ export class SpaceTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN])
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceTypeService.remove(DocId);
   }
