@@ -52,12 +52,9 @@ export class UserService {
     PageSize = 10,
     Name = "",
     Email = "",
+    UserRole,
   }: ListUserQuery): Promise<PaginatedResponseDto> {
     try {
-      // Pagination setup
-      const totalRecords = await this._userModel.countDocuments().exec();
-      const skip = (Page - 1) * PageSize;
-
       // Search query setup
       const searchQuery: Record<string, any> = {};
       if (Email) {
@@ -66,6 +63,16 @@ export class UserService {
       if (Name) {
         searchQuery["fullName"] = { $regex: Name, $options: "i" };
       }
+      if (UserRole) {
+        searchQuery["role"] = UserRole;
+      }
+
+      // Pagination setup
+      const totalRecords = await this._userModel
+        .where(searchQuery)
+        .countDocuments()
+        .exec();
+      const skip = (Page - 1) * PageSize;
 
       const users = await this._userModel
         .where(searchQuery)
