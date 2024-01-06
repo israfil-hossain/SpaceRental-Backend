@@ -9,12 +9,9 @@ export type UserModelType = Model<UserModel>;
 @Schema({
   toJSON: {
     transform: function (_, ret) {
-      delete ret?._id;
       delete ret?.password;
       delete ret?.isPasswordLess;
     },
-    virtuals: true,
-    versionKey: false,
   },
 })
 export class UserModel {

@@ -23,5 +23,6 @@ import { SpaceForRentService } from "./space-for-rent.service";
   ],
   controllers: [SpaceForRentController],
   providers: [SpaceForRentService],
+  exports: [SpaceForRentService],
 })
 export class SpaceForRentModule {}

@@ -7,15 +7,7 @@ export type StorageConditionFeatureDocument =
 export type StorageConditionFeatureModelType =
   Model<StorageConditionFeatureModel>;
 
-@Schema({
-  toJSON: {
-    transform: function (_, ret) {
-      delete ret?._id;
-    },
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
 export class StorageConditionFeatureModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;

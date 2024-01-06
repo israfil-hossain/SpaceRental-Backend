@@ -8,11 +8,8 @@ export type RefreshTokenModelType = Model<RefreshTokenModel>;
 @Schema({
   toJSON: {
     transform: function (_, ret) {
-      delete ret?._id;
       delete ret?.token;
     },
-    virtuals: true,
-    versionKey: false,
   },
 })
 export class RefreshTokenModel {

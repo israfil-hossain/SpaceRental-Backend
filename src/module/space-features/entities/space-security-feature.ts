@@ -6,15 +6,7 @@ export type SpaceSecurityFeatureDocument =
   HydratedDocument<SpaceSecurityFeatureModel>;
 export type SpaceSecurityFeatureModelType = Model<SpaceSecurityFeatureModel>;
 
-@Schema({
-  toJSON: {
-    transform: function (_, ret) {
-      delete ret?._id;
-    },
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
 export class SpaceSecurityFeatureModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;

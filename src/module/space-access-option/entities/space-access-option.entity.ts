@@ -6,15 +6,7 @@ export type SpaceAccessOptionDocument =
   HydratedDocument<SpaceAccessOptionModel>;
 export type SpaceAccessOptionModelType = Model<SpaceAccessOptionModel>;
 
-@Schema({
-  toJSON: {
-    transform: function (_, ret) {
-      delete ret?._id;
-    },
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
 export class SpaceAccessOptionModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;

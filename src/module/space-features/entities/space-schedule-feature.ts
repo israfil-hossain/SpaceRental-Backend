@@ -6,15 +6,7 @@ export type SpaceScheduleFeatureDocument =
   HydratedDocument<SpaceScheduleFeatureModel>;
 export type SpaceScheduleFeatureModelType = Model<SpaceScheduleFeatureModel>;
 
-@Schema({
-  toJSON: {
-    transform: function (_, ret) {
-      delete ret?._id;
-    },
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
 export class SpaceScheduleFeatureModel extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;

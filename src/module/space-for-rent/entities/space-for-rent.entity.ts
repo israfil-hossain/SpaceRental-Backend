@@ -12,15 +12,7 @@ import { SpaceTypeModel } from "../../space-type/entities/space-type.entity";
 export type SpaceForRentDocument = HydratedDocument<SpaceForRentModel>;
 export type SpaceForRentModelType = Model<SpaceForRentModel>;
 
-@Schema({
-  toJSON: {
-    transform: function (_, ret) {
-      delete ret?._id;
-    },
-    virtuals: true,
-    versionKey: false,
-  },
-})
+@Schema()
 export class SpaceForRentModel extends BaseEntity {
   @Prop({ type: String, required: true })
   name: string;

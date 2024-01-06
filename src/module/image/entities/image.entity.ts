@@ -7,11 +7,8 @@ export type ImageModelType = Model<ImageModel>;
 @Schema({
   toJSON: {
     transform: function (_, ret) {
-      delete ret?._id;
       delete ret?.ownerId;
     },
-    virtuals: true,
-    versionKey: false,
   },
 })
 export class ImageModel {

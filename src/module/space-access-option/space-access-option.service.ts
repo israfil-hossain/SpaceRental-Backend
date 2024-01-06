@@ -57,17 +57,18 @@ export class SpaceAccessOptionService {
     Name = "",
   }: ListSpaceAccessOptionQuery): Promise<PaginatedResponseDto> {
     try {
-      // Pagination setup
-      const totalRecords = await this._spaceAccessOptionModelType
-        .countDocuments()
-        .exec();
-      const skip = (Page - 1) * PageSize;
-
       // Search query setup
       const searchQuery: Record<string, any> = {};
       if (Name) {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
+
+      // Pagination setup
+      const totalRecords = await this._spaceAccessOptionModelType
+        .where(searchQuery)
+        .countDocuments()
+        .exec();
+      const skip = (Page - 1) * PageSize;
 
       const result = await this._spaceAccessOptionModelType
         .where(searchQuery)

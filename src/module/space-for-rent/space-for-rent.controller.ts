@@ -36,7 +36,11 @@ export class SpaceForRentController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
+  @RequiredRoles([
+    UserRoleEnum.SUPER_ADMIN,
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.SPACE_OWNER,
+  ])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
   create(

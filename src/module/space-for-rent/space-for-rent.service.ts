@@ -108,23 +108,65 @@ export class SpaceForRentService {
     Name = "",
   }: ListSpaceForRentQuery): Promise<PaginatedResponseDto> {
     try {
-      // Pagination setup
-      const totalRecords = await this._spaceForRentModel
-        .countDocuments()
-        .exec();
-      const skip = (Page - 1) * PageSize;
-
       // Search query setup
       const searchQuery: Record<string, any> = {};
       if (Name) {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this._spaceForRentModel
+      // Pagination setup
+      const totalRecords = await this._spaceForRentModel
         .where(searchQuery)
-        .find()
-        .skip(skip)
-        .limit(PageSize)
+        .countDocuments()
+        .exec();
+      const skip = (Page - 1) * PageSize;
+
+      const result = await this._spaceForRentModel
+        .aggregate([
+          { $match: searchQuery },
+          { $skip: skip },
+          { $limit: PageSize },
+          {
+            $lookup: {
+              from: "spacereviewmodels",
+              let: { spaceId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: [{ $toObjectId: "$space" }, "$$spaceId"],
+                    },
+                  },
+                },
+              ],
+              as: "spaceReviews",
+            },
+          },
+          {
+            $addFields: {
+              reviewCount: { $size: "$spaceReviews" },
+            },
+          },
+          {
+            $addFields: {
+              averageRating: {
+                $cond: {
+                  if: { $gt: ["$reviewCount", 0] },
+                  then: {
+                    $divide: [
+                      {
+                        $sum: "$spaceReviews.rating",
+                      },
+                      "$reviewCount",
+                    ],
+                  },
+                  else: 0,
+                },
+              },
+            },
+          },
+          { $unset: "spaceReviews" },
+        ])
         .exec();
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
@@ -361,4 +403,18 @@ export class SpaceForRentService {
 
     return new SuccessResponseDto("Image deleted successfully");
   }
+
+  //#region InternalMethods
+  async validateObjectId(id: string): Promise<void> {
+    const result = await this._spaceForRentModel
+      .findById(id)
+      .select("_id")
+      .exec();
+
+    if (!result) {
+      this._logger.error(`Invalid space ID: ${id}`);
+      throw new BadRequestException("Invalid space ID");
+    }
+  }
+  //#endregion
 }
