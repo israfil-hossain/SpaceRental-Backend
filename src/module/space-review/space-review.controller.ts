@@ -43,9 +43,9 @@ export class SpaceReviewController {
     return this.spaceReviewService.findAll(listSpaceReviewQuery);
   }
 
-  @Get("GetById/:DocId")
-  findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceReviewService.findOne(DocId);
+  @Get("GetAllBySpaceId/:DocId")
+  findAllBySpaceId(@Param() { DocId }: DocIdQueryDto) {
+    return this.spaceReviewService.findAllBySpaceId(DocId);
   }
 
   @Delete("DeleteById/:DocId")

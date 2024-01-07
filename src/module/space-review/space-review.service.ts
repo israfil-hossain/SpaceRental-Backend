@@ -93,9 +93,9 @@ export class SpaceReviewService {
     }
   }
 
-  async findOne(id: string): Promise<SuccessResponseDto> {
+  async findAllBySpaceId(id: string): Promise<SuccessResponseDto> {
     const result = await this._spaceReviewModelType
-      .findById(id)
+      .find({ space: id })
       .populate([
         {
           path: "reviewer",
@@ -104,12 +104,14 @@ export class SpaceReviewService {
       ])
       .exec();
 
-    if (!result) {
-      this._logger.error(`Document not found with ID: ${id}`);
-      throw new NotFoundException(`Could not find document with ID: ${id}`);
+    if (!result.length) {
+      this._logger.error(`No document found with Space ID: ${id}`);
+      throw new NotFoundException(
+        `Could not find any document with Space ID: ${id}`,
+      );
     }
 
-    return new SuccessResponseDto("Document found successfully", result);
+    return new SuccessResponseDto("Documents found successfully", result);
   }
 
   // update(id: number, updateSpaceReviewDto: UpdateSpaceReviewDto) {
