@@ -20,6 +20,7 @@ import { SpaceScheduleService } from "../space-features/space-schedule.service";
 import { SpaceSecurityService } from "../space-features/space-security.service";
 import { StorageConditionService } from "../space-features/storage-condition.service";
 import { UnloadingMovingService } from "../space-features/unloading-moving.service";
+import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
 import { UserModel } from "../user/entities/user.entity";
@@ -122,51 +123,90 @@ export class SpaceForRentService {
       const skip = (Page - 1) * PageSize;
 
       const result = await this._spaceForRentModel
-        .aggregate([
-          { $match: searchQuery },
-          { $skip: skip },
-          { $limit: PageSize },
-          {
-            $lookup: {
-              from: "spacereviewmodels",
-              let: { spaceId: "$_id" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: [{ $toObjectId: "$space" }, "$$spaceId"],
-                    },
-                  },
+        .aggregate()
+        .match(searchQuery)
+        .skip(skip)
+        .limit(PageSize)
+        .lookup({
+          from: `${SpaceReviewModel.name.toLowerCase()}s`,
+          let: { spaceId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: "$space" }, "$$spaceId"],
                 },
-              ],
-              as: "spaceReviews",
+              },
             },
-          },
-          {
-            $addFields: {
-              reviewCount: { $size: "$spaceReviews" },
-            },
-          },
-          {
-            $addFields: {
-              averageRating: {
-                $cond: {
-                  if: { $gt: ["$reviewCount", 0] },
-                  then: {
-                    $divide: [
-                      {
-                        $sum: "$spaceReviews.rating",
-                      },
-                      "$reviewCount",
-                    ],
+          ],
+          as: "spaceReviews",
+        })
+        .addFields({
+          reviewCount: { $size: "$spaceReviews" },
+        })
+        .addFields({
+          averageRating: {
+            $cond: {
+              if: { $gt: ["$reviewCount", 0] },
+              then: {
+                $divide: [
+                  {
+                    $sum: "$spaceReviews.rating",
                   },
-                  else: 0,
+                  "$reviewCount",
+                ],
+              },
+              else: 0,
+            },
+          },
+        })
+        .lookup({
+          from: `${ImageModel.name.toLowerCase()}s`,
+          let: {
+            spaceImagesIds: {
+              $map: {
+                input: "$spaceImages",
+                as: "spaceImage",
+                in: {
+                  $toObjectId: "$$spaceImage",
                 },
               },
             },
           },
-          { $unset: "spaceReviews" },
-        ])
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$spaceImagesIds"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                url: 1,
+                name: 1,
+              },
+            },
+            {
+              $limit: 1,
+            },
+          ],
+          as: "coverImage",
+        })
+        .addFields({
+          coverImage: {
+            $arrayElemAt: ["$coverImage.url", 0],
+          },
+        })
+        .project({
+          _id: 1,
+          name: 1,
+          description: 1,
+          reviewCount: 1,
+          averageRating: 1,
+          coverImage: 1,
+        })
         .exec();
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
