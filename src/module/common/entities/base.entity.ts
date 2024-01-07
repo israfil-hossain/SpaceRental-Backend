@@ -14,4 +14,7 @@ export class BaseEntity {
 
   @Prop({ type: Types.ObjectId, ref: UserModel.name, default: null })
   updatedBy?: UserModel;
+
+  @Prop({ type: Boolean, default: true })
+  isActive: boolean;
 }

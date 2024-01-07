@@ -35,6 +35,9 @@ export class SpaceForRentModel extends BaseEntity {
   @Prop({ type: String, required: true })
   minimumPeriod: string;
 
+  @Prop({ type: Boolean, default: false })
+  isVerifiedByAdmin: boolean;
+
   @Prop({
     type: Types.ObjectId,
     ref: SpaceTypeModel.name,
