@@ -146,6 +146,13 @@ export class UserService {
 
       return newUser;
     } catch (error) {
+      if (error?.name === "MongoServerError" && error?.code === 11000) {
+        this._logger.error("Duplicate key error:", error);
+        throw new ConflictException(
+          "User already exists with provided email and role",
+        );
+      }
+
       this._logger.error("Error creating user:", error);
       throw new BadRequestException(
         "Error occured while trying to create user",

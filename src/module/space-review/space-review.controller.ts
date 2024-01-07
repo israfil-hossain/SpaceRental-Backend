@@ -12,6 +12,8 @@ import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { RequiredRoles } from "../user/decorator/roles.decorator";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
 import { SpaceReviewService } from "./space-review.service";
@@ -39,6 +41,7 @@ export class SpaceReviewController {
     status: 200,
     type: PaginatedResponseDto,
   })
+  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   findAll(@Query() listSpaceReviewQuery: ListSpaceReviewQuery) {
     return this.spaceReviewService.findAll(listSpaceReviewQuery);
   }

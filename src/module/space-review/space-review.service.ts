@@ -66,24 +66,30 @@ export class SpaceReviewService {
     PageSize = 10,
   }: ListSpaceReviewQuery): Promise<PaginatedResponseDto> {
     try {
-      // Search query setup
-      const searchQuery: Record<string, any> = {};
-      // if (Name) {
-      //   searchQuery["name"] = { $regex: Name, $options: "i" };
-      // }
-
       // Pagination setup
       const totalRecords = await this._spaceReviewModelType
-        .where(searchQuery)
         .countDocuments()
         .exec();
       const skip = (Page - 1) * PageSize;
 
       const result = await this._spaceReviewModelType
-        .where(searchQuery)
         .find()
         .skip(skip)
         .limit(PageSize)
+        .populate([
+          {
+            path: "reviewer",
+            select: "id email fullName profilePicture",
+          },
+          {
+            path: "createdBy",
+            select: "id email fullName",
+          },
+          {
+            path: "updatedBy",
+            select: "id email fullName",
+          },
+        ])
         .exec();
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
