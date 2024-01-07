@@ -14,7 +14,6 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
-import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
 
 @Injectable()
 export class AuthService {
@@ -178,21 +177,5 @@ export class AuthService {
     const user = await this._userService.getUserById(userId);
 
     return new SuccessResponseDto("Logged in user found", user);
-  }
-
-  async updateProfilePicture(
-    updateProfilePictureDto: UpdateProfilePictureDto,
-    userId: string,
-  ): Promise<SuccessResponseDto> {
-    const updatedUser = await this._userService.updateUserProfilePicById(
-      userId,
-      updateProfilePictureDto.profilePicture,
-    );
-
-    if (!updatedUser) {
-      throw new BadRequestException("Could not update profile picture");
-    }
-
-    return new SuccessResponseDto("Profile picture updated successfully");
   }
 }

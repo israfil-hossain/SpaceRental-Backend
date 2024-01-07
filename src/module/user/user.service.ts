@@ -13,6 +13,7 @@ import { ImageModel } from "../image/entities/image.entity";
 import { ImageService } from "../image/image.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
+import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserDocument, UserModel, UserModelType } from "./entities/user.entity";
 import { UserRoleDtoEnum, UserRoleEnum } from "./enum/user-role.enum";
@@ -136,6 +137,54 @@ export class UserService {
     return new SuccessResponseDto("User deleted successfully");
   }
 
+  async updateProfilePicture(
+    { profilePicture }: UpdateProfilePictureDto,
+    userId: string,
+  ): Promise<SuccessResponseDto> {
+    try {
+      const user = await this._userModel.findById(userId).exec();
+
+      if (!user) {
+        this._logger.error(`User Document not found with ID: ${userId}`);
+        throw new NotFoundException(`Could not find user with ID: ${userId}`);
+      }
+
+      if (user?.profilePicture) {
+        await this._imageService.removeImage(
+          user?.profilePicture as unknown as string,
+          userId,
+        );
+      }
+
+      const createdImage = await this._imageService.createSingleImage(
+        profilePicture,
+        userId,
+      );
+
+      const result = await user.updateOne(
+        {
+          profilePicture: createdImage.id,
+        },
+        {
+          new: true,
+        },
+      );
+
+      if (!result) {
+        throw new BadRequestException("Could not update profile picture");
+      }
+
+      return new SuccessResponseDto("Profile picture updated successfully");
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      this._logger.error("Error updating user:", error);
+      throw new BadRequestException("Error updating user");
+    }
+  }
+
   //#region Internal Service methods
   async createUserFromService(
     userCreateDto: CreateUserDto,
@@ -208,50 +257,6 @@ export class UserService {
     }
 
     return user;
-  }
-
-  async updateUserProfilePicById(
-    userId: string,
-    image: Express.Multer.File,
-  ): Promise<UserDocument> {
-    try {
-      const user = await this._userModel.findById(userId).exec();
-
-      if (!user) {
-        this._logger.error(`User Document not found with ID: ${userId}`);
-        throw new NotFoundException(`Could not find user with ID: ${userId}`);
-      }
-
-      if (user?.profilePicture) {
-        await this._imageService.removeImage(
-          user?.profilePicture as unknown as string,
-          userId,
-        );
-      }
-
-      const createdImage = await this._imageService.createSingleImage(
-        image,
-        userId,
-      );
-
-      await user.updateOne(
-        {
-          profilePicture: createdImage.id,
-        },
-        {
-          new: true,
-        },
-      );
-
-      return user;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      this._logger.error("Error updating user:", error);
-      throw new BadRequestException("Error updating user");
-    }
   }
   //#endregion
 }

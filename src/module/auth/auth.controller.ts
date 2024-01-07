@@ -1,15 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Patch,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, Post } from "@nestjs/common";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AuthService } from "./auth.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
@@ -18,7 +8,6 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
-import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
 import { IsPublic } from "./guard/auth.guard";
 
 @ApiTags("Authentication")
@@ -107,26 +96,5 @@ export class AuthController {
   })
   getLoggedInUser(@AuthUserId() { userId }: ITokenPayload) {
     return this._authService.getLoggedInUser(userId);
-  }
-
-  @Patch("UpdateProfilePicture")
-  @ApiBody({ type: UpdateProfilePictureDto })
-  @ApiResponse({
-    status: 200,
-    type: SuccessResponseDto,
-  })
-  @ApiConsumes("multipart/form-data")
-  @UseInterceptors(FileInterceptor("profilePicture"))
-  updateProfilePicture(
-    @AuthUserId() { userId }: ITokenPayload,
-    @UploadedFile() profilePicture: Express.Multer.File,
-    @Body() updateProfilePictureDto: UpdateProfilePictureDto,
-  ) {
-    updateProfilePictureDto.profilePicture = profilePicture;
-
-    return this._authService.updateProfilePicture(
-      updateProfilePictureDto,
-      userId,
-    );
   }
 }
