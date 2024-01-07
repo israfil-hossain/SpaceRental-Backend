@@ -9,6 +9,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceForRentService } from "../space-for-rent/space-for-rent.service";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
 import {
@@ -124,16 +125,36 @@ export class SpaceReviewService {
   //   return `This action updates a #${id} spaceReview`;
   // }
 
-  async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceReviewModelType
-      .findByIdAndDelete(id)
-      .exec();
+  async remove(
+    id: string,
+    { userId, userRole }: ITokenPayload,
+  ): Promise<SuccessResponseDto> {
+    const searchQuery: Record<string, any> = {
+      _id: id,
+    };
 
-    if (!result) {
-      this._logger.error(`Document not found with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+    // Check if the user is not SUPER_ADMIN or ADMIN
+    if (
+      ![
+        UserRoleEnum.SUPER_ADMIN.toString(),
+        UserRoleEnum.ADMIN.toString(),
+      ].includes(userRole)
+    ) {
+      searchQuery["reviewer"] = userId;
     }
 
-    return new SuccessResponseDto("Document deleted successfully");
+    try {
+      const result =
+        await this._spaceReviewModelType.findOneAndDelete(searchQuery);
+
+      if (!result) {
+        throw new Error("No deleted document was found");
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      this._logger.error(`Error deleting document with ID: ${id}`, error);
+      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+    }
   }
 }

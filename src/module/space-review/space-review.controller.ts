@@ -52,7 +52,10 @@ export class SpaceReviewController {
   }
 
   @Delete("DeleteById/:DocId")
-  remove(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceReviewService.remove(DocId);
+  remove(
+    @AuthUserId() tokenPayload: ITokenPayload,
+    @Param() { DocId }: DocIdQueryDto,
+  ) {
+    return this.spaceReviewService.remove(DocId, tokenPayload);
   }
 }
