@@ -207,13 +207,40 @@ export class SpaceForRentService {
             $arrayElemAt: ["$coverImage.url", 0],
           },
         })
+        .lookup({
+          from: `${SpaceAccessOptionModel.name.toLowerCase()}s`,
+          let: {
+            accessMethodId: "$accessMethod",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: "$_id" },
+                    { $toString: "$$accessMethodId" },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "accessMethod",
+        })
+        .addFields({
+          accessMethod: {
+            $arrayElemAt: ["$accessMethod.name", 0],
+          },
+        })
         .project({
           _id: 1,
           name: 1,
-          description: 1,
+          location: 1,
+          price: 1,
+          minimumPeriod: 1,
           reviewCount: 1,
           averageRating: 1,
           coverImage: 1,
+          accessMethod: 1,
         })
         .exec();
 
