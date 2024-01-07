@@ -360,6 +360,42 @@ export class SpaceForRentService {
     }
   }
 
+  async verify(
+    spaceId: string,
+    isVerified: boolean,
+    auditUserId: string,
+  ): Promise<SuccessResponseDto> {
+    try {
+      const result = await this._spaceForRentModel
+        .findByIdAndUpdate(
+          spaceId,
+          {
+            isVerifiedByAdmin: isVerified,
+            updatedBy: auditUserId,
+            updatedAt: new Date(),
+          },
+          { new: true },
+        )
+        .exec();
+
+      if (!result) {
+        this._logger.error(`Document not found with ID: ${spaceId}`);
+        throw new NotFoundException(
+          `Could not find space type with ID: ${spaceId}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document updated successfully", result);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      this._logger.error("Error updating document:", error);
+      throw new BadRequestException("Error updating document");
+    }
+  }
+
   async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._spaceForRentModel.findByIdAndDelete(id).exec();
 

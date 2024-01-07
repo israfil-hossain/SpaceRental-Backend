@@ -23,6 +23,7 @@ import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
+import { VerifySpaceForRentDto } from "./dto/verify-space-for-rent.dto";
 import { SpaceForRentService } from "./space-for-rent.service";
 
 @ApiTags("Space for Rent")
@@ -92,6 +93,19 @@ export class SpaceForRentController {
     @Body() updateSpaceDto: UpdateSpaceForRentDto,
   ) {
     return this._spaceForRentService.update(DocId, updateSpaceDto, userId);
+  }
+
+  @Patch("VerifySpaceById/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN])
+  verify(
+    @AuthUserId() { userId }: ITokenPayload,
+    @Body() { SpaceId, IsVerified }: VerifySpaceForRentDto,
+  ) {
+    return this._spaceForRentService.verify(SpaceId, IsVerified, userId);
   }
 
   @Delete("DeleteById/:DocId")
