@@ -58,8 +58,15 @@ export class SpaceForRentController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  findAll(@Query() listSpaceForRentQuery: ListSpaceForRentQuery) {
-    return this._spaceForRentService.findAll(listSpaceForRentQuery);
+  findAll(
+    @AuthUserId() { userId, userRole }: ITokenPayload,
+    @Query() listSpaceForRentQuery: ListSpaceForRentQuery,
+  ) {
+    return this._spaceForRentService.findAll(
+      listSpaceForRentQuery,
+      userId,
+      userRole,
+    );
   }
 
   @Get("GetById/:DocId")

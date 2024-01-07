@@ -127,7 +127,8 @@ export class SpaceReviewService {
 
   async remove(
     id: string,
-    { userId, userRole }: ITokenPayload,
+    userId: string,
+    userRole: string,
   ): Promise<SuccessResponseDto> {
     const searchQuery: Record<string, any> = {
       _id: id,

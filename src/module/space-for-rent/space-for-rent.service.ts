@@ -24,6 +24,7 @@ import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
 import { UserModel } from "../user/entities/user.entity";
+import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
@@ -103,22 +104,29 @@ export class SpaceForRentService {
     }
   }
 
-  async findAll({
-    Page = 1,
-    PageSize = 10,
-    Name = "",
-  }: ListSpaceForRentQuery): Promise<PaginatedResponseDto> {
+  async findAll(
+    { Page = 1, PageSize = 10, Name = "" }: ListSpaceForRentQuery,
+    userId: string,
+    userRole: string,
+  ): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
       const searchQuery: Record<string, any> = {};
+
       if (Name) {
-        searchQuery["name"] = { $regex: Name, $options: "i" };
+        searchQuery.name = { $regex: Name, $options: "i" };
+      }
+
+      if (userRole === UserRoleEnum.SPACE_OWNER.toString()) {
+        searchQuery.createdBy = userId;
+      } else if (userRole === UserRoleEnum.RENTER.toString()) {
+        searchQuery.isActive = true;
+        searchQuery.isVerifiedByAdmin = true;
       }
 
       // Pagination setup
       const totalRecords = await this._spaceForRentModel
-        .where(searchQuery)
-        .countDocuments()
+        .countDocuments(searchQuery)
         .exec();
       const skip = (Page - 1) * PageSize;
 
