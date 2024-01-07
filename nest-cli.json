@@ -5,7 +5,8 @@
   "compilerOptions": {
     "builder": "swc",
     "deleteOutDir": true,
-    "plugins": ["@nestjs/swagger"]
+    "plugins": ["@nestjs/swagger"],
+    "assets": ["module/mail/templates/**/*"],
+    "watchAssets": true
   }
 }
-

@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
+import { MailService } from "../mail/mail.service";
 import { TokenService } from "../token/token.service";
 import { UserDocument } from "../user/entities/user.entity";
 import { UserService } from "../user/user.service";
@@ -23,6 +24,7 @@ export class AuthService {
     private _userService: UserService,
     private _tokenService: TokenService,
     private _encryptionService: EncryptionService,
+    private _mailService: MailService,
   ) {}
 
   async adminSignIn(
@@ -61,6 +63,7 @@ export class AuthService {
     await user.save();
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    this._mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
@@ -100,6 +103,7 @@ export class AuthService {
     await user.save();
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    this._mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
@@ -113,7 +117,9 @@ export class AuthService {
     const accessToken = await this._tokenService.generateAccessToken(newUser);
     const refreshToken =
       await this._tokenService.createRefreshTokenWithUserId(newUser);
+
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    this._mailService.sendUserSignupMail(newUser.email, newUser.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
@@ -125,6 +131,7 @@ export class AuthService {
     const accessToken = await this._tokenService.generateAccessToken(
       user as UserDocument,
     );
+
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);

@@ -11,6 +11,7 @@ import { SpaceTypeModule } from "./module/space-type/space-type.module";
 import { TokenModule } from "./module/token/token.module";
 import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
+import { MailModule } from "./module/mail/mail.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     SpaceFeaturesModule,
     SpaceForRentModule,
     SpaceReviewModule,
+    MailModule,
   ],
   providers: [ValidationProvider],
 })
