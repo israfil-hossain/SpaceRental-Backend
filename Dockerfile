@@ -1,8 +1,5 @@
-# Use Node.js LTS Alpine as the base image
-FROM node:lts-alpine as base
-
 # Build stage
-FROM base as builder
+FROM node:lts-alpine as builder
 WORKDIR /app
 COPY package.json ./
 RUN npm install
@@ -10,8 +7,12 @@ COPY . .
 RUN npm run build
 
 # Run stage
-FROM base as runner
+FROM node:lts-alpine as runner
+ENV NODE_ENV=production
 WORKDIR /app
-COPY --from=builder /app/dist .
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+RUN npm prune --omit=dev
+COPY --from=builder /app/dist ./dist
 EXPOSE 4000
-CMD ["node", "main.js"]
+CMD ["npm", "run", "start:prod"]
