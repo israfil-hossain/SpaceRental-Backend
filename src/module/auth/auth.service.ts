@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { EmailService } from "../email/email.service";
 import { EncryptionService } from "../encryption/encryption.service";
-import { MailService } from "../mail/mail.service";
 import { TokenService } from "../token/token.service";
 import { UserDocument } from "../user/entities/user.entity";
 import { UserService } from "../user/user.service";
@@ -24,7 +24,7 @@ export class AuthService {
     private _userService: UserService,
     private _tokenService: TokenService,
     private _encryptionService: EncryptionService,
-    private _mailService: MailService,
+    private _mailService: EmailService,
   ) {}
 
   async adminSignIn(
