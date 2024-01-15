@@ -20,7 +20,7 @@ export class UnloadingMovingFeatureService {
 
   constructor(
     @InjectModel(UnloadingMovingFeature.name)
-    private _unloadingMovingFeatureType: UnloadingMovingFeatureType,
+    private _unloadingMovingFeature: UnloadingMovingFeatureType,
   ) {}
 
   async create(
@@ -28,7 +28,7 @@ export class UnloadingMovingFeatureService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._unloadingMovingFeatureType({
+      const newSpaceType = new this._unloadingMovingFeature({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -51,7 +51,7 @@ export class UnloadingMovingFeatureService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._unloadingMovingFeatureType.find().exec();
+      const results = await this._unloadingMovingFeature.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
@@ -61,7 +61,7 @@ export class UnloadingMovingFeatureService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._unloadingMovingFeatureType
+    const result = await this._unloadingMovingFeature
       .findByIdAndDelete(id)
       .exec();
 
@@ -75,7 +75,7 @@ export class UnloadingMovingFeatureService {
 
   //#region InternalMethods
   async validateObjectIds(listOfIds: string[] = []): Promise<void> {
-    const result = await this._unloadingMovingFeatureType
+    const result = await this._unloadingMovingFeature
       .find({ _id: { $in: listOfIds } })
       .select("_id")
       .exec();

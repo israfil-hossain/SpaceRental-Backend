@@ -18,5 +18,6 @@ import { StorageConditionFeatureService } from "./storage-condition-feature.serv
   ],
   controllers: [StorageConditionFeatureController],
   providers: [StorageConditionFeatureService],
+  exports: [StorageConditionFeatureService],
 })
 export class StorageConditionFeatureModule {}

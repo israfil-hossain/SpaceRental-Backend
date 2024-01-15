@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiBody, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -8,6 +8,7 @@ import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceSecurityFeatureDto } from "./dto/create-space-security-feature.dto";
 import { SpaceSecurityFeatureService } from "./space-security-feature.service";
 
+@ApiTags("Features - Space Security")
 @Controller("space-security-feature")
 export class SpaceSecurityFeatureController {
   constructor(

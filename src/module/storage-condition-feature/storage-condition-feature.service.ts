@@ -20,7 +20,7 @@ export class StorageConditionFeatureService {
 
   constructor(
     @InjectModel(StorageConditionFeature.name)
-    private _storageConditionFeatureType: StorageConditionFeatureType,
+    private _storageConditionFeature: StorageConditionFeatureType,
   ) {}
 
   async create(
@@ -28,7 +28,7 @@ export class StorageConditionFeatureService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._storageConditionFeatureType({
+      const newSpaceType = new this._storageConditionFeature({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
@@ -51,7 +51,7 @@ export class StorageConditionFeatureService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._storageConditionFeatureType.find().exec();
+      const results = await this._storageConditionFeature.find().exec();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
@@ -61,7 +61,7 @@ export class StorageConditionFeatureService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._storageConditionFeatureType
+    const result = await this._storageConditionFeature
       .findByIdAndDelete(id)
       .exec();
 
@@ -75,7 +75,7 @@ export class StorageConditionFeatureService {
 
   //#region InternalMethods
   async validateObjectIds(listOfIds: string[] = []): Promise<void> {
-    const result = await this._storageConditionFeatureType
+    const result = await this._storageConditionFeature
       .find({ _id: { $in: listOfIds } })
       .select("_id")
       .exec();

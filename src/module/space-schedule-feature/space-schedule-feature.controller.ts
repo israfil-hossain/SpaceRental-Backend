@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiBody, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -8,6 +8,7 @@ import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceScheduleFeatureDto } from "./dto/create-space-schedule-feature.dto";
 import { SpaceScheduleFeatureService } from "./space-schedule-feature.service";
 
+@ApiTags("Features - Space Schedule")
 @Controller("space-schedule-feature")
 export class SpaceScheduleFeatureController {
   constructor(

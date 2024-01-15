@@ -8,7 +8,7 @@ import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateUnloadingMovingFeatureDto } from "./dto/create-unloading-moving-feature.dto";
 import { UnloadingMovingFeatureService } from "./unloading-moving-feature.service";
 
-@ApiTags("Unloading Moving Features")
+@ApiTags("Features - Unloading and Moving")
 @Controller("unloading-moving-feature")
 export class UnloadingMovingFeatureController {
   constructor(
