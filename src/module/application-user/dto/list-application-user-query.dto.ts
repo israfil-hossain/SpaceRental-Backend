@@ -2,9 +2,9 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional, IsString } from "class-validator";
 import { PaginationQuery } from "../../common/dto/pagintation-query.dto";
-import { UserRoleDtoEnum } from "../enum/user-role.enum";
+import { ApplicationUserRoleDtoEnum } from "../enum/application-user-role.enum";
 
-export class ListUserQuery extends PaginationQuery {
+export class ListApplicationUserQuery extends PaginationQuery {
   @ApiProperty({
     description: "Email of the user",
     required: false,
@@ -25,9 +25,9 @@ export class ListUserQuery extends PaginationQuery {
 
   @ApiProperty({
     description: "User's role",
-    enum: UserRoleDtoEnum,
+    enum: ApplicationUserRoleDtoEnum,
     required: false,
   })
   @IsOptional()
-  public readonly UserRole?: UserRoleDtoEnum;
+  public readonly UserRole?: ApplicationUserRoleDtoEnum;
 }

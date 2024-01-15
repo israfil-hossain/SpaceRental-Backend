@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
-import { UserModel } from "../../user/entities/user.entity";
+import { ApplicationUser } from "../../application-user/entities/application-user.entity";
 
 export type RefreshTokenDocument = HydratedDocument<RefreshTokenModel>;
 export type RefreshTokenModelType = Model<RefreshTokenModel>;
@@ -16,8 +16,12 @@ export class RefreshTokenModel {
   @Prop({ type: String, required: true, unique: true })
   token: string;
 
-  @Prop({ type: Types.ObjectId, ref: UserModel.name, required: true })
-  user: UserModel;
+  @Prop({
+    type: Types.ObjectId,
+    ref: ApplicationUser.name,
+    required: true,
+  })
+  user: ApplicationUser;
 
   @Prop({
     default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),

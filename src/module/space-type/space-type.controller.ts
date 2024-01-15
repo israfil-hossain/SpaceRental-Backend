@@ -9,12 +9,12 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { RequiredRoles } from "../application-user/decorator/roles.decorator";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
 import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
@@ -31,7 +31,10 @@ export class SpaceTypeController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceTypeDto: CreateSpaceTypeDto,
@@ -63,7 +66,10 @@ export class SpaceTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -77,7 +83,10 @@ export class SpaceTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceTypeService.remove(DocId);
   }

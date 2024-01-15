@@ -11,24 +11,33 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { ListUserQuery } from "./dto/list-user-query.dto";
-import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { UserDocument, UserModel, UserModelType } from "./entities/user.entity";
-import { UserRoleDtoEnum, UserRoleEnum } from "./enum/user-role.enum";
+import { CreateApplicationUserDto } from "./dto/create-application-user.dto";
+import { ListApplicationUserQuery } from "./dto/list-application-user-query.dto";
+import { UpdateApplicationUserProfilePictureDto } from "./dto/update-application-user-profile-picture.dto";
+import { UpdateApplicationUserDto } from "./dto/update-application-user.dto";
+import {
+  ApplicationUser,
+  ApplicationUserDocument,
+  ApplicationUserType,
+} from "./entities/application-user.entity";
+import {
+  ApplicationUserRoleDtoEnum,
+  ApplicationUserRoleEnum,
+} from "./enum/application-user-role.enum";
 
 @Injectable()
-export class UserService {
-  private readonly _logger: Logger = new Logger(UserService.name);
+export class ApplicationUserService {
+  private readonly _logger: Logger = new Logger(ApplicationUserService.name);
 
   constructor(
     private _encryptionService: EncryptionService,
-    @InjectModel(UserModel.name) private _userModel: UserModelType,
+    @InjectModel(ApplicationUser.name) private _userModel: ApplicationUserType,
     private readonly _imageService: ImageMetaService,
   ) {}
 
-  async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
+  async create(
+    userCreateDto: CreateApplicationUserDto,
+  ): Promise<SuccessResponseDto> {
     try {
       userCreateDto["password"] = await this._encryptionService.hashPassword(
         userCreateDto.password,
@@ -54,7 +63,7 @@ export class UserService {
     Name = "",
     Email = "",
     UserRole,
-  }: ListUserQuery): Promise<PaginatedResponseDto> {
+  }: ListApplicationUserQuery): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
       const searchQuery: Record<string, any> = {};
@@ -100,7 +109,7 @@ export class UserService {
     return new SuccessResponseDto("User found successfully", user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateApplicationUserDto) {
     try {
       const result = await this._userModel
         .findByIdAndUpdate(id, updateUserDto, { new: true })
@@ -138,7 +147,7 @@ export class UserService {
   }
 
   async updateProfilePicture(
-    { profilePicture }: UpdateProfilePictureDto,
+    { profilePicture }: UpdateApplicationUserProfilePictureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
@@ -187,8 +196,8 @@ export class UserService {
 
   //#region Internal Service methods
   async createUserFromService(
-    userCreateDto: CreateUserDto,
-  ): Promise<UserDocument> {
+    userCreateDto: CreateApplicationUserDto,
+  ): Promise<ApplicationUserDocument> {
     try {
       const newUser = new this._userModel(userCreateDto);
       await newUser.save();
@@ -211,8 +220,8 @@ export class UserService {
 
   async getUserByEmailAndRole(
     email: string,
-    role: UserRoleDtoEnum,
-  ): Promise<UserDocument> {
+    role: ApplicationUserRoleDtoEnum,
+  ): Promise<ApplicationUserDocument> {
     const user = await this._userModel.findOne({ email, role }).exec();
 
     if (!user) {
@@ -223,11 +232,16 @@ export class UserService {
     return user;
   }
 
-  async getAdminUserByEmail(email: string): Promise<UserDocument> {
+  async getAdminUserByEmail(email: string): Promise<ApplicationUserDocument> {
     const user = await this._userModel
       .findOne({
         email,
-        role: { $in: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN] },
+        role: {
+          $in: [
+            ApplicationUserRoleEnum.ADMIN,
+            ApplicationUserRoleEnum.SUPER_ADMIN,
+          ],
+        },
       })
       .exec();
 
@@ -239,7 +253,7 @@ export class UserService {
     return user;
   }
 
-  async getUserById(id: string): Promise<UserDocument> {
+  async getUserById(id: string): Promise<ApplicationUserDocument> {
     const user = await this._userModel
       .findById(id)
       .populate([

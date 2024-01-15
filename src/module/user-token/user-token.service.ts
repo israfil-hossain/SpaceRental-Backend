@@ -8,7 +8,10 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/mongoose";
 import * as base64url from "base64url";
 import * as uuid from "uuid";
-import { UserDocument, UserModel } from "../user/entities/user.entity";
+import {
+  ApplicationUser,
+  ApplicationUserDocument,
+} from "../application-user/entities/application-user.entity";
 import {
   RefreshTokenDocument,
   RefreshTokenModel,
@@ -25,7 +28,7 @@ export class UserTokenService {
     private _refreshTokenModel: RefreshTokenModelType,
   ) {}
 
-  public async generateAccessToken(user: UserDocument) {
+  public async generateAccessToken(user: ApplicationUserDocument) {
     const tokenPayload: ITokenPayload = {
       userId: user?.id?.toString(),
       userRole: user.role,
@@ -35,7 +38,7 @@ export class UserTokenService {
   }
 
   public async createRefreshTokenWithUserId(
-    user: UserDocument,
+    user: ApplicationUserDocument,
   ): Promise<string> {
     try {
       const token = base64url.default(
@@ -71,7 +74,7 @@ export class UserTokenService {
       .populate([
         {
           path: "user",
-          model: UserModel.name,
+          model: ApplicationUser.name,
           select: "id role",
         },
       ])

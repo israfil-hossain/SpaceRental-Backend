@@ -4,12 +4,12 @@ import {
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
+import { ApplicationUserService } from "../application-user/application-user.service";
+import { ApplicationUserDocument } from "../application-user/entities/application-user.entity";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EmailService } from "../email/email.service";
 import { EncryptionService } from "../encryption/encryption.service";
 import { UserTokenService } from "../user-token/user-token.service";
-import { UserDocument } from "../user/entities/user.entity";
-import { UserService } from "../user/user.service";
 import { AdminSignInDto } from "./dto/admin-sign-in.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
@@ -21,7 +21,7 @@ export class AuthService {
   private readonly _logger: Logger = new Logger(AuthService.name);
 
   constructor(
-    private _userService: UserService,
+    private _userService: ApplicationUserService,
     private _tokenService: UserTokenService,
     private _encryptionService: EncryptionService,
     private _mailService: EmailService,
@@ -129,7 +129,7 @@ export class AuthService {
       await this._tokenService.getRefreshTokenByToken(refreshToken);
 
     const accessToken = await this._tokenService.generateAccessToken(
-      user as UserDocument,
+      user as ApplicationUserDocument,
     );
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);

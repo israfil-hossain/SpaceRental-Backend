@@ -9,12 +9,12 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { RequiredRoles } from "../application-user/decorator/roles.decorator";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
 import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
 import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
@@ -33,7 +33,10 @@ export class SpaceAccessTypeController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceAccessTypeDto: CreateSpaceAccessTypeDto,
@@ -68,7 +71,10 @@ export class SpaceAccessTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -86,7 +92,10 @@ export class SpaceAccessTypeController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceAccessTypeService.remove(DocId);
   }

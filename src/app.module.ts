@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ApplicationUserModule } from "./module/application-user/application-user.module";
 import { AuthModule } from "./module/auth/auth.module";
 import { CommonModule } from "./module/common/common.module";
 import { EmailModule } from "./module/email/email.module";
@@ -13,7 +14,6 @@ import { SpaceTypeModule } from "./module/space-type/space-type.module";
 import { StorageConditionFeatureModule } from "./module/storage-condition-feature/storage-condition-feature.module";
 import { UnloadingMovingFeatureModule } from "./module/unloading-moving-feature/unloading-moving-feature.module";
 import { UserTokenModule } from "./module/user-token/user-token.module";
-import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 
 @Module({
@@ -22,7 +22,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     UserTokenModule,
     EncryptionModule,
     AuthModule,
-    UserModule,
+    ApplicationUserModule,
     ImageMetaModule,
     SpaceTypeModule,
     SpaceAccessTypeModule,

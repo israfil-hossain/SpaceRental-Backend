@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateProfilePictureDto {
+export class UpdateApplicationUserProfilePictureDto {
   @ApiProperty({
     required: true,
     description: "Profile picture",

@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { RequiredRoles } from "../application-user/decorator/roles.decorator";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateStorageConditionFeatureDto } from "./dto/create-storage-condition-feature.dto";
 import { StorageConditionFeatureService } from "./storage-condition-feature.service";
 
@@ -21,7 +21,10 @@ export class StorageConditionFeatureController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateStorageConditionFeatureDto,
@@ -46,7 +49,10 @@ export class StorageConditionFeatureController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._storageConditionFeatureService.remove(DocId);
   }

@@ -8,9 +8,9 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-import { UserRoleDtoEnum } from "../enum/user-role.enum";
+import { ApplicationUserRoleDtoEnum } from "../enum/application-user-role.enum";
 
-export class CreateUserDto {
+export class CreateApplicationUserDto {
   @ApiProperty({ description: "User's email", example: "user@example.com" })
   @IsNotEmpty({ message: "Email is required" })
   @IsEmail({}, { message: "Invalid email format" })
@@ -23,11 +23,11 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: "User's role",
-    enum: UserRoleDtoEnum,
-    example: UserRoleDtoEnum.RENTER,
+    enum: ApplicationUserRoleDtoEnum,
+    example: ApplicationUserRoleDtoEnum.RENTER,
   })
-  @IsEnum(UserRoleDtoEnum, { message: "Invalid user role" })
-  role: UserRoleDtoEnum;
+  @IsEnum(ApplicationUserRoleDtoEnum, { message: "Invalid user role" })
+  role: ApplicationUserRoleDtoEnum;
 
   @ApiProperty({ description: "User's full name", required: false })
   @IsOptional()

@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
-import { UserRoleEnum } from "../enum/user-role.enum";
+import { ApplicationUserRoleEnum } from "../enum/application-user-role.enum";
 
-export type UserDocument = HydratedDocument<UserModel>;
-export type UserModelType = Model<UserModel>;
+export type ApplicationUserDocument = HydratedDocument<ApplicationUser>;
+export type ApplicationUserType = Model<ApplicationUser>;
 
 @Schema({
   toJSON: {
@@ -14,7 +14,7 @@ export type UserModelType = Model<UserModel>;
     },
   },
 })
-export class UserModel {
+export class ApplicationUser {
   @Prop({ required: true })
   email: string;
 
@@ -26,10 +26,10 @@ export class UserModel {
 
   @Prop({
     type: String,
-    enum: Object.values(UserRoleEnum),
-    default: UserRoleEnum.RENTER,
+    enum: Object.values(ApplicationUserRoleEnum),
+    default: ApplicationUserRoleEnum.RENTER,
   })
-  role: UserRoleEnum;
+  role: ApplicationUserRoleEnum;
 
   @Prop({ default: null })
   fullName?: string;
@@ -59,7 +59,8 @@ export class UserModel {
   profilePicture?: ImageMeta;
 }
 
-export const UserSchema = SchemaFactory.createForClass(UserModel);
+export const ApplicationUserSchema =
+  SchemaFactory.createForClass(ApplicationUser);
 
 // Bind user email with role to be unique together
-UserSchema.index({ email: 1, role: 1 }, { unique: true });
+ApplicationUserSchema.index({ email: 1, role: 1 }, { unique: true });

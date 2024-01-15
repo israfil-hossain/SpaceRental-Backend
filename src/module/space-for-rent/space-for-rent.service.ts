@@ -6,6 +6,8 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { ApplicationUser } from "../application-user/entities/application-user.entity";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
@@ -23,8 +25,6 @@ import { StorageConditionFeature } from "../storage-condition-feature/entities/s
 import { StorageConditionFeatureService } from "../storage-condition-feature/storage-condition-feature.service";
 import { UnloadingMovingFeature } from "../unloading-moving-feature/entities/unloading-moving-feature.entity";
 import { UnloadingMovingFeatureService } from "../unloading-moving-feature/unloading-moving-feature.service";
-import { UserModel } from "../user/entities/user.entity";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
@@ -117,9 +117,9 @@ export class SpaceForRentService {
         searchQuery.name = { $regex: Name, $options: "i" };
       }
 
-      if (userRole === UserRoleEnum.SPACE_OWNER.toString()) {
+      if (userRole === ApplicationUserRoleEnum.SPACE_OWNER.toString()) {
         searchQuery.createdBy = userId;
-      } else if (userRole === UserRoleEnum.RENTER.toString()) {
+      } else if (userRole === ApplicationUserRoleEnum.RENTER.toString()) {
         searchQuery.isActive = true;
         searchQuery.isVerifiedByAdmin = true;
       }
@@ -257,12 +257,12 @@ export class SpaceForRentService {
       .populate([
         {
           path: "createdBy",
-          model: UserModel.name,
+          model: ApplicationUser.name,
           select: "id email fullName",
         },
         {
           path: "updatedBy",
-          model: UserModel.name,
+          model: ApplicationUser.name,
           select: "id email fullName",
         },
         {

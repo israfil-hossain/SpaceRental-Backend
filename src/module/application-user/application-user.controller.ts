@@ -16,26 +16,26 @@ import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { ApplicationUserService } from "./application-user.service";
 import { RequiredRoles } from "./decorator/roles.decorator";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { ListUserQuery } from "./dto/list-user-query.dto";
-import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
-import { UserRoleEnum } from "./enum/user-role.enum";
-import { UserService } from "./user.service";
+import { CreateApplicationUserDto } from "./dto/create-application-user.dto";
+import { ListApplicationUserQuery } from "./dto/list-application-user-query.dto";
+import { UpdateApplicationUserProfilePictureDto } from "./dto/update-application-user-profile-picture.dto";
+import { ApplicationUserRoleEnum } from "./enum/application-user-role.enum";
 
-@ApiTags("Users")
-@Controller("User")
-export class UserController {
-  constructor(private readonly _userService: UserService) {}
+@ApiTags("Application Users")
+@Controller("ApplicationUser")
+export class ApplicationUserController {
+  constructor(private readonly _userService: ApplicationUserService) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateUserDto })
+  @ApiBody({ type: CreateApplicationUserDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
-  create(@Body() createUserDto: CreateUserDto) {
+  @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
+  create(@Body() createUserDto: CreateApplicationUserDto) {
     return this._userService.create(createUserDto);
   }
 
@@ -44,8 +44,11 @@ export class UserController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
-  findAll(@Query() query: ListUserQuery) {
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
+  findAll(@Query() query: ListApplicationUserQuery) {
     return this._userService.findAll(query);
   }
 
@@ -54,7 +57,10 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.findOne(DocId);
   }
@@ -64,13 +70,16 @@ export class UserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._userService.remove(DocId);
   }
 
   @Patch("UpdateOwnProfilePicture")
-  @ApiBody({ type: UpdateProfilePictureDto })
+  @ApiBody({ type: UpdateApplicationUserProfilePictureDto })
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
@@ -80,7 +89,7 @@ export class UserController {
   updateProfilePicture(
     @AuthUserId() { userId }: ITokenPayload,
     @UploadedFile() profilePicture: Express.Multer.File,
-    @Body() updateProfilePictureDto: UpdateProfilePictureDto,
+    @Body() updateProfilePictureDto: UpdateApplicationUserProfilePictureDto,
   ) {
     updateProfilePictureDto.profilePicture = profilePicture;
 

@@ -6,10 +6,10 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceForRentService } from "../space-for-rent/space-for-rent.service";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
 import {
@@ -137,8 +137,8 @@ export class SpaceReviewService {
     // Check if the user is not SUPER_ADMIN or ADMIN
     if (
       ![
-        UserRoleEnum.SUPER_ADMIN.toString(),
-        UserRoleEnum.ADMIN.toString(),
+        ApplicationUserRoleEnum.SUPER_ADMIN.toString(),
+        ApplicationUserRoleEnum.ADMIN.toString(),
       ].includes(userRole)
     ) {
       searchQuery["reviewer"] = userId;

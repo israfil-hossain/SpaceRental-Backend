@@ -12,12 +12,12 @@ import {
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { RequiredRoles } from "../application-user/decorator/roles.decorator";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { RequiredRoles } from "../user/decorator/roles.decorator";
-import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
@@ -38,9 +38,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    UserRoleEnum.SUPER_ADMIN,
-    UserRoleEnum.ADMIN,
-    UserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SPACE_OWNER,
   ])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
@@ -85,7 +85,10 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SPACE_OWNER,
+  ])
   @ApiConsumes("multipart/form-data")
   update(
     @Param() { DocId }: DocIdQueryDto,
@@ -100,7 +103,10 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+  ])
   verify(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() { SpaceId, IsVerified }: VerifySpaceForRentDto,
@@ -113,7 +119,10 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SPACE_OWNER,
+  ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this._spaceForRentService.remove(DocId);
   }
@@ -124,7 +133,10 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SPACE_OWNER,
+  ])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
   addImages(
@@ -147,7 +159,10 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([UserRoleEnum.ADMIN, UserRoleEnum.SPACE_OWNER])
+  @RequiredRoles([
+    ApplicationUserRoleEnum.ADMIN,
+    ApplicationUserRoleEnum.SPACE_OWNER,
+  ])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
     return this._spaceForRentService.removeSpaceImage(ImageId, SpaceId);
   }
