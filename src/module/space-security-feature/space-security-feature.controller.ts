@@ -8,7 +8,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceSecurityFeatureDto } from "./dto/create-space-security-feature.dto";
 import { SpaceSecurityFeatureService } from "./space-security-feature.service";
 
-@ApiTags("Features - Space Security")
+@ApiTags("Space - Security Features")
 @Controller("space-security-feature")
 export class SpaceSecurityFeatureController {
   constructor(

@@ -18,7 +18,7 @@ import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
 import { SpaceReviewService } from "./space-review.service";
 
-@ApiTags("Space Reviews")
+@ApiTags("Space - Reviews")
 @Controller("SpaceReview")
 export class SpaceReviewController {
   constructor(private readonly spaceReviewService: SpaceReviewService) {}

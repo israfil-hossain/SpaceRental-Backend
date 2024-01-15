@@ -26,7 +26,7 @@ import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
 import { VerifySpaceForRentDto } from "./dto/verify-space-for-rent.dto";
 import { SpaceForRentService } from "./space-for-rent.service";
 
-@ApiTags("Space for Rent")
+@ApiTags("Space - For Rent")
 @Controller("SpaceForRent")
 export class SpaceForRentController {
   constructor(private readonly _spaceForRentService: SpaceForRentService) {}

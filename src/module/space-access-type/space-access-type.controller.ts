@@ -20,7 +20,7 @@ import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto
 import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
 import { SpaceAccessTypeService } from "./space-access-type.service";
 
-@ApiTags("Space Access Type")
+@ApiTags("Space - Access Type")
 @Controller("SpaceAccessType")
 export class SpaceAccessTypeController {
   constructor(

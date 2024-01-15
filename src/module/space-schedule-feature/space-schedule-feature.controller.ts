@@ -8,7 +8,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceScheduleFeatureDto } from "./dto/create-space-schedule-feature.dto";
 import { SpaceScheduleFeatureService } from "./space-schedule-feature.service";
 
-@ApiTags("Features - Space Schedule")
+@ApiTags("Space - Schedule Features")
 @Controller("space-schedule-feature")
 export class SpaceScheduleFeatureController {
   constructor(

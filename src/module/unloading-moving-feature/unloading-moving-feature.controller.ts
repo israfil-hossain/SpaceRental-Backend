@@ -8,7 +8,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateUnloadingMovingFeatureDto } from "./dto/create-unloading-moving-feature.dto";
 import { UnloadingMovingFeatureService } from "./unloading-moving-feature.service";
 
-@ApiTags("Features - Unloading and Moving")
+@ApiTags("Space - Unloading and Moving")
 @Controller("unloading-moving-feature")
 export class UnloadingMovingFeatureController {
   constructor(

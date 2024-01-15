@@ -8,7 +8,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateStorageConditionFeatureDto } from "./dto/create-storage-condition-feature.dto";
 import { StorageConditionFeatureService } from "./storage-condition-feature.service";
 
-@ApiTags("Features - Storage Condition")
+@ApiTags("Space - Storage Conditions")
 @Controller("storage-condition-feature")
 export class StorageConditionFeatureController {
   constructor(

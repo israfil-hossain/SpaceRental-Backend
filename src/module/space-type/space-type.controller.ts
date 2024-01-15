@@ -20,7 +20,7 @@ import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
 import { SpaceTypeService } from "./space-type.service";
 
-@ApiTags("Space Type")
+@ApiTags("Space - Types")
 @Controller("SpaceType")
 export class SpaceTypeController {
   constructor(private readonly _spaceTypeService: SpaceTypeService) {}
