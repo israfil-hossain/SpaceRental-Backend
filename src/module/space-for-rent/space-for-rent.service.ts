@@ -8,21 +8,21 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { ImageModel } from "../image/entities/image.entity";
-import { ImageService } from "../image/image.service";
+import { ImageMeta } from "../image-meta/entities/image-meta.entity";
+import { ImageMetaService } from "../image-meta/image-meta.service";
 import { SpaceAccessOptionModel } from "../space-access-option/entities/space-access-option.entity";
 import { SpaceAccessOptionService } from "../space-access-option/space-access-option.service";
-import { SpaceScheduleFeatureModel } from "../space-features/entities/space-schedule-feature";
-import { SpaceSecurityFeatureModel } from "../space-features/entities/space-security-feature";
-import { StorageConditionFeatureModel } from "../space-features/entities/storage-condition-feature";
-import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
-import { SpaceSecurityService } from "../space-features/space-security.service";
-import { StorageConditionService } from "../space-features/storage-condition.service";
-import { UnloadingMovingService } from "../space-features/unloading-moving.service";
 import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
+import { SpaceScheduleFeature } from "../space-schedule-feature/entities/space-schedule-feature.entity";
 import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
+import { SpaceSecurityFeature } from "../space-security-feature/entities/space-security-feature.entity";
+import { SpaceSecurityFeatureService } from "../space-security-feature/space-security-feature.service";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
+import { StorageConditionFeature } from "../storage-condition-feature/entities/storage-condition-feature.entity";
+import { StorageConditionFeatureService } from "../storage-condition-feature/storage-condition-feature.service";
+import { UnloadingMovingFeature } from "../unloading-moving-feature/entities/unloading-moving-feature.entity";
+import { UnloadingMovingFeatureService } from "../unloading-moving-feature/unloading-moving-feature.service";
 import { UserModel } from "../user/entities/user.entity";
 import { UserRoleEnum } from "../user/enum/user-role.enum";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
@@ -44,11 +44,11 @@ export class SpaceForRentService {
 
     private _spaceTypeService: SpaceTypeService,
     private _spaceAccessOptionService: SpaceAccessOptionService,
-    private _storageConditionService: StorageConditionService,
-    private _unloadingMovingService: UnloadingMovingService,
-    private _spaceSecurityService: SpaceSecurityService,
+    private _storageConditionService: StorageConditionFeatureService,
+    private _unloadingMovingService: UnloadingMovingFeatureService,
+    private _spaceSecurityService: SpaceSecurityFeatureService,
     private _spaceScheduleService: SpaceScheduleFeatureService,
-    private readonly _imageService: ImageService,
+    private readonly _imageService: ImageMetaService,
   ) {}
 
   async create(
@@ -169,7 +169,7 @@ export class SpaceForRentService {
           },
         })
         .lookup({
-          from: `${ImageModel.name.toLowerCase()}s`,
+          from: `${ImageMeta.name.toLowerCase()}s`,
           let: {
             spaceImagesIds: {
               $map: {
@@ -277,27 +277,27 @@ export class SpaceForRentService {
         },
         {
           path: "storageConditions",
-          model: StorageConditionFeatureModel.name,
+          model: StorageConditionFeature.name,
           select: "id name",
         },
         {
           path: "unloadingMovings",
-          model: UnloadingMovingFeatureModel.name,
+          model: UnloadingMovingFeature.name,
           select: "id name",
         },
         {
           path: "spaceSecurities",
-          model: SpaceSecurityFeatureModel.name,
+          model: SpaceSecurityFeature.name,
           select: "id name",
         },
         {
           path: "spaceSchedules",
-          model: SpaceScheduleFeatureModel.name,
+          model: SpaceScheduleFeature.name,
           select: "id name",
         },
         {
           path: "spaceImages",
-          model: ImageModel.name,
+          model: ImageMeta.name,
           select: "id url name extension size mimeType",
         },
       ])

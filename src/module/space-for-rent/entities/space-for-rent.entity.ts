@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
-import { ImageModel } from "../../image/entities/image.entity";
+import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
 import { SpaceAccessOptionModel } from "../../space-access-option/entities/space-access-option.entity";
-import { SpaceScheduleFeatureModel } from "../../space-features/entities/space-schedule-feature";
-import { SpaceSecurityFeatureModel } from "../../space-features/entities/space-security-feature";
-import { StorageConditionFeatureModel } from "../../space-features/entities/storage-condition-feature";
-import { UnloadingMovingFeatureModel } from "../../space-features/entities/unloading-moving-feature";
+import { SpaceScheduleFeature } from "../../space-schedule-feature/entities/space-schedule-feature.entity";
+import { SpaceSecurityFeature } from "../../space-security-feature/entities/space-security-feature.entity";
 import { SpaceTypeModel } from "../../space-type/entities/space-type.entity";
+import { StorageConditionFeature } from "../../storage-condition-feature/entities/storage-condition-feature.entity";
+import { UnloadingMovingFeature } from "../../unloading-moving-feature/entities/unloading-moving-feature.entity";
 
 export type SpaceForRentDocument = HydratedDocument<SpaceForRentModel>;
 export type SpaceForRentModelType = Model<SpaceForRentModel>;
@@ -54,38 +54,38 @@ export class SpaceForRentModel extends BaseEntity {
 
   @Prop({
     type: [Types.ObjectId],
-    ref: StorageConditionFeatureModel.name,
+    ref: StorageConditionFeature.name,
     required: true,
   })
-  storageConditions: StorageConditionFeatureModel[];
+  storageConditions: StorageConditionFeature[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: UnloadingMovingFeatureModel.name,
+    ref: UnloadingMovingFeature.name,
     required: true,
   })
-  unloadingMovings: UnloadingMovingFeatureModel[];
+  unloadingMovings: UnloadingMovingFeature[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceSecurityFeatureModel.name,
+    ref: SpaceSecurityFeature.name,
     required: true,
   })
-  spaceSecurities: SpaceSecurityFeatureModel[];
+  spaceSecurities: SpaceSecurityFeature[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceScheduleFeatureModel.name,
+    ref: SpaceScheduleFeature.name,
     required: true,
   })
-  spaceSchedules: SpaceScheduleFeatureModel[];
+  spaceSchedules: SpaceScheduleFeature[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: ImageModel.name,
+    ref: ImageMeta.name,
     required: true,
   })
-  spaceImages: ImageModel[];
+  spaceImages: ImageMeta[];
 }
 
 export const SpaceForRentSchema =

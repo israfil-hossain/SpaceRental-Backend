@@ -1,9 +1,12 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ImageModule } from "../image/image.module";
+import { ImageMetaModule } from "../image-meta/image-meta.module";
 import { SpaceAccessOptionModule } from "../space-access-option/space-access-option.module";
-import { SpaceFeaturesModule } from "../space-features/space-features.module";
+import { SpaceScheduleFeatureModule } from "../space-schedule-feature/space-schedule-feature.module";
+import { SpaceSecurityFeatureModule } from "../space-security-feature/space-security-feature.module";
 import { SpaceTypeModule } from "../space-type/space-type.module";
+import { StorageConditionFeatureModule } from "../storage-condition-feature/storage-condition-feature.module";
+import { UnloadingMovingFeatureModule } from "../unloading-moving-feature/unloading-moving-feature.module";
 import {
   SpaceForRentModel,
   SpaceForRentSchema,
@@ -16,10 +19,13 @@ import { SpaceForRentService } from "./space-for-rent.service";
     MongooseModule.forFeature([
       { name: SpaceForRentModel.name, schema: SpaceForRentSchema },
     ]),
-    ImageModule,
-    SpaceFeaturesModule,
+    ImageMetaModule,
     SpaceTypeModule,
     SpaceAccessOptionModule,
+    SpaceScheduleFeatureModule,
+    SpaceSecurityFeatureModule,
+    StorageConditionFeatureModule,
+    UnloadingMovingFeatureModule,
   ],
   controllers: [SpaceForRentController],
   providers: [SpaceForRentService],

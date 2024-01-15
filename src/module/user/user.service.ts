@@ -9,8 +9,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
-import { ImageModel } from "../image/entities/image.entity";
-import { ImageService } from "../image/image.service";
+import { ImageMeta } from "../image-meta/entities/image-meta.entity";
+import { ImageMetaService } from "../image-meta/image-meta.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ListUserQuery } from "./dto/list-user-query.dto";
 import { UpdateProfilePictureDto } from "./dto/update-profile-picture.dto";
@@ -25,7 +25,7 @@ export class UserService {
   constructor(
     private _encryptionService: EncryptionService,
     @InjectModel(UserModel.name) private _userModel: UserModelType,
-    private readonly _imageService: ImageService,
+    private readonly _imageService: ImageMetaService,
   ) {}
 
   async create(userCreateDto: CreateUserDto): Promise<SuccessResponseDto> {
@@ -245,7 +245,7 @@ export class UserService {
       .populate([
         {
           path: "profilePicture",
-          model: ImageModel.name,
+          model: ImageMeta.name,
           select: "url",
         },
       ])

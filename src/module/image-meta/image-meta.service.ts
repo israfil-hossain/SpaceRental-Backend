@@ -8,23 +8,23 @@ import {
   UploadApiResponse,
 } from "cloudinary";
 import {
-  ImageDocument,
-  ImageModel,
-  ImageModelType,
-} from "./entities/image.entity";
+  ImageMeta,
+  ImageMetaDocument,
+  ImageMetaType,
+} from "./entities/image-meta.entity";
 
 @Injectable()
-export class ImageService {
-  private readonly _logger: Logger = new Logger(ImageService.name);
+export class ImageMetaService {
+  private readonly _logger: Logger = new Logger(ImageMetaService.name);
 
   constructor(
-    @InjectModel(ImageModel.name) private readonly imageModel: ImageModelType,
+    @InjectModel(ImageMeta.name) private readonly _imageMeta: ImageMetaType,
   ) {}
 
   async createSingleImage(
     singleImageFile: Express.Multer.File,
     ownerId: string,
-  ): Promise<ImageDocument> {
+  ): Promise<ImageMetaDocument> {
     if (!singleImageFile) {
       throw new Error("No image file provided");
     }
@@ -32,7 +32,7 @@ export class ImageService {
     const extension = this._getFileExtension(singleImageFile.originalname);
     const uploadResult = await this._uploadImageToCloudinary(singleImageFile);
 
-    const singleImage = new this.imageModel({
+    const singleImage = new this._imageMeta({
       url: uploadResult.secure_url,
       name: uploadResult.public_id,
       extension: extension,
@@ -48,7 +48,7 @@ export class ImageService {
   async createMultipleImages(
     multipleImageFiles: Express.Multer.File[],
     ownerId: string,
-  ): Promise<ImageDocument[]> {
+  ): Promise<ImageMetaDocument[]> {
     if (!multipleImageFiles.length) {
       throw new Error("No image files provided");
     }
@@ -65,8 +65,8 @@ export class ImageService {
   async removeImage(
     imageId: string,
     ownerId: string,
-  ): Promise<ImageDocument | null> {
-    const deletedImage = await this.imageModel
+  ): Promise<ImageMetaDocument | null> {
+    const deletedImage = await this._imageMeta
       .findOneAndDelete({
         _id: imageId,
         ownerId: ownerId,
@@ -78,7 +78,7 @@ export class ImageService {
     }
 
     await this._deleteImageFromCloudinary(deletedImage.name);
-    await this.imageModel.findByIdAndDelete(imageId).exec();
+    await this._imageMeta.findByIdAndDelete(imageId).exec();
 
     return deletedImage;
   }
