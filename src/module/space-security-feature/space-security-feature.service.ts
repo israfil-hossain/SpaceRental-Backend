@@ -6,23 +6,25 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
+import { CreateSpaceSecurityFeatureDto } from "./dto/create-space-security-feature.dto";
 import {
-  SpaceSecurityFeatureModel,
-  SpaceSecurityFeatureModelType,
-} from "./entities/space-security-feature";
+  SpaceSecurityFeature,
+  SpaceSecurityFeatureType,
+} from "./entities/space-security-feature.entity";
 
 @Injectable()
-export class SpaceSecurityService {
-  private readonly _logger: Logger = new Logger(SpaceSecurityService.name);
+export class SpaceSecurityFeatureService {
+  private readonly _logger: Logger = new Logger(
+    SpaceSecurityFeatureService.name,
+  );
 
   constructor(
-    @InjectModel(SpaceSecurityFeatureModel.name)
-    private _spaceSecurityFeature: SpaceSecurityFeatureModelType,
+    @InjectModel(SpaceSecurityFeature.name)
+    private _spaceSecurityFeature: SpaceSecurityFeatureType,
   ) {}
 
   async create(
-    createSpaceFeatureDto: CreateSpaceFeatureDto,
+    createSpaceFeatureDto: CreateSpaceSecurityFeatureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {

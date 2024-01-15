@@ -1,20 +1,21 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
 import { UserRoleEnum } from "../user/enum/user-role.enum";
-import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
-import { SpaceSecurityService } from "./space-security.service";
+import { CreateSpaceSecurityFeatureDto } from "./dto/create-space-security-feature.dto";
+import { SpaceSecurityFeatureService } from "./space-security-feature.service";
 
-@ApiTags("Space Security Features")
-@Controller("SpaceSecurityFeature")
-export class SpaceSecurityController {
-  constructor(private readonly _spaceSecurityService: SpaceSecurityService) {}
+@Controller("space-security-feature")
+export class SpaceSecurityFeatureController {
+  constructor(
+    private readonly _spaceSecurityFeatureService: SpaceSecurityFeatureService,
+  ) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiBody({ type: CreateSpaceSecurityFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -22,9 +23,12 @@ export class SpaceSecurityController {
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
+    @Body() createSpaceFeatureDto: CreateSpaceSecurityFeatureDto,
   ) {
-    return this._spaceSecurityService.create(createSpaceFeatureDto, userId);
+    return this._spaceSecurityFeatureService.create(
+      createSpaceFeatureDto,
+      userId,
+    );
   }
 
   @Get("GetAll")
@@ -33,7 +37,7 @@ export class SpaceSecurityController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._spaceSecurityService.findAll();
+    return this._spaceSecurityFeatureService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -43,6 +47,6 @@ export class SpaceSecurityController {
   })
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceSecurityService.remove(DocId);
+    return this._spaceSecurityFeatureService.remove(DocId);
   }
 }
