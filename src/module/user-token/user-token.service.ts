@@ -16,8 +16,8 @@ import {
 } from "./entities/refresh-token.entity";
 
 @Injectable()
-export class TokenService {
-  private readonly _logger: Logger = new Logger(TokenService.name);
+export class UserTokenService {
+  private readonly _logger: Logger = new Logger(UserTokenService.name);
 
   constructor(
     private _jwtService: JwtService,

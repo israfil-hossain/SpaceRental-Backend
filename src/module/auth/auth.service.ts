@@ -7,7 +7,7 @@ import {
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EmailService } from "../email/email.service";
 import { EncryptionService } from "../encryption/encryption.service";
-import { TokenService } from "../token/token.service";
+import { UserTokenService } from "../user-token/user-token.service";
 import { UserDocument } from "../user/entities/user.entity";
 import { UserService } from "../user/user.service";
 import { AdminSignInDto } from "./dto/admin-sign-in.dto";
@@ -22,7 +22,7 @@ export class AuthService {
 
   constructor(
     private _userService: UserService,
-    private _tokenService: TokenService,
+    private _tokenService: UserTokenService,
     private _encryptionService: EncryptionService,
     private _mailService: EmailService,
   ) {}

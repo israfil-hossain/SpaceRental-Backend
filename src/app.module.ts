@@ -11,15 +11,15 @@ import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/spac
 import { SpaceSecurityFeatureModule } from "./module/space-security-feature/space-security-feature.module";
 import { SpaceTypeModule } from "./module/space-type/space-type.module";
 import { StorageConditionFeatureModule } from "./module/storage-condition-feature/storage-condition-feature.module";
-import { TokenModule } from "./module/token/token.module";
 import { UnloadingMovingFeatureModule } from "./module/unloading-moving-feature/unloading-moving-feature.module";
+import { UserTokenModule } from "./module/user-token/user-token.module";
 import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 
 @Module({
   imports: [
     CommonModule,
-    TokenModule,
+    UserTokenModule,
     EncryptionModule,
     AuthModule,
     UserModule,
