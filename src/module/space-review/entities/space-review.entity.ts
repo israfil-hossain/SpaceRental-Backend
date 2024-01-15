@@ -5,11 +5,11 @@ import { ApplicationUser } from "../../application-user/entities/application-use
 import { BaseEntity } from "../../common/entities/base.entity";
 import { SpaceForRent } from "../../space-for-rent/entities/space-for-rent.entity";
 
-export type SpaceReviewDocument = HydratedDocument<SpaceReviewModel>;
-export type SpaceReviewModelType = Model<SpaceReviewModel>;
+export type SpaceReviewDocument = HydratedDocument<SpaceReview>;
+export type SpaceReviewType = Model<SpaceReview>;
 
 @Schema()
-export class SpaceReviewModel extends BaseEntity {
+export class SpaceReview extends BaseEntity {
   @Prop({
     type: Types.ObjectId,
     ref: SpaceForRent.name,
@@ -34,4 +34,4 @@ export class SpaceReviewModel extends BaseEntity {
   comment?: string;
 }
 
-export const SpaceReviewSchema = SchemaFactory.createForClass(SpaceReviewModel);
+export const SpaceReviewSchema = SchemaFactory.createForClass(SpaceReview);

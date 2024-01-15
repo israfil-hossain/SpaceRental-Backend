@@ -12,18 +12,15 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceForRentService } from "../space-for-rent/space-for-rent.service";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
-import {
-  SpaceReviewModel,
-  SpaceReviewModelType,
-} from "./entities/space-review.entity";
+import { SpaceReview, SpaceReviewType } from "./entities/space-review.entity";
 
 @Injectable()
 export class SpaceReviewService {
   private readonly _logger: Logger = new Logger(SpaceReviewService.name);
 
   constructor(
-    @InjectModel(SpaceReviewModel.name)
-    private _spaceReviewModelType: SpaceReviewModelType,
+    @InjectModel(SpaceReview.name)
+    private _spaceReview: SpaceReviewType,
     private _spaceForRentService: SpaceForRentService,
   ) {}
 
@@ -39,7 +36,7 @@ export class SpaceReviewService {
         );
       }
 
-      const newItem = new this._spaceReviewModelType({
+      const newItem = new this._spaceReview({
         ...createSpaceReviewDto,
         reviewer: userId,
         createdBy: userId,
@@ -68,12 +65,10 @@ export class SpaceReviewService {
   }: ListSpaceReviewQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceReviewModelType
-        .countDocuments()
-        .exec();
+      const totalRecords = await this._spaceReview.countDocuments().exec();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceReviewModelType
+      const result = await this._spaceReview
         .find()
         .skip(skip)
         .limit(PageSize)
@@ -101,7 +96,7 @@ export class SpaceReviewService {
   }
 
   async findAllBySpaceId(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceReviewModelType
+    const result = await this._spaceReview
       .find({ space: id })
       .populate([
         {
@@ -145,8 +140,7 @@ export class SpaceReviewService {
     }
 
     try {
-      const result =
-        await this._spaceReviewModelType.findOneAndDelete(searchQuery);
+      const result = await this._spaceReview.findOneAndDelete(searchQuery);
 
       if (!result) {
         throw new Error("No deleted document was found");

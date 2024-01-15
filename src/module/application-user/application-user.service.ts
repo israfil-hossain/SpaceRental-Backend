@@ -31,7 +31,8 @@ export class ApplicationUserService {
 
   constructor(
     private _encryptionService: EncryptionService,
-    @InjectModel(ApplicationUser.name) private _userModel: ApplicationUserType,
+    @InjectModel(ApplicationUser.name)
+    private _applicationUser: ApplicationUserType,
     private readonly _imageService: ImageMetaService,
   ) {}
 
@@ -42,7 +43,7 @@ export class ApplicationUserService {
       userCreateDto["password"] = await this._encryptionService.hashPassword(
         userCreateDto.password,
       );
-      const newUser = new this._userModel(userCreateDto);
+      const newUser = new this._applicationUser(userCreateDto);
       await newUser.save();
 
       return new SuccessResponseDto("User created successfully", newUser);
@@ -78,13 +79,13 @@ export class ApplicationUserService {
       }
 
       // Pagination setup
-      const totalRecords = await this._userModel
+      const totalRecords = await this._applicationUser
         .where(searchQuery)
         .countDocuments()
         .exec();
       const skip = (Page - 1) * PageSize;
 
-      const users = await this._userModel
+      const users = await this._applicationUser
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -99,7 +100,7 @@ export class ApplicationUserService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const user = await this._userModel.findById(id).exec();
+    const user = await this._applicationUser.findById(id).exec();
 
     if (!user) {
       this._logger.error(`User Document not found with ID: ${id}`);
@@ -111,7 +112,7 @@ export class ApplicationUserService {
 
   async update(id: string, updateUserDto: UpdateApplicationUserDto) {
     try {
-      const result = await this._userModel
+      const result = await this._applicationUser
         .findByIdAndUpdate(id, updateUserDto, { new: true })
         .exec();
 
@@ -137,7 +138,7 @@ export class ApplicationUserService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._userModel.findByIdAndDelete(id).exec();
+    const result = await this._applicationUser.findByIdAndDelete(id).exec();
     if (!result) {
       this._logger.error(`User Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete user with ID: ${id}`);
@@ -151,7 +152,7 @@ export class ApplicationUserService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this._userModel.findById(userId).exec();
+      const user = await this._applicationUser.findById(userId).exec();
 
       if (!user) {
         this._logger.error(`User Document not found with ID: ${userId}`);
@@ -199,7 +200,7 @@ export class ApplicationUserService {
     userCreateDto: CreateApplicationUserDto,
   ): Promise<ApplicationUserDocument> {
     try {
-      const newUser = new this._userModel(userCreateDto);
+      const newUser = new this._applicationUser(userCreateDto);
       await newUser.save();
 
       return newUser;
@@ -222,7 +223,7 @@ export class ApplicationUserService {
     email: string,
     role: ApplicationUserRoleDtoEnum,
   ): Promise<ApplicationUserDocument> {
-    const user = await this._userModel.findOne({ email, role }).exec();
+    const user = await this._applicationUser.findOne({ email, role }).exec();
 
     if (!user) {
       this._logger.error(`User Document not found with Email: ${email}`);
@@ -233,7 +234,7 @@ export class ApplicationUserService {
   }
 
   async getAdminUserByEmail(email: string): Promise<ApplicationUserDocument> {
-    const user = await this._userModel
+    const user = await this._applicationUser
       .findOne({
         email,
         role: {
@@ -254,7 +255,7 @@ export class ApplicationUserService {
   }
 
   async getUserById(id: string): Promise<ApplicationUserDocument> {
-    const user = await this._userModel
+    const user = await this._applicationUser
       .findById(id)
       .populate([
         {

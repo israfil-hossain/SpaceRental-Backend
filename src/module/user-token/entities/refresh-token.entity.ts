@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { ApplicationUser } from "../../application-user/entities/application-user.entity";
 
-export type RefreshTokenDocument = HydratedDocument<RefreshTokenModel>;
-export type RefreshTokenModelType = Model<RefreshTokenModel>;
+export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
+export type RefreshTokenType = Model<RefreshToken>;
 
 @Schema({
   toJSON: {
@@ -12,7 +12,7 @@ export type RefreshTokenModelType = Model<RefreshTokenModel>;
     },
   },
 })
-export class RefreshTokenModel {
+export class RefreshToken {
   @Prop({ type: String, required: true, unique: true })
   token: string;
 
@@ -30,5 +30,4 @@ export class RefreshTokenModel {
   expiresAt: Date;
 }
 
-export const RefreshTokenSchema =
-  SchemaFactory.createForClass(RefreshTokenModel);
+export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

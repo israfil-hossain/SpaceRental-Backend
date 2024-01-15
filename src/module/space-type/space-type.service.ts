@@ -11,18 +11,15 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
 import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
-import {
-  SpaceTypeModel,
-  SpaceTypeModelType,
-} from "./entities/space-type.entity";
+import { SpaceType, SpaceTypeType } from "./entities/space-type.entity";
 
 @Injectable()
 export class SpaceTypeService {
   private readonly _logger: Logger = new Logger(SpaceTypeService.name);
 
   constructor(
-    @InjectModel(SpaceTypeModel.name)
-    private _spaceTypeModel: SpaceTypeModelType,
+    @InjectModel(SpaceType.name)
+    private _spaceType: SpaceTypeType,
   ) {}
 
   async create(
@@ -30,7 +27,7 @@ export class SpaceTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._spaceTypeModel({
+      const newSpaceType = new this._spaceType({
         ...createSpaceTypeDto,
         createdBy: userId,
       });
@@ -58,7 +55,7 @@ export class SpaceTypeService {
   }: ListSpaceTypeQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceTypeModel.countDocuments().exec();
+      const totalRecords = await this._spaceType.countDocuments().exec();
       const skip = (Page - 1) * PageSize;
 
       // Search query setup
@@ -67,7 +64,7 @@ export class SpaceTypeService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this._spaceTypeModel
+      const result = await this._spaceType
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -82,7 +79,7 @@ export class SpaceTypeService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeModel
+    const result = await this._spaceType
       .findById(id)
       .populate([
         {
@@ -110,7 +107,7 @@ export class SpaceTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceType = await this._spaceTypeModel
+      const updatedSpaceType = await this._spaceType
         .findByIdAndUpdate(
           id,
           {
@@ -147,7 +144,7 @@ export class SpaceTypeService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeModel.findByIdAndDelete(id).exec();
+    const result = await this._spaceType.findByIdAndDelete(id).exec();
 
     if (!result) {
       this._logger.error(`Document not deleted with ID: ${id}`);
@@ -159,7 +156,7 @@ export class SpaceTypeService {
 
   //#region InternalMethods
   async validateObjectId(id: string): Promise<void> {
-    const result = await this._spaceTypeModel.findById(id).select("_id").exec();
+    const result = await this._spaceType.findById(id).select("_id").exec();
 
     if (!result) {
       this._logger.error(`Invalid space type ID: ${id}`);

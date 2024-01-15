@@ -14,12 +14,12 @@ import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
 import { SpaceAccessType } from "../space-access-type/entities/space-access-type.entity";
 import { SpaceAccessTypeService } from "../space-access-type/space-access-type.service";
-import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
+import { SpaceReview } from "../space-review/entities/space-review.entity";
 import { SpaceScheduleFeature } from "../space-schedule-feature/entities/space-schedule-feature.entity";
 import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
 import { SpaceSecurityFeature } from "../space-security-feature/entities/space-security-feature.entity";
 import { SpaceSecurityFeatureService } from "../space-security-feature/space-security-feature.service";
-import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
+import { SpaceType } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
 import { StorageConditionFeature } from "../storage-condition-feature/entities/storage-condition-feature.entity";
 import { StorageConditionFeatureService } from "../storage-condition-feature/storage-condition-feature.service";
@@ -40,7 +40,7 @@ export class SpaceForRentService {
 
   constructor(
     @InjectModel(SpaceForRent.name)
-    private _spaceForRentModel: SpaceForRentType,
+    private _spaceForRent: SpaceForRentType,
 
     private _spaceTypeService: SpaceTypeService,
     private _spaceAccessTypeService: SpaceAccessTypeService,
@@ -75,7 +75,7 @@ export class SpaceForRentService {
       );
 
       // create new document
-      const newItem = new this._spaceForRentModel({
+      const newItem = new this._spaceForRent({
         ...createSpaceDto,
         createdBy: userId,
       });
@@ -125,18 +125,18 @@ export class SpaceForRentService {
       }
 
       // Pagination setup
-      const totalRecords = await this._spaceForRentModel
+      const totalRecords = await this._spaceForRent
         .countDocuments(searchQuery)
         .exec();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceForRentModel
+      const result = await this._spaceForRent
         .aggregate()
         .match(searchQuery)
         .skip(skip)
         .limit(PageSize)
         .lookup({
-          from: `${SpaceReviewModel.name.toLowerCase()}s`,
+          from: `${SpaceReview.name.toLowerCase()}s`,
           let: { spaceId: "$_id" },
           pipeline: [
             {
@@ -252,7 +252,7 @@ export class SpaceForRentService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceForRentModel
+    const result = await this._spaceForRent
       .findById(id)
       .populate([
         {
@@ -267,7 +267,7 @@ export class SpaceForRentService {
         },
         {
           path: "type",
-          model: SpaceTypeModel.name,
+          model: SpaceType.name,
           select: "id name",
         },
         {
@@ -348,7 +348,7 @@ export class SpaceForRentService {
       }
 
       // update document
-      const updatedItem = await this._spaceForRentModel
+      const updatedItem = await this._spaceForRent
         .findByIdAndUpdate(
           id,
           {
@@ -393,7 +393,7 @@ export class SpaceForRentService {
     auditUserId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceForRentModel
+      const result = await this._spaceForRent
         .findByIdAndUpdate(
           spaceId,
           {
@@ -424,7 +424,7 @@ export class SpaceForRentService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceForRentModel.findByIdAndDelete(id).exec();
+    const result = await this._spaceForRent.findByIdAndDelete(id).exec();
 
     if (!result) {
       this._logger.error(`Document not deleted with ID: ${id}`);
@@ -440,7 +440,7 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const existingSpace = await this._spaceForRentModel.findById(id).exec();
+      const existingSpace = await this._spaceForRent.findById(id).exec();
 
       if (!existingSpace) {
         this._logger.error(`Document not found with ID: ${id}`);
@@ -453,7 +453,7 @@ export class SpaceForRentService {
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
 
-      const result = await this._spaceForRentModel
+      const result = await this._spaceForRent
         .findByIdAndUpdate(
           id,
           {
@@ -490,7 +490,7 @@ export class SpaceForRentService {
     imageId: string,
     spaceForRentId: string,
   ): Promise<SuccessResponseDto> {
-    const existingSpaceForRent = await this._spaceForRentModel
+    const existingSpaceForRent = await this._spaceForRent
       .findById(spaceForRentId)
       .exec();
 
@@ -517,10 +517,7 @@ export class SpaceForRentService {
 
   //#region InternalMethods
   async validateObjectId(id: string): Promise<void> {
-    const result = await this._spaceForRentModel
-      .findById(id)
-      .select("_id")
-      .exec();
+    const result = await this._spaceForRent.findById(id).select("_id").exec();
 
     if (!result) {
       this._logger.error(`Invalid space ID: ${id}`);

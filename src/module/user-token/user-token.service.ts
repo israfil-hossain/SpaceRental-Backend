@@ -13,9 +13,9 @@ import {
   ApplicationUserDocument,
 } from "../application-user/entities/application-user.entity";
 import {
+  RefreshToken,
   RefreshTokenDocument,
-  RefreshTokenModel,
-  RefreshTokenModelType,
+  RefreshTokenType,
 } from "./entities/refresh-token.entity";
 
 @Injectable()
@@ -24,8 +24,8 @@ export class UserTokenService {
 
   constructor(
     private _jwtService: JwtService,
-    @InjectModel(RefreshTokenModel.name)
-    private _refreshTokenModel: RefreshTokenModelType,
+    @InjectModel(RefreshToken.name)
+    private _refreshToken: RefreshTokenType,
   ) {}
 
   public async generateAccessToken(user: ApplicationUserDocument) {
@@ -45,7 +45,7 @@ export class UserTokenService {
         Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
       );
 
-      const refreshToken = await this._refreshTokenModel.create({
+      const refreshToken = await this._refreshToken.create({
         token,
         user: user?.id?.toString(),
       });
@@ -66,7 +66,7 @@ export class UserTokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this._refreshTokenModel
+    const refreshTokenDoc = await this._refreshToken
       .findOne({
         token: refreshToken,
         expiresAt: { $gt: new Date() },
@@ -96,7 +96,7 @@ export class UserTokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this._refreshTokenModel
+    const refreshTokenDoc = await this._refreshToken
       .findOneAndUpdate(
         {
           token: refreshToken,
