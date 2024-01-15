@@ -12,6 +12,7 @@ import { TokenModule } from "./module/token/token.module";
 import { UserModule } from "./module/user/user.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 import { MailModule } from "./module/mail/mail.module";
+import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/space-schedule-feature.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MailModule } from "./module/mail/mail.module";
     SpaceForRentModule,
     SpaceReviewModule,
     MailModule,
+    SpaceScheduleFeatureModule,
   ],
   providers: [ValidationProvider],
 })

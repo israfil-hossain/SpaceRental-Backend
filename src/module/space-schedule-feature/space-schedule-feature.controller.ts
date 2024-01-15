@@ -1,20 +1,21 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiResponse } from "@nestjs/swagger";
 import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
 import { UserRoleEnum } from "../user/enum/user-role.enum";
-import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
-import { SpaceScheduleService } from "./space-schedule.service";
+import { CreateSpaceScheduleFeatureDto } from "./dto/create-space-schedule-feature.dto";
+import { SpaceScheduleFeatureService } from "./space-schedule-feature.service";
 
-@ApiTags("Space Schedule Features")
-@Controller("SpaceScheduleFeature")
-export class SpaceScheduleController {
-  constructor(private readonly _spaceScheduleService: SpaceScheduleService) {}
+@Controller("space-schedule-feature")
+export class SpaceScheduleFeatureController {
+  constructor(
+    private readonly _spaceScheduleFeatureService: SpaceScheduleFeatureService,
+  ) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiBody({ type: CreateSpaceScheduleFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -22,9 +23,12 @@ export class SpaceScheduleController {
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
+    @Body() createSpaceFeatureDto: CreateSpaceScheduleFeatureDto,
   ) {
-    return this._spaceScheduleService.create(createSpaceFeatureDto, userId);
+    return this._spaceScheduleFeatureService.create(
+      createSpaceFeatureDto,
+      userId,
+    );
   }
 
   @Get("GetAll")
@@ -33,7 +37,7 @@ export class SpaceScheduleController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._spaceScheduleService.findAll();
+    return this._spaceScheduleFeatureService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -43,6 +47,6 @@ export class SpaceScheduleController {
   })
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceScheduleService.remove(DocId);
+    return this._spaceScheduleFeatureService.remove(DocId);
   }
 }

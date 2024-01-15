@@ -3,15 +3,14 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type SpaceScheduleFeatureDocument =
-  HydratedDocument<SpaceScheduleFeatureModel>;
-export type SpaceScheduleFeatureModelType = Model<SpaceScheduleFeatureModel>;
+  HydratedDocument<SpaceScheduleFeature>;
+export type SpaceScheduleFeatureType = Model<SpaceScheduleFeature>;
 
 @Schema()
-export class SpaceScheduleFeatureModel extends BaseEntity {
+export class SpaceScheduleFeature extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;
 }
 
-export const SpaceScheduleFeatureSchema = SchemaFactory.createForClass(
-  SpaceScheduleFeatureModel,
-);
+export const SpaceScheduleFeatureSchema =
+  SchemaFactory.createForClass(SpaceScheduleFeature);

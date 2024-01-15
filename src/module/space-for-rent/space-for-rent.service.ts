@@ -16,11 +16,11 @@ import { SpaceScheduleFeatureModel } from "../space-features/entities/space-sche
 import { SpaceSecurityFeatureModel } from "../space-features/entities/space-security-feature";
 import { StorageConditionFeatureModel } from "../space-features/entities/storage-condition-feature";
 import { UnloadingMovingFeatureModel } from "../space-features/entities/unloading-moving-feature";
-import { SpaceScheduleService } from "../space-features/space-schedule.service";
 import { SpaceSecurityService } from "../space-features/space-security.service";
 import { StorageConditionService } from "../space-features/storage-condition.service";
 import { UnloadingMovingService } from "../space-features/unloading-moving.service";
 import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
+import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
 import { SpaceTypeModel } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
 import { UserModel } from "../user/entities/user.entity";
@@ -47,7 +47,7 @@ export class SpaceForRentService {
     private _storageConditionService: StorageConditionService,
     private _unloadingMovingService: UnloadingMovingService,
     private _spaceSecurityService: SpaceSecurityService,
-    private _spaceScheduleService: SpaceScheduleService,
+    private _spaceScheduleService: SpaceScheduleFeatureService,
     private readonly _imageService: ImageService,
   ) {}
 

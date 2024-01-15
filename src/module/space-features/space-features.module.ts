@@ -1,10 +1,6 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  SpaceScheduleFeatureModel,
-  SpaceScheduleFeatureSchema,
-} from "./entities/space-schedule-feature";
-import {
   SpaceSecurityFeatureModel,
   SpaceSecurityFeatureSchema,
 } from "./entities/space-security-feature";
@@ -16,8 +12,6 @@ import {
   UnloadingMovingFeatureModel,
   UnloadingMovingFeatureSchema,
 } from "./entities/unloading-moving-feature";
-import { SpaceScheduleController } from "./space-schedule.controller";
-import { SpaceScheduleService } from "./space-schedule.service";
 import { SpaceSecurityController } from "./space-security.controller";
 import { SpaceSecurityService } from "./space-security.service";
 import { StorageConditionController } from "./storage-condition.controller";
@@ -40,29 +34,17 @@ import { UnloadingMovingService } from "./unloading-moving.service";
         name: SpaceSecurityFeatureModel.name,
         schema: SpaceSecurityFeatureSchema,
       },
-      {
-        name: SpaceScheduleFeatureModel.name,
-        schema: SpaceScheduleFeatureSchema,
-      },
     ]),
   ],
   controllers: [
     StorageConditionController,
     UnloadingMovingController,
     SpaceSecurityController,
-    SpaceScheduleController,
   ],
   providers: [
     StorageConditionService,
     UnloadingMovingService,
     SpaceSecurityService,
-    SpaceScheduleService,
-  ],
-  exports: [
-    StorageConditionService,
-    UnloadingMovingService,
-    SpaceSecurityService,
-    SpaceScheduleService,
   ],
 })
 export class SpaceFeaturesModule {}
