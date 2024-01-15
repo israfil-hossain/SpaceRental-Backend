@@ -8,38 +8,35 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto";
-import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
-import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
+import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
+import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
+import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
 import {
-  SpaceAccessOptionModel,
-  SpaceAccessOptionModelType,
-} from "./entities/space-access-option.entity";
+  SpaceAccessType,
+  SpaceAccessTypeType,
+} from "./entities/space-access-type.entity";
 
 @Injectable()
-export class SpaceAccessOptionService {
-  private readonly _logger: Logger = new Logger(SpaceAccessOptionService.name);
+export class SpaceAccessTypeService {
+  private readonly _logger: Logger = new Logger(SpaceAccessTypeService.name);
 
   constructor(
-    @InjectModel(SpaceAccessOptionModel.name)
-    private _spaceAccessOptionModelType: SpaceAccessOptionModelType,
+    @InjectModel(SpaceAccessType.name)
+    private _spaceAccessType: SpaceAccessTypeType,
   ) {}
 
   async create(
-    createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
+    createSpaceAccessTypeDto: CreateSpaceAccessTypeDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceAccessOption = new this._spaceAccessOptionModelType({
-        ...createSpaceAccessOptionDto,
+      const result = new this._spaceAccessType({
+        ...createSpaceAccessTypeDto,
         createdBy: userId,
       });
-      await newSpaceAccessOption.save();
+      await result.save();
 
-      return new SuccessResponseDto(
-        "Document created successfully",
-        newSpaceAccessOption,
-      );
+      return new SuccessResponseDto("Document created successfully", result);
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this._logger.error("Duplicate key error:", error);
@@ -55,7 +52,7 @@ export class SpaceAccessOptionService {
     Page = 1,
     PageSize = 10,
     Name = "",
-  }: ListSpaceAccessOptionQuery): Promise<PaginatedResponseDto> {
+  }: ListSpaceAccessTypeQuery): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
       const searchQuery: Record<string, any> = {};
@@ -64,13 +61,13 @@ export class SpaceAccessOptionService {
       }
 
       // Pagination setup
-      const totalRecords = await this._spaceAccessOptionModelType
+      const totalRecords = await this._spaceAccessType
         .where(searchQuery)
         .countDocuments()
         .exec();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceAccessOptionModelType
+      const result = await this._spaceAccessType
         .where(searchQuery)
         .find()
         .skip(skip)
@@ -85,7 +82,7 @@ export class SpaceAccessOptionService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessOptionModelType
+    const result = await this._spaceAccessType
       .findById(id)
       .populate([
         {
@@ -109,15 +106,15 @@ export class SpaceAccessOptionService {
 
   async update(
     id: string,
-    updateSpaceAccessOptionDto: UpdateSpaceAccessOptionDto,
+    updateSpaceAccessTypeDto: UpdateSpaceAccessTypeDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceAccessOption = await this._spaceAccessOptionModelType
+      const result = await this._spaceAccessType
         .findByIdAndUpdate(
           id,
           {
-            ...updateSpaceAccessOptionDto,
+            ...updateSpaceAccessTypeDto,
             updatedBy: userId,
             updatedAt: new Date(),
           },
@@ -125,15 +122,12 @@ export class SpaceAccessOptionService {
         )
         .exec();
 
-      if (!updatedSpaceAccessOption) {
+      if (!result) {
         this._logger.error(`Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find document with ID: ${id}`);
       }
 
-      return new SuccessResponseDto(
-        "Document updated successfully",
-        updatedSpaceAccessOption,
-      );
+      return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -150,9 +144,7 @@ export class SpaceAccessOptionService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessOptionModelType
-      .findByIdAndDelete(id)
-      .exec();
+    const result = await this._spaceAccessType.findByIdAndDelete(id).exec();
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -164,7 +156,7 @@ export class SpaceAccessOptionService {
 
   //#region InternalMethods
   async validateObjectId(id: string): Promise<void> {
-    const result = await this._spaceAccessOptionModelType
+    const result = await this._spaceAccessType
       .findById(id)
       .select("_id")
       .exec();

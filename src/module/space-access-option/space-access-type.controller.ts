@@ -15,20 +15,20 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
 import { UserRoleEnum } from "../user/enum/user-role.enum";
-import { CreateSpaceAccessOptionDto } from "./dto/create-space-access-option.dto";
-import { ListSpaceAccessOptionQuery } from "./dto/list-space-access-option-query.dto";
-import { UpdateSpaceAccessOptionDto } from "./dto/update-space-access-option.dto";
-import { SpaceAccessOptionService } from "./space-access-option.service";
+import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
+import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
+import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
+import { SpaceAccessTypeService } from "./space-access-type.service";
 
-@ApiTags("Space Access Option")
-@Controller("SpaceAccessOption")
-export class SpaceAccessOptionController {
+@ApiTags("Space Access Type")
+@Controller("SpaceAccessType")
+export class SpaceAccessTypeController {
   constructor(
-    private readonly _spaceAccessOptionService: SpaceAccessOptionService,
+    private readonly _spaceAccessTypeService: SpaceAccessTypeService,
   ) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceAccessOptionDto })
+  @ApiBody({ type: CreateSpaceAccessTypeDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -36,10 +36,10 @@ export class SpaceAccessOptionController {
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() createSpaceAccessOptionDto: CreateSpaceAccessOptionDto,
+    @Body() createSpaceAccessTypeDto: CreateSpaceAccessTypeDto,
   ) {
-    return this._spaceAccessOptionService.create(
-      createSpaceAccessOptionDto,
+    return this._spaceAccessTypeService.create(
+      createSpaceAccessTypeDto,
       userId,
     );
   }
@@ -49,8 +49,8 @@ export class SpaceAccessOptionController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  findAll(@Query() spaceTypeListQuery: ListSpaceAccessOptionQuery) {
-    return this._spaceAccessOptionService.findAll(spaceTypeListQuery);
+  findAll(@Query() spaceTypeListQuery: ListSpaceAccessTypeQuery) {
+    return this._spaceAccessTypeService.findAll(spaceTypeListQuery);
   }
 
   @Get("GetById/:DocId")
@@ -59,11 +59,11 @@ export class SpaceAccessOptionController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessOptionService.findOne(DocId);
+    return this._spaceAccessTypeService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
-  @ApiBody({ type: UpdateSpaceAccessOptionDto })
+  @ApiBody({ type: UpdateSpaceAccessTypeDto })
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
@@ -72,11 +72,11 @@ export class SpaceAccessOptionController {
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() updateSpaceAccessOptionDto: UpdateSpaceAccessOptionDto,
+    @Body() updateSpaceAccessTypeDto: UpdateSpaceAccessTypeDto,
   ) {
-    return this._spaceAccessOptionService.update(
+    return this._spaceAccessTypeService.update(
       DocId,
-      updateSpaceAccessOptionDto,
+      updateSpaceAccessTypeDto,
       userId,
     );
   }
@@ -88,6 +88,6 @@ export class SpaceAccessOptionController {
   })
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessOptionService.remove(DocId);
+    return this._spaceAccessTypeService.remove(DocId);
   }
 }

@@ -10,8 +10,8 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
-import { SpaceAccessOptionModel } from "../space-access-option/entities/space-access-option.entity";
-import { SpaceAccessOptionService } from "../space-access-option/space-access-option.service";
+import { SpaceAccessType } from "../space-access-option/entities/space-access-type.entity";
+import { SpaceAccessTypeService } from "../space-access-option/space-access-type.service";
 import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
 import { SpaceScheduleFeature } from "../space-schedule-feature/entities/space-schedule-feature.entity";
 import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
@@ -43,7 +43,7 @@ export class SpaceForRentService {
     private _spaceForRentModel: SpaceForRentModelType,
 
     private _spaceTypeService: SpaceTypeService,
-    private _spaceAccessOptionService: SpaceAccessOptionService,
+    private _spaceAccessTypeService: SpaceAccessTypeService,
     private _storageConditionService: StorageConditionFeatureService,
     private _unloadingMovingService: UnloadingMovingFeatureService,
     private _spaceSecurityService: SpaceSecurityFeatureService,
@@ -58,7 +58,7 @@ export class SpaceForRentService {
     try {
       // validate relations
       await this._spaceTypeService.validateObjectId(createSpaceDto.type);
-      await this._spaceAccessOptionService.validateObjectId(
+      await this._spaceAccessTypeService.validateObjectId(
         createSpaceDto.accessMethod,
       );
       await this._storageConditionService.validateObjectIds(
@@ -208,7 +208,7 @@ export class SpaceForRentService {
           },
         })
         .lookup({
-          from: `${SpaceAccessOptionModel.name.toLowerCase()}s`,
+          from: `${SpaceAccessType.name.toLowerCase()}s`,
           let: {
             accessMethodId: "$accessMethod",
           },
@@ -272,7 +272,7 @@ export class SpaceForRentService {
         },
         {
           path: "accessMethod",
-          model: SpaceAccessOptionModel.name,
+          model: SpaceAccessType.name,
           select: "id name",
         },
         {
@@ -322,7 +322,7 @@ export class SpaceForRentService {
         await this._spaceTypeService.validateObjectId(updateSpaceDto.type);
       }
       if (updateSpaceDto.accessMethod) {
-        await this._spaceAccessOptionService.validateObjectId(
+        await this._spaceAccessTypeService.validateObjectId(
           updateSpaceDto.accessMethod,
         );
       }

@@ -4,7 +4,7 @@ import { CommonModule } from "./module/common/common.module";
 import { EmailModule } from "./module/email/email.module";
 import { EncryptionModule } from "./module/encryption/encryption.module";
 import { ImageMetaModule } from "./module/image-meta/image-meta.module";
-import { SpaceAccessOptionModule } from "./module/space-access-option/space-access-option.module";
+import { SpaceAccessTypeModule } from "./module/space-access-option/space-access-type.module";
 import { SpaceForRentModule } from "./module/space-for-rent/space-for-rent.module";
 import { SpaceReviewModule } from "./module/space-review/space-review.module";
 import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/space-schedule-feature.module";
@@ -25,7 +25,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     UserModule,
     ImageMetaModule,
     SpaceTypeModule,
-    SpaceAccessOptionModule,
+    SpaceAccessTypeModule,
     SpaceForRentModule,
     SpaceReviewModule,
     EmailModule,

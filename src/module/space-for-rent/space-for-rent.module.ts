@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ImageMetaModule } from "../image-meta/image-meta.module";
-import { SpaceAccessOptionModule } from "../space-access-option/space-access-option.module";
+import { SpaceAccessTypeModule } from "../space-access-option/space-access-type.module";
 import { SpaceScheduleFeatureModule } from "../space-schedule-feature/space-schedule-feature.module";
 import { SpaceSecurityFeatureModule } from "../space-security-feature/space-security-feature.module";
 import { SpaceTypeModule } from "../space-type/space-type.module";
@@ -21,7 +21,7 @@ import { SpaceForRentService } from "./space-for-rent.service";
     ]),
     ImageMetaModule,
     SpaceTypeModule,
-    SpaceAccessOptionModule,
+    SpaceAccessTypeModule,
     SpaceScheduleFeatureModule,
     SpaceSecurityFeatureModule,
     StorageConditionFeatureModule,
