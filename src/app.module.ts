@@ -15,6 +15,7 @@ import { MailModule } from "./module/mail/mail.module";
 import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/space-schedule-feature.module";
 import { SpaceSecurityFeatureModule } from "./module/space-security-feature/space-security-feature.module";
 import { StorageConditionFeatureModule } from "./module/storage-condition-feature/storage-condition-feature.module";
+import { UnloadingMovingFeatureModule } from "./module/unloading-moving-feature/unloading-moving-feature.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { StorageConditionFeatureModule } from "./module/storage-condition-featur
     SpaceScheduleFeatureModule,
     SpaceSecurityFeatureModule,
     StorageConditionFeatureModule,
+    UnloadingMovingFeatureModule,
   ],
   providers: [ValidationProvider],
 })

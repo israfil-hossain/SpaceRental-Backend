@@ -5,18 +5,18 @@ import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { RequiredRoles } from "../user/decorator/roles.decorator";
 import { UserRoleEnum } from "../user/enum/user-role.enum";
-import { CreateSpaceFeatureDto } from "./dto/create-space-feature.dto";
-import { StorageConditionService } from "./storage-condition.service";
+import { CreateUnloadingMovingFeatureDto } from "./dto/create-unloading-moving-feature.dto";
+import { UnloadingMovingFeatureService } from "./unloading-moving-feature.service";
 
-@ApiTags("Storage Condition Features")
-@Controller("StorageConditionFeature")
-export class StorageConditionController {
+@ApiTags("Unloading Moving Features")
+@Controller("unloading-moving-feature")
+export class UnloadingMovingFeatureController {
   constructor(
-    private readonly _storageConditionService: StorageConditionService,
+    private readonly _unloadingMovingFeatureService: UnloadingMovingFeatureService,
   ) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceFeatureDto })
+  @ApiBody({ type: CreateUnloadingMovingFeatureDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -24,9 +24,12 @@ export class StorageConditionController {
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() createSpaceFeatureDto: CreateSpaceFeatureDto,
+    @Body() createSpaceFeatureDto: CreateUnloadingMovingFeatureDto,
   ) {
-    return this._storageConditionService.create(createSpaceFeatureDto, userId);
+    return this._unloadingMovingFeatureService.create(
+      createSpaceFeatureDto,
+      userId,
+    );
   }
 
   @Get("GetAll")
@@ -35,7 +38,7 @@ export class StorageConditionController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._storageConditionService.findAll();
+    return this._unloadingMovingFeatureService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -45,6 +48,6 @@ export class StorageConditionController {
   })
   @RequiredRoles([UserRoleEnum.SUPER_ADMIN, UserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._storageConditionService.remove(DocId);
+    return this._unloadingMovingFeatureService.remove(DocId);
   }
 }
