@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsNumber, Max, Min } from "class-validator";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
-import { SpaceForRentModel } from "../../space-for-rent/entities/space-for-rent.entity";
+import { SpaceForRent } from "../../space-for-rent/entities/space-for-rent.entity";
 import { UserModel } from "../../user/entities/user.entity";
 
 export type SpaceReviewDocument = HydratedDocument<SpaceReviewModel>;
@@ -12,10 +12,10 @@ export type SpaceReviewModelType = Model<SpaceReviewModel>;
 export class SpaceReviewModel extends BaseEntity {
   @Prop({
     type: Types.ObjectId,
-    ref: SpaceForRentModel.name,
+    ref: SpaceForRent.name,
     required: true,
   })
-  space: SpaceForRentModel;
+  space: SpaceForRent;
 
   @Prop({ type: Types.ObjectId, ref: UserModel.name, required: true })
   reviewer: UserModel;

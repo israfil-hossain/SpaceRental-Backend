@@ -10,8 +10,8 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
-import { SpaceAccessType } from "../space-access-option/entities/space-access-type.entity";
-import { SpaceAccessTypeService } from "../space-access-option/space-access-type.service";
+import { SpaceAccessType } from "../space-access-type/entities/space-access-type.entity";
+import { SpaceAccessTypeService } from "../space-access-type/space-access-type.service";
 import { SpaceReviewModel } from "../space-review/entities/space-review.entity";
 import { SpaceScheduleFeature } from "../space-schedule-feature/entities/space-schedule-feature.entity";
 import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
@@ -30,8 +30,8 @@ import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
 import {
-  SpaceForRentModel,
-  SpaceForRentModelType,
+  SpaceForRent,
+  SpaceForRentType,
 } from "./entities/space-for-rent.entity";
 
 @Injectable()
@@ -39,8 +39,8 @@ export class SpaceForRentService {
   private readonly _logger: Logger = new Logger(SpaceForRentService.name);
 
   constructor(
-    @InjectModel(SpaceForRentModel.name)
-    private _spaceForRentModel: SpaceForRentModelType,
+    @InjectModel(SpaceForRent.name)
+    private _spaceForRentModel: SpaceForRentType,
 
     private _spaceTypeService: SpaceTypeService,
     private _spaceAccessTypeService: SpaceAccessTypeService,
