@@ -15,16 +15,16 @@ import { ImageMetaService } from "../image-meta/image-meta.service";
 import { SpaceAccessType } from "../space-access-type/entities/space-access-type.entity";
 import { SpaceAccessTypeService } from "../space-access-type/space-access-type.service";
 import { SpaceReview } from "../space-review/entities/space-review.entity";
-import { SpaceScheduleFeature } from "../space-schedule-feature/entities/space-schedule-feature.entity";
-import { SpaceScheduleFeatureService } from "../space-schedule-feature/space-schedule-feature.service";
-import { SpaceSecurityFeature } from "../space-security-feature/entities/space-security-feature.entity";
-import { SpaceSecurityFeatureService } from "../space-security-feature/space-security-feature.service";
+import { SpaceSchedule } from "../space-schedule/entities/space-schedule.entity";
+import { SpaceScheduleService } from "../space-schedule/space-schedule.service";
+import { SpaceSecurity } from "../space-security/entities/space-security.entity";
+import { SpaceSecurityService } from "../space-security/space-security.service";
 import { SpaceType } from "../space-type/entities/space-type.entity";
 import { SpaceTypeService } from "../space-type/space-type.service";
-import { StorageConditionFeature } from "../storage-condition-feature/entities/storage-condition-feature.entity";
-import { StorageConditionFeatureService } from "../storage-condition-feature/storage-condition-feature.service";
-import { UnloadingMovingFeature } from "../unloading-moving-feature/entities/unloading-moving-feature.entity";
-import { UnloadingMovingFeatureService } from "../unloading-moving-feature/unloading-moving-feature.service";
+import { StorageCondition } from "../storage-condition/entities/storage-condition.entity";
+import { StorageConditionService } from "../storage-condition/storage-condition.service";
+import { UnloadingMoving } from "../unloading-moving/entities/unloading-moving.entity";
+import { UnloadingMovingService } from "../unloading-moving/unloading-moving.service";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
@@ -44,10 +44,10 @@ export class SpaceForRentService {
 
     private _spaceTypeService: SpaceTypeService,
     private _spaceAccessTypeService: SpaceAccessTypeService,
-    private _storageConditionService: StorageConditionFeatureService,
-    private _unloadingMovingService: UnloadingMovingFeatureService,
-    private _spaceSecurityService: SpaceSecurityFeatureService,
-    private _spaceScheduleService: SpaceScheduleFeatureService,
+    private _storageConditionService: StorageConditionService,
+    private _unloadingMovingService: UnloadingMovingService,
+    private _spaceSecurityService: SpaceSecurityService,
+    private _spaceScheduleService: SpaceScheduleService,
     private readonly _imageService: ImageMetaService,
   ) {}
 
@@ -277,22 +277,22 @@ export class SpaceForRentService {
         },
         {
           path: "storageConditions",
-          model: StorageConditionFeature.name,
+          model: StorageCondition.name,
           select: "id name",
         },
         {
           path: "unloadingMovings",
-          model: UnloadingMovingFeature.name,
+          model: UnloadingMoving.name,
           select: "id name",
         },
         {
           path: "spaceSecurities",
-          model: SpaceSecurityFeature.name,
+          model: SpaceSecurity.name,
           select: "id name",
         },
         {
           path: "spaceSchedules",
-          model: SpaceScheduleFeature.name,
+          model: SpaceSchedule.name,
           select: "id name",
         },
         {

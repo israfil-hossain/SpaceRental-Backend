@@ -8,11 +8,11 @@ import { ImageMetaModule } from "./module/image-meta/image-meta.module";
 import { SpaceAccessTypeModule } from "./module/space-access-type/space-access-type.module";
 import { SpaceForRentModule } from "./module/space-for-rent/space-for-rent.module";
 import { SpaceReviewModule } from "./module/space-review/space-review.module";
-import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/space-schedule-feature.module";
-import { SpaceSecurityFeatureModule } from "./module/space-security-feature/space-security-feature.module";
+import { SpaceScheduleModule } from "./module/space-schedule/space-schedule.module";
+import { SpaceSecurityModule } from "./module/space-security/space-security.module";
 import { SpaceTypeModule } from "./module/space-type/space-type.module";
-import { StorageConditionFeatureModule } from "./module/storage-condition-feature/storage-condition-feature.module";
-import { UnloadingMovingFeatureModule } from "./module/unloading-moving-feature/unloading-moving-feature.module";
+import { StorageConditionModule } from "./module/storage-condition/storage-condition.module";
+import { UnloadingMovingModule } from "./module/unloading-moving/unloading-moving.module";
 import { UserTokenModule } from "./module/user-token/user-token.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 
@@ -29,10 +29,10 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     SpaceForRentModule,
     SpaceReviewModule,
     EmailModule,
-    SpaceScheduleFeatureModule,
-    SpaceSecurityFeatureModule,
-    StorageConditionFeatureModule,
-    UnloadingMovingFeatureModule,
+    SpaceScheduleModule,
+    SpaceSecurityModule,
+    StorageConditionModule,
+    UnloadingMovingModule,
   ],
   providers: [ValidationProvider],
 })

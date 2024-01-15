@@ -3,11 +3,11 @@ import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
 import { SpaceAccessType } from "../../space-access-type/entities/space-access-type.entity";
-import { SpaceScheduleFeature } from "../../space-schedule-feature/entities/space-schedule-feature.entity";
-import { SpaceSecurityFeature } from "../../space-security-feature/entities/space-security-feature.entity";
+import { SpaceSchedule } from "../../space-schedule/entities/space-schedule.entity";
+import { SpaceSecurity } from "../../space-security/entities/space-security.entity";
 import { SpaceType } from "../../space-type/entities/space-type.entity";
-import { StorageConditionFeature } from "../../storage-condition-feature/entities/storage-condition-feature.entity";
-import { UnloadingMovingFeature } from "../../unloading-moving-feature/entities/unloading-moving-feature.entity";
+import { StorageCondition } from "../../storage-condition/entities/storage-condition.entity";
+import { UnloadingMoving } from "../../unloading-moving/entities/unloading-moving.entity";
 
 export type SpaceForRentDocument = HydratedDocument<SpaceForRent>;
 export type SpaceForRentType = Model<SpaceForRent>;
@@ -54,31 +54,31 @@ export class SpaceForRent extends BaseEntity {
 
   @Prop({
     type: [Types.ObjectId],
-    ref: StorageConditionFeature.name,
+    ref: StorageCondition.name,
     required: true,
   })
-  storageConditions: StorageConditionFeature[];
+  storageConditions: StorageCondition[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: UnloadingMovingFeature.name,
+    ref: UnloadingMoving.name,
     required: true,
   })
-  unloadingMovings: UnloadingMovingFeature[];
+  unloadingMovings: UnloadingMoving[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceSecurityFeature.name,
+    ref: SpaceSecurity.name,
     required: true,
   })
-  spaceSecurities: SpaceSecurityFeature[];
+  spaceSecurities: SpaceSecurity[];
 
   @Prop({
     type: [Types.ObjectId],
-    ref: SpaceScheduleFeature.name,
+    ref: SpaceSchedule.name,
     required: true,
   })
-  spaceSchedules: SpaceScheduleFeature[];
+  spaceSchedules: SpaceSchedule[];
 
   @Prop({
     type: [Types.ObjectId],
