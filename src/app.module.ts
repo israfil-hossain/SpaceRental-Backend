@@ -14,6 +14,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
 import { MailModule } from "./module/mail/mail.module";
 import { SpaceScheduleFeatureModule } from "./module/space-schedule-feature/space-schedule-feature.module";
 import { SpaceSecurityFeatureModule } from "./module/space-security-feature/space-security-feature.module";
+import { StorageConditionFeatureModule } from "./module/storage-condition-feature/storage-condition-feature.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SpaceSecurityFeatureModule } from "./module/space-security-feature/spac
     MailModule,
     SpaceScheduleFeatureModule,
     SpaceSecurityFeatureModule,
+    StorageConditionFeatureModule,
   ],
   providers: [ValidationProvider],
 })
