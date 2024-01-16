@@ -15,6 +15,7 @@ import { StorageConditionModule } from "./module/storage-condition/storage-condi
 import { UnloadingMovingModule } from "./module/unloading-moving/unloading-moving.module";
 import { UserTokenModule } from "./module/user-token/user-token.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
+import { TermsConditionModule } from "./module/terms-condition/terms-condition.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     SpaceSecurityModule,
     StorageConditionModule,
     UnloadingMovingModule,
+    TermsConditionModule,
   ],
   providers: [ValidationProvider],
 })

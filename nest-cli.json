@@ -6,7 +6,7 @@
     "builder": "swc",
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
-    "assets": ["module/mail/templates/**/*"],
+    "assets": ["module/**/*/templates/**/*.hbs"],
     "watchAssets": true
   }
 }
