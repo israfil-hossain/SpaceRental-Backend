@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { EncryptionModule } from "../encryption/encryption.module";
-import { ImageMetaModule } from "../image-meta/image-meta.module";
 import { ApplicationUserController } from "./application-user.controller";
 import { ApplicationUserService } from "./application-user.service";
 import {
@@ -16,7 +15,6 @@ import { RolesGuardProvider } from "./guards/application-user-roles.guard";
       { name: ApplicationUser.name, schema: ApplicationUserSchema },
     ]),
     EncryptionModule,
-    ImageMetaModule,
   ],
   controllers: [ApplicationUserController],
   providers: [ApplicationUserService, RolesGuardProvider],
