@@ -37,6 +37,7 @@ export class ConfigurationService {
         : new this._configurationModel({
             ...configurationDto,
             createdBy: userId,
+            updatedBy: userId,
           }).save();
 
       const result = await updateQuery;
