@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { RequiredRoles } from "../application-user/decorator/roles.decorator";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
@@ -11,7 +11,7 @@ import { CommissionSettingsDto } from "./dto/commission-settings.dto";
 export class ConfigurationController {
   constructor(private readonly _configurationService: ConfigurationService) {}
 
-  @Patch("UpdateCommissionSettings")
+  @Post("SetCommissionSettings")
   @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
   updateCommission(
     @AuthUserId() { userId }: ITokenPayload,
