@@ -18,7 +18,7 @@ import { UpdateTermsConditionDto } from "./dto/update-terms-condition.dto";
 import { TermsConditionService } from "./terms-condition.service";
 
 @ApiTags("Terms and Conditions")
-@Controller("terms-condition")
+@Controller("TermsAndCondition")
 export class TermsConditionController {
   constructor(private readonly _termsConditionService: TermsConditionService) {}
 

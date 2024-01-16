@@ -7,7 +7,7 @@ import { ConfigurationService } from "./configuration.service";
 import { CommissionSettingsDto } from "./dto/commission-settings.dto";
 
 @ApiTags("Configurations")
-@Controller("configuration")
+@Controller("Configuration")
 export class ConfigurationController {
   constructor(private readonly _configurationService: ConfigurationService) {}
 
