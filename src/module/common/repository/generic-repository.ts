@@ -1,4 +1,4 @@
-import { Logger } from "@nestjs/common";
+import { ConflictException, Logger, NotFoundException } from "@nestjs/common";
 import {
   Document,
   FilterQuery,
@@ -8,7 +8,6 @@ import {
   UpdateQuery,
   UpdateWithAggregationPipeline,
 } from "mongoose";
-import { RepositoryException } from "./generic-repository-exception";
 
 export class GenericRepository<T extends Document> {
   private readonly _logger: Logger;
@@ -28,8 +27,11 @@ export class GenericRepository<T extends Document> {
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this._logger.error("Duplicate key error:", error);
-        throw new RepositoryException(
+        throw new ConflictException(
           "Document already exists with provided inputs",
+          {
+            cause: "RepositoryException",
+          },
         );
       }
 
@@ -80,7 +82,9 @@ export class GenericRepository<T extends Document> {
         .exec();
 
       if (!result) {
-        throw new RepositoryException("Document not found with provided ID");
+        throw new NotFoundException("Document not found with provided ID", {
+          cause: "RepositoryException",
+        });
       }
 
       return result;

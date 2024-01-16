@@ -35,12 +35,12 @@ export class SpaceAccessTypeService {
         `Document created successfully with ID: ${result.id}`,
       );
     } catch (error) {
-      this._logger.error("Error creating new document:", error);
-      throw new BadRequestException(
-        error?.name === "RepositoryException"
-          ? error?.message
-          : "Error creating new document",
-      );
+      if (error?.options?.cause === "RepositoryException") {
+        throw error;
+      }
+
+      this._logger.error("Error creating new document:", error.description);
+      throw new BadRequestException("Error creating new document");
     }
   }
 
