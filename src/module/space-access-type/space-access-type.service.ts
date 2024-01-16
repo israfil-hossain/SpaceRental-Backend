@@ -5,24 +5,20 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
+import { ObjectId } from "mongodb";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
 import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
 import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
-import {
-  SpaceAccessType,
-  SpaceAccessTypeType,
-} from "./entities/space-access-type.entity";
+import { SpaceAccessTypeRepository } from "./repository/space-access-type.repository";
 
 @Injectable()
 export class SpaceAccessTypeService {
   private readonly _logger: Logger = new Logger(SpaceAccessTypeService.name);
 
   constructor(
-    @InjectModel(SpaceAccessType.name)
-    private _spaceAccessType: SpaceAccessTypeType,
+    private readonly _spaceAccessTypeRepository: SpaceAccessTypeRepository,
   ) {}
 
   async create(
@@ -30,27 +26,27 @@ export class SpaceAccessTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = new this._spaceAccessType({
+      const result = await this._spaceAccessTypeRepository.create({
         ...createSpaceAccessTypeDto,
-        createdBy: userId,
+        createdBy: new ObjectId(userId),
       });
-      await result.save();
 
-      return new SuccessResponseDto("Document created successfully", result);
+      return new SuccessResponseDto(
+        `Document created successfully with ID: ${result.id}`,
+      );
     } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
-
       this._logger.error("Error creating new document:", error);
-      throw new BadRequestException("Error creating new document");
+      throw new BadRequestException(
+        error?.name === "RepositoryException"
+          ? error?.message
+          : "Error creating new document",
+      );
     }
   }
 
   async findAll({
     Page = 1,
-    PageSize = 10,
+    PageSize: limit = 10,
     Name = "",
   }: ListSpaceAccessTypeQuery): Promise<PaginatedResponseDto> {
     try {
@@ -60,21 +56,15 @@ export class SpaceAccessTypeService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      // Pagination setup
-      const totalRecords = await this._spaceAccessType
-        .where(searchQuery)
-        .countDocuments()
-        .exec();
-      const skip = (Page - 1) * PageSize;
+      const count = await this._spaceAccessTypeRepository.count(searchQuery);
+      const skip = (Page - 1) * limit;
 
-      const result = await this._spaceAccessType
-        .where(searchQuery)
-        .find()
-        .skip(skip)
-        .limit(PageSize)
-        .exec();
+      const result = await this._spaceAccessTypeRepository.find(searchQuery, {
+        limit,
+        skip,
+      });
 
-      return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
+      return new PaginatedResponseDto(count, Page, limit, result);
     } catch (error) {
       this._logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
@@ -82,9 +72,8 @@ export class SpaceAccessTypeService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessType
-      .findById(id)
-      .populate([
+    const result = await this._spaceAccessTypeRepository.findById(id, {
+      populate: [
         {
           path: "createdBy",
           select: "id email fullName",
@@ -93,8 +82,8 @@ export class SpaceAccessTypeService {
           path: "updatedBy",
           select: "id email fullName",
         },
-      ])
-      .exec();
+      ],
+    });
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -110,17 +99,15 @@ export class SpaceAccessTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceAccessType
-        .findByIdAndUpdate(
-          id,
-          {
-            ...updateSpaceAccessTypeDto,
-            updatedBy: userId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
+      const result = await this._spaceAccessTypeRepository.updateOneById(
+        id,
+        {
+          ...updateSpaceAccessTypeDto,
+          updatedBy: userId,
+          updatedAt: new Date(),
+        },
+        { new: true },
+      );
 
       if (!result) {
         this._logger.error(`Document not found with ID: ${id}`);
@@ -144,7 +131,7 @@ export class SpaceAccessTypeService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessType.findByIdAndDelete(id).exec();
+    const result = await this._spaceAccessTypeRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);

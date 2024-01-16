@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type SpaceAccessTypeDocument = HydratedDocument<SpaceAccessType>;
-export type SpaceAccessTypeType = Model<SpaceAccessType>;
+export type SpaceAccessTypeType = Model<SpaceAccessTypeDocument>;
 
 @Schema()
 export class SpaceAccessType extends BaseEntity {

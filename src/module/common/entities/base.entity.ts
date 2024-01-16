@@ -11,13 +11,13 @@ export class BaseEntity {
     ref: ApplicationUser.name,
     required: true,
   })
-  createdBy?: ApplicationUser;
+  createdBy?: Types.ObjectId;
 
   @Prop({ default: null })
   updatedAt?: Date;
 
   @Prop({ type: Types.ObjectId, ref: ApplicationUser.name, default: null })
-  updatedBy?: ApplicationUser;
+  updatedBy?: Types.ObjectId;
 
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
