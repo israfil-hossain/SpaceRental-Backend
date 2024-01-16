@@ -9,14 +9,14 @@ export class EmailService {
 
   async sendUserSigninMail(userEmail: string, userName: string) {
     try {
-      await this.mailerService.sendMail({
-        to: userEmail,
-        subject: "New signin detected",
-        template: "./signin",
-        context: {
-          name: userName,
-        },
-      });
+      // await this.mailerService.sendMail({
+      //   to: userEmail,
+      //   subject: "New signin detected",
+      //   template: "./signin",
+      //   context: {
+      //     name: userName,
+      //   },
+      // });
       this._logger.log("Email sent successfully to: " + userEmail);
     } catch (error) {
       this._logger.error("Failed to send email: " + error);
@@ -25,15 +25,15 @@ export class EmailService {
 
   async sendUserSignupMail(userEmail: string, userName: string) {
     try {
-      await this.mailerService.sendMail({
-        to: userEmail,
-        subject: "Welcome abroad",
-        template: "./signup",
-        context: {
-          companyName: "Space Rental",
-          userName,
-        },
-      });
+      // await this.mailerService.sendMail({
+      //   to: userEmail,
+      //   subject: "Welcome abroad",
+      //   template: "./signup",
+      //   context: {
+      //     companyName: "Space Rental",
+      //     userName,
+      //   },
+      // });
       this._logger.log("Email sent successfully to: " + userEmail);
     } catch (error) {
       this._logger.error("Failed to send email: " + error);
