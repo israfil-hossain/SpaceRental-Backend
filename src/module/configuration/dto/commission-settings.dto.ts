@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { IsNumber, Max, Min } from "class-validator";
 
 export class CommissionSettingsDto {
@@ -18,3 +18,7 @@ export class CommissionSettingsDto {
   @Max(100)
   renterCommission: number;
 }
+
+export class UpdateCommissionSettingsDto extends PartialType(
+  CommissionSettingsDto,
+) {}

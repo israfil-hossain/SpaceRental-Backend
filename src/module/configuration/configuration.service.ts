@@ -1,7 +1,10 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CommissionSettingsDto } from "./dto/commission-settings.dto";
+import {
+  CommissionSettingsDto,
+  UpdateCommissionSettingsDto,
+} from "./dto/commission-settings.dto";
 import {
   Configuration,
   ConfigurationType,
@@ -17,7 +20,7 @@ export class ConfigurationService {
   ) {}
 
   async updateCommissionSettings(
-    configurationDto: CommissionSettingsDto,
+    configurationDto: UpdateCommissionSettingsDto,
     userId: string,
   ) {
     try {
