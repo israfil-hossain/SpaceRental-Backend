@@ -13,18 +13,12 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
 import { SpaceAccessType } from "../space-access-type/entities/space-access-type.entity";
-import { SpaceAccessTypeService } from "../space-access-type/space-access-type.service";
 import { SpaceReview } from "../space-review/entities/space-review.entity";
 import { SpaceSchedule } from "../space-schedule/entities/space-schedule.entity";
-import { SpaceScheduleService } from "../space-schedule/space-schedule.service";
 import { SpaceSecurity } from "../space-security/entities/space-security.entity";
-import { SpaceSecurityService } from "../space-security/space-security.service";
 import { SpaceType } from "../space-type/entities/space-type.entity";
-import { SpaceTypeService } from "../space-type/space-type.service";
 import { StorageCondition } from "../storage-condition/entities/storage-condition.entity";
-import { StorageConditionService } from "../storage-condition/storage-condition.service";
 import { UnloadingMoving } from "../unloading-moving/entities/unloading-moving.entity";
-import { UnloadingMovingService } from "../unloading-moving/unloading-moving.service";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
@@ -33,6 +27,7 @@ import {
   SpaceForRent,
   SpaceForRentType,
 } from "./entities/space-for-rent.entity";
+import { SpaceForRentSubService } from "./space-for-rent.sub.service";
 
 @Injectable()
 export class SpaceForRentService {
@@ -40,14 +35,9 @@ export class SpaceForRentService {
 
   constructor(
     @InjectModel(SpaceForRent.name)
-    private _spaceForRent: SpaceForRentType,
+    private readonly _spaceForRent: SpaceForRentType,
 
-    private _spaceTypeService: SpaceTypeService,
-    private _spaceAccessTypeService: SpaceAccessTypeService,
-    private _storageConditionService: StorageConditionService,
-    private _unloadingMovingService: UnloadingMovingService,
-    private _spaceSecurityService: SpaceSecurityService,
-    private _spaceScheduleService: SpaceScheduleService,
+    private readonly _subService: SpaceForRentSubService,
     private readonly _imageService: ImageMetaService,
   ) {}
 
@@ -57,20 +47,20 @@ export class SpaceForRentService {
   ): Promise<SuccessResponseDto> {
     try {
       // validate relations
-      await this._spaceTypeService.validateObjectId(createSpaceDto.type);
-      await this._spaceAccessTypeService.validateObjectId(
+      await this._subService.validateSpaceTypeObjectId(createSpaceDto.type);
+      await this._subService.validateSpaceAccessTypeObjectId(
         createSpaceDto.accessMethod,
       );
-      await this._storageConditionService.validateObjectIds(
+      await this._subService.validateStorageConditionObjectIds(
         createSpaceDto.storageConditions,
       );
-      await this._unloadingMovingService.validateObjectIds(
+      await this._subService.validateUnloadingMovingObjectIds(
         createSpaceDto.unloadingMovings,
       );
-      await this._spaceSecurityService.validateObjectIds(
+      await this._subService.validateSpaceSecurityObjectIds(
         createSpaceDto.spaceSecurities,
       );
-      await this._spaceScheduleService.validateObjectIds(
+      await this._subService.validateSpaceScheduleObjectIds(
         createSpaceDto.spaceSchedules,
       );
 
@@ -319,30 +309,30 @@ export class SpaceForRentService {
     try {
       // validate relations
       if (updateSpaceDto.type) {
-        await this._spaceTypeService.validateObjectId(updateSpaceDto.type);
+        await this._subService.validateSpaceTypeObjectId(updateSpaceDto.type);
       }
       if (updateSpaceDto.accessMethod) {
-        await this._spaceAccessTypeService.validateObjectId(
+        await this._subService.validateSpaceAccessTypeObjectId(
           updateSpaceDto.accessMethod,
         );
       }
       if (updateSpaceDto.storageConditions?.length) {
-        await this._storageConditionService.validateObjectIds(
+        await this._subService.validateStorageConditionObjectIds(
           updateSpaceDto.storageConditions,
         );
       }
       if (updateSpaceDto.unloadingMovings?.length) {
-        await this._unloadingMovingService.validateObjectIds(
+        await this._subService.validateUnloadingMovingObjectIds(
           updateSpaceDto.unloadingMovings,
         );
       }
       if (updateSpaceDto.spaceSecurities?.length) {
-        await this._spaceSecurityService.validateObjectIds(
+        await this._subService.validateSpaceSecurityObjectIds(
           updateSpaceDto.spaceSecurities,
         );
       }
       if (updateSpaceDto.spaceSchedules?.length) {
-        await this._spaceScheduleService.validateObjectIds(
+        await this._subService.validateSpaceScheduleObjectIds(
           updateSpaceDto.spaceSchedules,
         );
       }

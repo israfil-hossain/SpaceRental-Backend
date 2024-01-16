@@ -70,16 +70,5 @@ export class UnloadingMovingService {
   }
 
   //#region InternalMethods
-  async validateObjectIds(listOfIds: string[] = []): Promise<void> {
-    const result = await this._unloadingMoving
-      .find({ _id: { $in: listOfIds } })
-      .select("_id")
-      .exec();
-
-    if (listOfIds.length !== result.length) {
-      this._logger.error(`Invalid space security IDs: ${listOfIds}`);
-      throw new BadRequestException("Invalid space security IDs");
-    }
-  }
   //#endregion
 }

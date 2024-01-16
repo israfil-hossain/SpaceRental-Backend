@@ -155,16 +155,5 @@ export class SpaceAccessTypeService {
   }
 
   //#region InternalMethods
-  async validateObjectId(id: string): Promise<void> {
-    const result = await this._spaceAccessType
-      .findById(id)
-      .select("_id")
-      .exec();
-
-    if (!result) {
-      this._logger.error(`Invalid space access option ID: ${id}`);
-      throw new BadRequestException("Invalid space access option ID");
-    }
-  }
   //#endregion
 }
