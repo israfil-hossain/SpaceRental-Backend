@@ -15,13 +15,11 @@ import { SpaceTypeModule } from "./module/space-type/space-type.module";
 import { StorageConditionModule } from "./module/storage-condition/storage-condition.module";
 import { TermsConditionModule } from "./module/terms-condition/terms-condition.module";
 import { UnloadingMovingModule } from "./module/unloading-moving/unloading-moving.module";
-import { UserTokenModule } from "./module/user-token/user-token.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 
 @Module({
   imports: [
     CommonModule,
-    UserTokenModule,
     EncryptionModule,
     AuthenticationModule,
     ApplicationUserModule,

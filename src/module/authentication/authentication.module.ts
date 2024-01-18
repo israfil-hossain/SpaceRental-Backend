@@ -1,23 +1,34 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import { MongooseModule } from "@nestjs/mongoose";
 import { jwtConfig } from "../../config/jwt.config";
 import { ApplicationUserModule } from "../application-user/application-user.module";
 import { EncryptionModule } from "../encryption/encryption.module";
-import { UserTokenModule } from "../user-token/user-token.module";
 import { AuthenticationController } from "./authentication.controller";
 import { AuthenticationService } from "./authentication.service";
+import {
+  RefreshToken,
+  RefreshTokenSchema,
+} from "./entities/refresh-token.entity";
 import { AuthenticationGuardProvider } from "./provider/authentication-guard.provider";
+import { RefreshTokenRepository } from "./repository/refresh-token.repository";
 
 @Module({
   imports: [
+    MongooseModule.forFeature([
+      { name: RefreshToken.name, schema: RefreshTokenSchema },
+    ]),
+    JwtModule.registerAsync(jwtConfig),
     ConfigModule,
     ApplicationUserModule,
-    UserTokenModule,
     EncryptionModule,
-    JwtModule.registerAsync(jwtConfig),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, AuthenticationGuardProvider],
+  providers: [
+    AuthenticationGuardProvider,
+    AuthenticationService,
+    RefreshTokenRepository,
+  ],
 })
 export class AuthenticationModule {}
