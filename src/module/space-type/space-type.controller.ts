@@ -11,7 +11,7 @@ import {
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RequiredRoles } from "../application-user/decorator/roles.decorator";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
-import { AuthUserId } from "../auth/decorator/auth-user-id.decorator";
+import { AuthUserId } from "../authentication/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";

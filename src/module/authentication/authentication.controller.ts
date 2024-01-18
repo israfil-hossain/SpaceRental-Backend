@@ -1,19 +1,19 @@
 import { Body, Controller, Get, HttpCode, Post } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { AuthService } from "./auth.service";
+import { AuthenticationService } from "./authentication.service";
 import { AuthUserId } from "./decorator/auth-user-id.decorator";
 import { AdminSignInDto } from "./dto/admin-sign-in.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
-import { IsPublic } from "./guard/auth.guard";
+import { IsPublic } from "./guard/authentication.guard";
 
 @ApiTags("Authentication")
 @Controller("Auth")
-export class AuthController {
-  constructor(private readonly _authService: AuthService) {}
+export class AuthenticationController {
+  constructor(private readonly _authService: AuthenticationService) {}
 
   @Post("SignUp")
   @HttpCode(200)

@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ApplicationUserModule } from "./module/application-user/application-user.module";
-import { AuthModule } from "./module/auth/auth.module";
+import { AuthenticationModule } from "./module/authentication/authentication.module";
 import { CommonModule } from "./module/common/common.module";
 import { ConfigurationModule } from "./module/configuration/configuration.module";
 import { EmailModule } from "./module/email/email.module";
@@ -23,7 +23,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     CommonModule,
     UserTokenModule,
     EncryptionModule,
-    AuthModule,
+    AuthenticationModule,
     ApplicationUserModule,
     ImageMetaModule,
     SpaceTypeModule,

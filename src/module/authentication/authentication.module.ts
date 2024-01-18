@@ -5,9 +5,9 @@ import { jwtConfig } from "../../config/jwt.config";
 import { ApplicationUserModule } from "../application-user/application-user.module";
 import { EncryptionModule } from "../encryption/encryption.module";
 import { UserTokenModule } from "../user-token/user-token.module";
-import { AuthController } from "./auth.controller";
-import { AuthService } from "./auth.service";
-import { AuthGuardProvider } from "./guard/auth.guard";
+import { AuthenticationController } from "./authentication.controller";
+import { AuthenticationService } from "./authentication.service";
+import { AuthenticationGuardProvider } from "./provider/authentication-guard.provider";
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { AuthGuardProvider } from "./guard/auth.guard";
     EncryptionModule,
     JwtModule.registerAsync(jwtConfig),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, AuthGuardProvider],
+  controllers: [AuthenticationController],
+  providers: [AuthenticationService, AuthenticationGuardProvider],
 })
-export class AuthModule {}
+export class AuthenticationModule {}

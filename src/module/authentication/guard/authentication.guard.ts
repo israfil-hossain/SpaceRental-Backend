@@ -9,15 +9,15 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { APP_GUARD, Reflector } from "@nestjs/core";
+import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 
 const IS_PUBLIC_KEY = "IS_PUBLIC_KEY";
 export const IsPublic = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Injectable()
-class AuthGuard implements CanActivate {
-  private readonly _logger = new Logger(AuthGuard.name);
+export class AuthenticationGuard implements CanActivate {
+  private readonly _logger = new Logger(AuthenticationGuard.name);
 
   constructor(
     private _configService: ConfigService,
@@ -92,8 +92,3 @@ class AuthGuard implements CanActivate {
   }
   //#endregion
 }
-
-export const AuthGuardProvider = {
-  provide: APP_GUARD,
-  useClass: AuthGuard,
-};

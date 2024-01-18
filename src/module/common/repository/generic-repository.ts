@@ -10,12 +10,12 @@ import {
 } from "mongoose";
 
 export class GenericRepository<T extends Document> {
-  private readonly _logger: Logger;
+  public readonly _logger: Logger;
   private readonly _model: Model<T>;
 
   constructor(model: Model<T>, logger?: Logger) {
     this._model = model;
-    this._logger = logger || new Logger(GenericRepository.name);
+    this._logger = logger || new Logger(this.constructor.name);
   }
 
   async create(doc: Partial<T>, saveOptions?: SaveOptions): Promise<T> {

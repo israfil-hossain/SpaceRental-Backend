@@ -17,8 +17,8 @@ import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
 
 @Injectable()
-export class AuthService {
-  private readonly _logger: Logger = new Logger(AuthService.name);
+export class AuthenticationService {
+  private readonly _logger: Logger = new Logger(AuthenticationService.name);
 
   constructor(
     private _userService: ApplicationUserService,
