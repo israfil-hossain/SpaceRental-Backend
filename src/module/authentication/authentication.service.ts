@@ -5,7 +5,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { ApplicationUserDocument } from "../application-user/entities/application-user.entity";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { ApplicationUserRepository } from "../application-user/repository/application-user.repository";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -153,13 +152,12 @@ export class AuthenticationService {
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc =
-      await this._tokenService.getRefreshToken(refreshToken);
-    const userData = refreshTokenDoc.user as unknown as ApplicationUserDocument;
+    const userData =
+      await this._tokenService.getRefreshTokenUserIfValid(refreshToken);
 
     const accessToken = await this._tokenService.generateAccessToken(
-      userData.id?.toString(),
-      userData?.role,
+      userData._id.toString(),
+      userData.role,
     );
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);

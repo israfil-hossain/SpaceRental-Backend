@@ -7,7 +7,7 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as base64url from "base64url";
 import * as uuid from "uuid";
-import { ApplicationUser } from "../application-user/entities/application-user.entity";
+import { ApplicationUserDocument } from "../application-user/entities/application-user.entity";
 import {
   ApplicationUserRoleDtoEnum,
   ApplicationUserRoleEnum,
@@ -54,9 +54,9 @@ export class UserTokenService {
     }
   }
 
-  public async getRefreshToken(
+  public async getRefreshTokenUserIfValid(
     refreshToken: string,
-  ): Promise<RefreshTokenDocument> {
+  ): Promise<ApplicationUserDocument> {
     if (!refreshToken) {
       this._logger.error("A valid refresh token is required");
       throw new BadRequestException("A valid refresh token is required");
@@ -71,8 +71,7 @@ export class UserTokenService {
         populate: [
           {
             path: "user",
-            model: ApplicationUser.name,
-            select: "id role",
+            select: "role",
           },
         ],
       },
@@ -83,7 +82,7 @@ export class UserTokenService {
       throw new BadRequestException("Refresh token is invalid or expired");
     }
 
-    return refreshTokenDoc;
+    return refreshTokenDoc?.user as unknown as ApplicationUserDocument;
   }
 
   public async revokeRefreshToken(

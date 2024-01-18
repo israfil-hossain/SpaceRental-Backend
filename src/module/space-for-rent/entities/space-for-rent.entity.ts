@@ -43,49 +43,49 @@ export class SpaceForRent extends BaseEntity {
     ref: SpaceType.name,
     required: true,
   })
-  type: SpaceType;
+  type: string;
 
   @Prop({
     type: Types.ObjectId,
     ref: SpaceAccessType.name,
     required: true,
   })
-  accessMethod: SpaceAccessType;
+  accessMethod: string;
 
   @Prop({
     type: [Types.ObjectId],
     ref: StorageCondition.name,
     required: true,
   })
-  storageConditions: StorageCondition[];
+  storageConditions: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: UnloadingMoving.name,
     required: true,
   })
-  unloadingMovings: UnloadingMoving[];
+  unloadingMovings: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: SpaceSecurity.name,
     required: true,
   })
-  spaceSecurities: SpaceSecurity[];
+  spaceSecurities: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: SpaceSchedule.name,
     required: true,
   })
-  spaceSchedules: SpaceSchedule[];
+  spaceSchedules: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: ImageMeta.name,
     required: true,
   })
-  spaceImages: ImageMeta[];
+  spaceImages: string[];
 }
 
 export const SpaceForRentSchema = SchemaFactory.createForClass(SpaceForRent);

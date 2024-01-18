@@ -31,7 +31,7 @@ export class ImageMeta {
     type: Types.ObjectId,
     required: true,
   })
-  ownerId: Types.ObjectId;
+  ownerId: string;
 }
 
 export const ImageMetaSchema = SchemaFactory.createForClass(ImageMeta);

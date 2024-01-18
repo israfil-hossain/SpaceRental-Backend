@@ -15,14 +15,14 @@ export class SpaceReview extends BaseEntity {
     ref: SpaceForRent.name,
     required: true,
   })
-  space: SpaceForRent;
+  space: string;
 
   @Prop({
     type: Types.ObjectId,
     ref: ApplicationUser.name,
     required: true,
   })
-  reviewer: ApplicationUser;
+  reviewer: string;
 
   @IsNumber()
   @Min(1)

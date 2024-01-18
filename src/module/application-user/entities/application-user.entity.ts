@@ -59,7 +59,7 @@ export class ApplicationUser {
     type: Types.ObjectId,
     ref: ImageMeta.name,
   })
-  profilePicture?: ImageMeta;
+  profilePicture?: string;
 }
 
 export const ApplicationUserSchema =
