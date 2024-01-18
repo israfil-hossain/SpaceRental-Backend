@@ -3,7 +3,7 @@ import { HydratedDocument, Model, Types } from "mongoose";
 import { ApplicationUser } from "../../application-user/entities/application-user.entity";
 
 export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
-export type RefreshTokenType = Model<RefreshToken>;
+export type RefreshTokenType = Model<RefreshTokenDocument>;
 
 @Schema({
   toJSON: {
@@ -21,7 +21,7 @@ export class RefreshToken {
     ref: ApplicationUser.name,
     required: true,
   })
-  user: ApplicationUser;
+  user: string;
 
   @Prop({
     default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),

@@ -49,6 +49,29 @@ export class GenericRepository<T extends Document> {
     }
   }
 
+  async findAll(): Promise<T[]> {
+    try {
+      const result = await this._model.find().exec();
+      return result;
+    } catch (error) {
+      this._logger.error("Error finding all entities:", error);
+      return [];
+    }
+  }
+
+  async findOneWhere(
+    filter: FilterQuery<T>,
+    options?: QueryOptions,
+  ): Promise<T | null> {
+    try {
+      const result = await this._model.findOne(filter, null, options).exec();
+      return result;
+    } catch (error) {
+      this._logger.error("Error finding entity by ID:", error);
+      return null;
+    }
+  }
+
   async findById(id: string, options?: QueryOptions): Promise<T | null> {
     try {
       const result = await this._model
@@ -58,16 +81,6 @@ export class GenericRepository<T extends Document> {
     } catch (error) {
       this._logger.error("Error finding entity by ID:", error);
       return null;
-    }
-  }
-
-  async findAll(): Promise<T[]> {
-    try {
-      const result = await this._model.find().exec();
-      return result;
-    } catch (error) {
-      this._logger.error("Error finding all entities:", error);
-      return [];
     }
   }
 

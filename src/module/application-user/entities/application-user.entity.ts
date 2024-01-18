@@ -1,10 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
-import { ApplicationUserRoleEnum } from "../enum/application-user-role.enum";
+import {
+  ApplicationUserRoleDtoEnum,
+  ApplicationUserRoleEnum,
+} from "../enum/application-user-role.enum";
 
 export type ApplicationUserDocument = HydratedDocument<ApplicationUser>;
-export type ApplicationUserType = Model<ApplicationUser>;
+export type ApplicationUserType = Model<ApplicationUserDocument>;
 
 @Schema({
   toJSON: {
@@ -29,7 +32,7 @@ export class ApplicationUser {
     enum: Object.values(ApplicationUserRoleEnum),
     default: ApplicationUserRoleEnum.RENTER,
   })
-  role: ApplicationUserRoleEnum;
+  role: ApplicationUserRoleEnum | ApplicationUserRoleDtoEnum;
 
   @Prop({ default: null })
   fullName?: string;

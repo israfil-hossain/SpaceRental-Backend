@@ -5,52 +5,48 @@ import {
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { InjectModel } from "@nestjs/mongoose";
 import * as base64url from "base64url";
 import * as uuid from "uuid";
+import { ApplicationUser } from "../application-user/entities/application-user.entity";
 import {
-  ApplicationUser,
-  ApplicationUserDocument,
-} from "../application-user/entities/application-user.entity";
-import {
-  RefreshToken,
-  RefreshTokenDocument,
-  RefreshTokenType,
-} from "./entities/refresh-token.entity";
+  ApplicationUserRoleDtoEnum,
+  ApplicationUserRoleEnum,
+} from "../application-user/enum/application-user-role.enum";
+import { RefreshTokenDocument } from "./entities/refresh-token.entity";
+import { RefreshTokenRepository } from "./repository/refresh-token.repository";
 
 @Injectable()
 export class UserTokenService {
   private readonly _logger: Logger = new Logger(UserTokenService.name);
 
   constructor(
-    private _jwtService: JwtService,
-    @InjectModel(RefreshToken.name)
-    private _refreshToken: RefreshTokenType,
+    private readonly _refreshTokenRepository: RefreshTokenRepository,
+    private readonly _jwtService: JwtService,
   ) {}
 
-  public async generateAccessToken(user: ApplicationUserDocument) {
+  public async generateAccessToken(
+    userId: string,
+    userRole: ApplicationUserRoleEnum | ApplicationUserRoleDtoEnum,
+  ) {
     const tokenPayload: ITokenPayload = {
-      userId: user?.id?.toString(),
-      userRole: user.role,
+      userId,
+      userRole,
     };
 
     return await this._jwtService.signAsync(tokenPayload);
   }
 
-  public async createRefreshTokenWithUserId(
-    user: ApplicationUserDocument,
-  ): Promise<string> {
+  public async createRefreshToken(userId: string): Promise<string> {
     try {
       const token = base64url.default(
         Buffer.from(uuid.v4().replace(/-/g, ""), "hex"),
       );
 
-      const refreshToken = await this._refreshToken.create({
+      const refreshToken = await this._refreshTokenRepository.create({
         token,
-        user: user?.id?.toString(),
+        user: userId,
       });
 
-      await refreshToken.save();
       return refreshToken.token;
     } catch (error) {
       this._logger.error("Error generating token", error);
@@ -58,7 +54,7 @@ export class UserTokenService {
     }
   }
 
-  public async getRefreshTokenByToken(
+  public async getRefreshToken(
     refreshToken: string,
   ): Promise<RefreshTokenDocument> {
     if (!refreshToken) {
@@ -66,19 +62,21 @@ export class UserTokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this._refreshToken
-      .findOne({
+    const refreshTokenDoc = await this._refreshTokenRepository.findOneWhere(
+      {
         token: refreshToken,
         expiresAt: { $gt: new Date() },
-      })
-      .populate([
-        {
-          path: "user",
-          model: ApplicationUser.name,
-          select: "id role",
-        },
-      ])
-      .exec();
+      },
+      {
+        populate: [
+          {
+            path: "user",
+            model: ApplicationUser.name,
+            select: "id role",
+          },
+        ],
+      },
+    );
 
     if (!refreshTokenDoc) {
       this._logger.error("Refresh token is invalid or expired");
@@ -88,7 +86,7 @@ export class UserTokenService {
     return refreshTokenDoc;
   }
 
-  public async revokeRefreshTokenByToken(
+  public async revokeRefreshToken(
     refreshToken: string,
   ): Promise<RefreshTokenDocument> {
     if (!refreshToken) {
@@ -96,20 +94,21 @@ export class UserTokenService {
       throw new BadRequestException("A valid refresh token is required");
     }
 
-    const refreshTokenDoc = await this._refreshToken
-      .findOneAndUpdate(
-        {
-          token: refreshToken,
-          expiresAt: { $gt: new Date() },
-        },
-        {
-          expiresAt: new Date(),
-        },
-        {
-          new: true,
-        },
-      )
-      .exec();
+    const refreshTokenDoc = await this._refreshTokenRepository.findOneWhere({
+      token: refreshToken,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!refreshTokenDoc) {
+      this._logger.error(`Token is either invalid or expired: ${refreshToken}`);
+      throw new BadRequestException(
+        "Refresh token is either invalid or expired",
+      );
+    }
+
+    await this._refreshTokenRepository.updateOneById(refreshTokenDoc.id, {
+      expiresAt: new Date(),
+    });
 
     if (!refreshTokenDoc) {
       this._logger.error("Refresh token is invalid or expired");

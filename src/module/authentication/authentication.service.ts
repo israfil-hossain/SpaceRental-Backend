@@ -2,10 +2,12 @@ import {
   BadRequestException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { ApplicationUserService } from "../application-user/application-user.service";
 import { ApplicationUserDocument } from "../application-user/entities/application-user.entity";
+import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
+import { ApplicationUserRepository } from "../application-user/repository/application-user.repository";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EmailService } from "../email/email.service";
 import { EncryptionService } from "../encryption/encryption.service";
@@ -21,7 +23,7 @@ export class AuthenticationService {
   private readonly _logger: Logger = new Logger(AuthenticationService.name);
 
   constructor(
-    private _userService: ApplicationUserService,
+    private _applicationUserRepository: ApplicationUserRepository,
     private _tokenService: UserTokenService,
     private _encryptionService: EncryptionService,
     private _mailService: EmailService,
@@ -30,9 +32,17 @@ export class AuthenticationService {
   async adminSignIn(
     adminSignInDto: AdminSignInDto,
   ): Promise<SuccessResponseDto> {
-    const user = await this._userService.getAdminUserByEmail(
-      adminSignInDto.email,
-    );
+    const user = await this._applicationUserRepository.findOneWhere({
+      email: adminSignInDto.email,
+      role:
+        ApplicationUserRoleEnum.SUPER_ADMIN || ApplicationUserRoleEnum.ADMIN,
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `No admin found with email: ${adminSignInDto.email}`,
+      );
+    }
 
     if (
       !(await this._encryptionService.verifyPassword(
@@ -55,9 +65,13 @@ export class AuthenticationService {
       );
     }
 
-    const accessToken = await this._tokenService.generateAccessToken(user);
-    const refreshToken =
-      await this._tokenService.createRefreshTokenWithUserId(user);
+    const accessToken = await this._tokenService.generateAccessToken(
+      user?.id?.toString(),
+      user?.role,
+    );
+    const refreshToken = await this._tokenService.createRefreshToken(
+      user?.id?.toString(),
+    );
 
     user.lastLogin = new Date();
     await user.save();
@@ -69,11 +83,16 @@ export class AuthenticationService {
   }
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
-    const user = await this._userService.getUserByEmailAndRole(
-      signInDto.email,
-      signInDto.role,
-    );
+    const user = await this._applicationUserRepository.findOneWhere({
+      email: signInDto.email,
+      role: signInDto.role,
+    });
 
+    if (!user) {
+      throw new NotFoundException(
+        `No user found with email: ${signInDto.email}`,
+      );
+    }
     if (
       !(await this._encryptionService.verifyPassword(
         signInDto.password,
@@ -95,9 +114,13 @@ export class AuthenticationService {
       );
     }
 
-    const accessToken = await this._tokenService.generateAccessToken(user);
-    const refreshToken =
-      await this._tokenService.createRefreshTokenWithUserId(user);
+    const accessToken = await this._tokenService.generateAccessToken(
+      user?.id?.toString(),
+      user?.role,
+    );
+    const refreshToken = await this._tokenService.createRefreshToken(
+      user?.id?.toString(),
+    );
 
     user.lastLogin = new Date();
     await user.save();
@@ -109,14 +132,19 @@ export class AuthenticationService {
   }
 
   async signUp(signupDto: SignUpDto): Promise<SuccessResponseDto> {
-    signupDto["password"] = await this._encryptionService.hashPassword(
+    signupDto.password = await this._encryptionService.hashPassword(
       signupDto.password,
     );
-    const newUser = await this._userService.createUserFromService(signupDto);
 
-    const accessToken = await this._tokenService.generateAccessToken(newUser);
-    const refreshToken =
-      await this._tokenService.createRefreshTokenWithUserId(newUser);
+    const newUser = await this._applicationUserRepository.create(signupDto);
+
+    const accessToken = await this._tokenService.generateAccessToken(
+      newUser?.id?.toString(),
+      newUser?.role,
+    );
+    const refreshToken = await this._tokenService.createRefreshToken(
+      newUser?.id?.toString(),
+    );
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
     this._mailService.sendUserSignupMail(newUser.email, newUser.fullName ?? "");
@@ -125,11 +153,13 @@ export class AuthenticationService {
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const { user } =
-      await this._tokenService.getRefreshTokenByToken(refreshToken);
+    const refreshTokenDoc =
+      await this._tokenService.getRefreshToken(refreshToken);
+    const userData = refreshTokenDoc.user as unknown as ApplicationUserDocument;
 
     const accessToken = await this._tokenService.generateAccessToken(
-      user as ApplicationUserDocument,
+      userData.id?.toString(),
+      userData?.role,
     );
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
@@ -138,7 +168,7 @@ export class AuthenticationService {
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<SuccessResponseDto> {
-    await this._tokenService.revokeRefreshTokenByToken(refreshToken);
+    await this._tokenService.revokeRefreshToken(refreshToken);
 
     return new SuccessResponseDto("Refresh token revoked successfully");
   }
@@ -156,7 +186,11 @@ export class AuthenticationService {
       );
     }
 
-    const user = await this._userService.getUserById(userId);
+    const user = await this._applicationUserRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`No user found with id: ${userId}`);
+    }
 
     if (
       !(await this._encryptionService.verifyPassword(
@@ -181,7 +215,11 @@ export class AuthenticationService {
   }
 
   async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
-    const user = await this._userService.getUserById(userId);
+    const user = await this._applicationUserRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException(`No user found with id: ${userId}`);
+    }
 
     return new SuccessResponseDto("Logged in user found", user);
   }

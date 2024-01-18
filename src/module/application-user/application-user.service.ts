@@ -1,38 +1,27 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
-import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
 import { CreateApplicationUserDto } from "./dto/create-application-user.dto";
 import { ListApplicationUserQuery } from "./dto/list-application-user-query.dto";
 import { UpdateApplicationUserProfilePictureDto } from "./dto/update-application-user-profile-picture.dto";
 import { UpdateApplicationUserDto } from "./dto/update-application-user.dto";
-import {
-  ApplicationUser,
-  ApplicationUserDocument,
-  ApplicationUserType,
-} from "./entities/application-user.entity";
-import {
-  ApplicationUserRoleDtoEnum,
-  ApplicationUserRoleEnum,
-} from "./enum/application-user-role.enum";
+import { ApplicationUserRepository } from "./repository/application-user.repository";
 
 @Injectable()
 export class ApplicationUserService {
   private readonly _logger: Logger = new Logger(ApplicationUserService.name);
 
   constructor(
-    private _encryptionService: EncryptionService,
-    @InjectModel(ApplicationUser.name)
-    private _applicationUser: ApplicationUserType,
+    private readonly _applicationUserRepository: ApplicationUserRepository,
+
+    private readonly _encryptionService: EncryptionService,
     private readonly _imageService: ImageMetaService,
   ) {}
 
@@ -43,18 +32,18 @@ export class ApplicationUserService {
       userCreateDto["password"] = await this._encryptionService.hashPassword(
         userCreateDto.password,
       );
-      const newUser = new this._applicationUser(userCreateDto);
-      await newUser.save();
+
+      const newUser =
+        await this._applicationUserRepository.create(userCreateDto);
 
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("User already exists");
+      if (error?.options?.cause === "RepositoryException") {
+        throw error;
       }
 
-      this._logger.error("Error creating user:", error);
-      throw new BadRequestException("Error creating user");
+      this._logger.error("Error creating new document:", error.description);
+      throw new BadRequestException("Error creating new document");
     }
   }
 
@@ -79,20 +68,16 @@ export class ApplicationUserService {
       }
 
       // Pagination setup
-      const totalRecords = await this._applicationUser
-        .where(searchQuery)
-        .countDocuments()
-        .exec();
+      const totalRecords =
+        await this._applicationUserRepository.count(searchQuery);
       const skip = (Page - 1) * PageSize;
 
-      const users = await this._applicationUser
-        .where(searchQuery)
-        .find()
-        .skip(skip)
-        .limit(PageSize)
-        .exec();
+      const result = await this._applicationUserRepository.find(searchQuery, {
+        limit: PageSize,
+        skip,
+      });
 
-      return new PaginatedResponseDto(totalRecords, Page, PageSize, users);
+      return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
       this._logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");
@@ -100,7 +85,7 @@ export class ApplicationUserService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const user = await this._applicationUser.findById(id).exec();
+    const user = await this._applicationUserRepository.findById(id);
 
     if (!user) {
       this._logger.error(`User Document not found with ID: ${id}`);
@@ -112,33 +97,24 @@ export class ApplicationUserService {
 
   async update(id: string, updateUserDto: UpdateApplicationUserDto) {
     try {
-      const result = await this._applicationUser
-        .findByIdAndUpdate(id, updateUserDto, { new: true })
-        .exec();
-
-      if (!result) {
-        this._logger.error(`User Document not found with ID: ${id}`);
-        throw new NotFoundException(`Could not find user with ID: ${id}`);
-      }
+      const result = await this._applicationUserRepository.updateOneById(
+        id,
+        updateUserDto,
+      );
 
       return new SuccessResponseDto("User updated successfully", result);
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error?.options?.cause === "RepositoryException") {
         throw error;
       }
 
-      if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("User already exists");
-      }
-
-      this._logger.error("Error updating user:", error);
-      throw new BadRequestException("Error updating user");
+      this._logger.error("Error updating new document:", error.description);
+      throw new BadRequestException("Error updating new document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._applicationUser.findByIdAndDelete(id).exec();
+    const result = await this._applicationUserRepository.removeOneById(id);
     if (!result) {
       this._logger.error(`User Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete user with ID: ${id}`);
@@ -152,7 +128,7 @@ export class ApplicationUserService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this._applicationUser.findById(userId).exec();
+      const user = await this._applicationUserRepository.findById(userId);
 
       if (!user) {
         this._logger.error(`User Document not found with ID: ${userId}`);
@@ -171,107 +147,18 @@ export class ApplicationUserService {
         userId,
       );
 
-      const result = await user.updateOne(
-        {
-          profilePicture: createdImage.id,
-        },
-        {
-          new: true,
-        },
-      );
-
-      if (!result) {
-        throw new BadRequestException("Could not update profile picture");
-      }
+      await this._applicationUserRepository.updateOneById(user?.id, {
+        profilePicture: createdImage.id,
+      });
 
       return new SuccessResponseDto("Profile picture updated successfully");
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error?.options?.cause === "RepositoryException") {
         throw error;
       }
 
-      this._logger.error("Error updating user:", error);
-      throw new BadRequestException("Error updating user");
+      this._logger.error("Error updating new document:", error.description);
+      throw new BadRequestException("Error updating new document");
     }
   }
-
-  //#region Internal Service methods
-  async createUserFromService(
-    userCreateDto: CreateApplicationUserDto,
-  ): Promise<ApplicationUserDocument> {
-    try {
-      const newUser = new this._applicationUser(userCreateDto);
-      await newUser.save();
-
-      return newUser;
-    } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException(
-          "User already exists with provided email and role",
-        );
-      }
-
-      this._logger.error("Error creating user:", error);
-      throw new BadRequestException(
-        "Error occured while trying to create user",
-      );
-    }
-  }
-
-  async getUserByEmailAndRole(
-    email: string,
-    role: ApplicationUserRoleDtoEnum,
-  ): Promise<ApplicationUserDocument> {
-    const user = await this._applicationUser.findOne({ email, role }).exec();
-
-    if (!user) {
-      this._logger.error(`User Document not found with Email: ${email}`);
-      throw new NotFoundException(`User not found with email: ${email}`);
-    }
-
-    return user;
-  }
-
-  async getAdminUserByEmail(email: string): Promise<ApplicationUserDocument> {
-    const user = await this._applicationUser
-      .findOne({
-        email,
-        role: {
-          $in: [
-            ApplicationUserRoleEnum.ADMIN,
-            ApplicationUserRoleEnum.SUPER_ADMIN,
-          ],
-        },
-      })
-      .exec();
-
-    if (!user) {
-      this._logger.error(`Admin User Document not found with Email: ${email}`);
-      throw new NotFoundException(`Admin user not found with email: ${email}`);
-    }
-
-    return user;
-  }
-
-  async getUserById(id: string): Promise<ApplicationUserDocument> {
-    const user = await this._applicationUser
-      .findById(id)
-      .populate([
-        {
-          path: "profilePicture",
-          model: ImageMeta.name,
-          select: "url",
-        },
-      ])
-      .exec();
-
-    if (!user) {
-      this._logger.error(`User Document not found with ID: ${id}`);
-      throw new NotFoundException(`User not found with Id: ${id}`);
-    }
-
-    return user;
-  }
-  //#endregion
 }

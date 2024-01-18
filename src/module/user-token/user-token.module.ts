@@ -6,6 +6,7 @@ import {
   RefreshToken,
   RefreshTokenSchema,
 } from "./entities/refresh-token.entity";
+import { RefreshTokenRepository } from "./repository/refresh-token.repository";
 import { UserTokenService } from "./user-token.service";
 
 @Module({
@@ -15,7 +16,7 @@ import { UserTokenService } from "./user-token.service";
     ]),
     JwtModule.registerAsync(jwtConfig),
   ],
-  providers: [UserTokenService],
+  providers: [UserTokenService, RefreshTokenRepository],
   exports: [UserTokenService],
 })
 export class UserTokenModule {}

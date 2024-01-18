@@ -8,6 +8,7 @@ import {
   ApplicationUserSchema,
 } from "./entities/application-user.entity";
 import { RolesGuardProvider } from "./guards/application-user-roles.guard";
+import { ApplicationUserRepository } from "./repository/application-user.repository";
 
 @Module({
   imports: [
@@ -17,7 +18,11 @@ import { RolesGuardProvider } from "./guards/application-user-roles.guard";
     EncryptionModule,
   ],
   controllers: [ApplicationUserController],
-  providers: [ApplicationUserService, RolesGuardProvider],
-  exports: [ApplicationUserService],
+  providers: [
+    RolesGuardProvider,
+    ApplicationUserService,
+    ApplicationUserRepository,
+  ],
+  exports: [MongooseModule, ApplicationUserService, ApplicationUserRepository],
 })
 export class ApplicationUserModule {}
