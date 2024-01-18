@@ -215,7 +215,15 @@ export class AuthenticationService {
   }
 
   async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
-    const user = await this._applicationUserRepository.findById(userId);
+    const user = await this._applicationUserRepository.findById(userId, {
+      populate: [
+        {
+          path: "profilePicture",
+          select: "url",
+          transform: (doc) => doc?.url,
+        },
+      ],
+    });
 
     if (!user) {
       throw new NotFoundException(`No user found with id: ${userId}`);
