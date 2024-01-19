@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import * as base64url from "base64url";
 import * as bcrypt from "bcrypt";
+import * as uuid from "uuid";
 
 @Injectable()
 export class EncryptionService {
@@ -25,5 +27,11 @@ export class EncryptionService {
     }
 
     return await bcrypt.compare(rawPassword, hashedPassword);
+  }
+
+  generateUniqueToken(length: number = 3): string {
+    const mergedUuid = Array.from({ length }, () => uuid.v4()).join("");
+    const tokenBuffer = Buffer.from(mergedUuid.replace(/-/g, ""), "hex");
+    return base64url.default(tokenBuffer);
   }
 }
