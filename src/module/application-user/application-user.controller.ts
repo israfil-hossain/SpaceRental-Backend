@@ -21,6 +21,7 @@ import { RequiredRoles } from "./decorator/roles.decorator";
 import { CreateApplicationUserDto } from "./dto/create-application-user.dto";
 import { ListApplicationUserQuery } from "./dto/list-application-user-query.dto";
 import { UpdateApplicationUserProfilePictureDto } from "./dto/update-application-user-profile-picture.dto";
+import { UpdateApplicationUserDto } from "./dto/update-application-user.dto";
 import { ApplicationUserRoleEnum } from "./enum/application-user-role.enum";
 
 @ApiTags("Application Users")
@@ -65,6 +66,23 @@ export class ApplicationUserController {
     return this._userService.findOne(DocId);
   }
 
+  @Patch("UpdateById/:DocId")
+  @ApiBody({ type: UpdateApplicationUserDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
+    ApplicationUserRoleEnum.ADMIN,
+  ])
+  update(
+    @Param() { DocId }: DocIdQueryDto,
+    @Body() updateApplicationUserDto: UpdateApplicationUserDto,
+  ) {
+    return this._userService.update(DocId, updateApplicationUserDto);
+  }
+
   @Delete("DeleteById/:DocId")
   @ApiResponse({
     status: 200,
@@ -78,6 +96,19 @@ export class ApplicationUserController {
     return this._userService.remove(DocId);
   }
 
+  @Patch("UpdateOwnProfile")
+  @ApiBody({ type: UpdateApplicationUserDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  updateOwnUser(
+    @AuthUserId() { userId }: ITokenPayload,
+    @Body() updateApplicationUserDto: UpdateApplicationUserDto,
+  ) {
+    return this._userService.update(userId, updateApplicationUserDto);
+  }
+
   @Patch("UpdateOwnProfilePicture")
   @ApiBody({ type: UpdateApplicationUserProfilePictureDto })
   @ApiResponse({
@@ -86,14 +117,14 @@ export class ApplicationUserController {
   })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("profilePicture"))
-  updateProfilePicture(
+  updateOwnUserProfilePicture(
     @AuthUserId() { userId }: ITokenPayload,
     @UploadedFile() profilePicture: Express.Multer.File,
     @Body() updateProfilePictureDto: UpdateApplicationUserProfilePictureDto,
   ) {
     updateProfilePictureDto.profilePicture = profilePicture;
 
-    return this._userService.updateProfilePicture(
+    return this._userService.updateOwnUserProfilePicture(
       updateProfilePictureDto,
       userId,
     );

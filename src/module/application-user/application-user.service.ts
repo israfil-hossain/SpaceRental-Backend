@@ -123,7 +123,7 @@ export class ApplicationUserService {
     return new SuccessResponseDto("User deleted successfully");
   }
 
-  async updateProfilePicture(
+  async updateOwnUserProfilePicture(
     { profilePicture }: UpdateApplicationUserProfilePictureDto,
     userId: string,
   ): Promise<SuccessResponseDto> {

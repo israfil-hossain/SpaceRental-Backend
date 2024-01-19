@@ -41,6 +41,9 @@ export class ApplicationUser {
   phoneNumber?: string;
 
   @Prop({ default: null })
+  address?: string;
+
+  @Prop({ default: null })
   countryCode?: string;
 
   @Prop({ default: null })

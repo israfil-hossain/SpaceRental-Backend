@@ -39,6 +39,11 @@ export class CreateApplicationUserDto {
   @IsString({ message: "Phone number must be a string" })
   phoneNumber?: string;
 
+  @ApiProperty({ description: "User's address", required: false })
+  @IsOptional()
+  @IsString({ message: "Address must be a string" })
+  address?: string;
+
   @ApiProperty({ description: "User's country code", required: false })
   @IsOptional()
   @IsString({ message: "Country code must be a string" })
