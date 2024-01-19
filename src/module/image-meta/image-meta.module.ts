@@ -2,6 +2,7 @@ import { Global, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CloudinaryProvider } from "../../utility/provider/cloudinary.provider";
 import { ImageMeta, ImageMetaSchema } from "./entities/image-meta.entity";
+import { ImageMetaRepository } from "./image-meta.repository";
 import { ImageMetaService } from "./image-meta.service";
 
 @Global()
@@ -11,7 +12,7 @@ import { ImageMetaService } from "./image-meta.service";
       { name: ImageMeta.name, schema: ImageMetaSchema },
     ]),
   ],
-  providers: [ImageMetaService, CloudinaryProvider],
+  providers: [ImageMetaService, ImageMetaRepository, CloudinaryProvider],
   exports: [ImageMetaService],
 })
 export class ImageMetaModule {}

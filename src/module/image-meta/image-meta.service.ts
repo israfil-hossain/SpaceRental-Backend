@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import toStream from "buffer-to-stream";
 import {
   v2 as CloudinaryAPI,
@@ -7,19 +6,14 @@ import {
   UploadApiErrorResponse,
   UploadApiResponse,
 } from "cloudinary";
-import {
-  ImageMeta,
-  ImageMetaDocument,
-  ImageMetaType,
-} from "./entities/image-meta.entity";
+import { ImageMetaDocument } from "./entities/image-meta.entity";
+import { ImageMetaRepository } from "./image-meta.repository";
 
 @Injectable()
 export class ImageMetaService {
   private readonly _logger: Logger = new Logger(ImageMetaService.name);
 
-  constructor(
-    @InjectModel(ImageMeta.name) private readonly _imageMeta: ImageMetaType,
-  ) {}
+  constructor(private readonly _imageMetaRepository: ImageMetaRepository) {}
 
   async createSingleImage(
     singleImageFile: Express.Multer.File,
@@ -32,7 +26,7 @@ export class ImageMetaService {
     const extension = this._getFileExtension(singleImageFile.originalname);
     const uploadResult = await this._uploadImageToCloudinary(singleImageFile);
 
-    const singleImage = new this._imageMeta({
+    const singleImage = await this._imageMetaRepository.create({
       url: uploadResult.secure_url,
       name: uploadResult.public_id,
       extension: extension,
@@ -41,7 +35,6 @@ export class ImageMetaService {
       ownerId: ownerId,
     });
 
-    await singleImage.save();
     return singleImage;
   }
 
@@ -66,19 +59,17 @@ export class ImageMetaService {
     imageId: string,
     ownerId: string,
   ): Promise<ImageMetaDocument | null> {
-    const deletedImage = await this._imageMeta
-      .findOneAndDelete({
-        _id: imageId,
-        ownerId: ownerId,
-      })
-      .exec();
+    const deletedImage = await this._imageMetaRepository.findOneWhere({
+      _id: imageId,
+      ownerId: ownerId,
+    });
 
     if (!deletedImage) {
       throw new Error(`Could not find image with id: ${imageId}`);
     }
 
     await this._deleteImageFromCloudinary(deletedImage.name);
-    await this._imageMeta.findByIdAndDelete(imageId).exec();
+    await this._imageMetaRepository.removeOneById(imageId);
 
     return deletedImage;
   }

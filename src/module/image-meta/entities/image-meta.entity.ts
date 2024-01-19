@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 
 export type ImageMetaDocument = HydratedDocument<ImageMeta>;
-export type ImageMetaType = Model<ImageMeta>;
+export type ImageMetaType = Model<ImageMetaDocument>;
 
 @Schema({
   toJSON: {
