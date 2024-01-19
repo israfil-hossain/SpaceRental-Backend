@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { FilterQuery } from "mongoose";
+import { ApplicationUser } from "../application-user/entities/application-user.entity";
 import { GenericRepository } from "../common/repository/generic-repository";
 import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { SpaceAccessMethod } from "../space-access-method/entities/space-access-method.entity";
@@ -131,6 +132,56 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
             $arrayElemAt: ["$accessMethod.name", 0],
           },
         })
+        .lookup({
+          from: `${ApplicationUser.name.toLowerCase()}s`,
+          let: {
+            verifiedByUserId: "$verifiedBy",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: "$_id" },
+                    { $toString: "$$verifiedByUserId" },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "verifiedBy",
+        })
+        .addFields({
+          verifyingUserName: {
+            $arrayElemAt: ["$verifiedBy.fullName", 0],
+          },
+        })
+        .lookup({
+          from: `${ImageMeta.name.toLowerCase()}s`,
+          let: {
+            verifyingUserImage: {
+              $arrayElemAt: ["$verifiedBy.profilePicture", 0],
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: "$_id" },
+                    { $toString: "$$verifyingUserImage" },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "verifyingUserImage",
+        })
+        .addFields({
+          verifyingUserImage: {
+            $arrayElemAt: ["$verifyingUserImage.url", 0],
+          },
+        })
         .project({
           _id: 1,
           name: 1,
@@ -141,6 +192,8 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           averageRating: 1,
           coverImage: 1,
           accessMethod: 1,
+          verifyingUserName: 1,
+          verifyingUserImage: 1,
         })
         .exec();
 
