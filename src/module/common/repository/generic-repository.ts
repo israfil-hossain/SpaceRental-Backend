@@ -18,7 +18,10 @@ export class GenericRepository<T extends Document> {
     this._logger = logger || new Logger(this.constructor.name);
   }
 
-  async create(doc: Partial<T>, saveOptions?: SaveOptions): Promise<T> {
+  async create(
+    doc: Partial<T>,
+    saveOptions?: SaveOptions,
+  ): Promise<Document<unknown, object, T>> {
     try {
       const createdEntity = new this._model(doc);
       const savedResult = await createdEntity.save(saveOptions);
@@ -39,7 +42,10 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async find(filter: FilterQuery<T>, options?: QueryOptions): Promise<T[]> {
+  async find(
+    filter: FilterQuery<T>,
+    options?: QueryOptions,
+  ): Promise<Document<unknown, object, T>[]> {
     try {
       const result = await this._model.find(filter, null, options).exec();
       return result;
@@ -49,7 +55,7 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findAll(): Promise<T[]> {
+  async findAll(): Promise<Document<unknown, object, T>[]> {
     try {
       const result = await this._model.find().exec();
       return result;
@@ -62,7 +68,7 @@ export class GenericRepository<T extends Document> {
   async findOneWhere(
     filter: FilterQuery<T>,
     options?: QueryOptions,
-  ): Promise<T | null> {
+  ): Promise<Document<unknown, object, T> | null> {
     try {
       const result = await this._model.findOne(filter, null, options).exec();
       return result;
@@ -72,7 +78,10 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findById(id: string, options?: QueryOptions): Promise<T | null> {
+  async findById(
+    id: string,
+    options?: QueryOptions,
+  ): Promise<Document<unknown, object, T> | null> {
     try {
       const result = await this._model
         .findOne({ _id: id }, null, options)
@@ -88,7 +97,7 @@ export class GenericRepository<T extends Document> {
     id: string,
     updated: UpdateWithAggregationPipeline | UpdateQuery<T>,
     options?: QueryOptions,
-  ): Promise<T> {
+  ): Promise<Document<unknown, object, T>> {
     try {
       const result = await this._model
         .findOneAndUpdate({ _id: id }, updated, options)
