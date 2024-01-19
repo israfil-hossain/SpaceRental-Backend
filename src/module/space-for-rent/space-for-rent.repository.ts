@@ -150,4 +150,66 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
       return [];
     }
   }
+
+  async findOnePopulatedById(id: string): Promise<SpaceForRentDocument | null> {
+    try {
+      const result = await this.model
+        .findOne({ _id: id }, null, {
+          populate: [
+            {
+              path: "createdBy",
+              select: "-_id email fullName",
+            },
+            {
+              path: "updatedBy",
+              select: "-_id email fullName",
+            },
+            {
+              path: "verifiedBy",
+              select: "-_id email fullName profilePicture",
+              populate: [
+                {
+                  path: "profilePicture",
+                  select: "url",
+                  transform: (doc) => doc?.url,
+                },
+              ],
+            },
+            {
+              path: "type",
+              select: "name",
+            },
+            {
+              path: "accessMethod",
+              select: "name",
+            },
+            {
+              path: "storageConditions",
+              select: "name",
+            },
+            {
+              path: "unloadingMovings",
+              select: "name",
+            },
+            {
+              path: "spaceSecurities",
+              select: "name",
+            },
+            {
+              path: "spaceSchedules",
+              select: "name",
+            },
+            {
+              path: "spaceImages",
+              select: "url name extension size",
+            },
+          ],
+        })
+        .exec();
+      return result;
+    } catch (error) {
+      this.logger.error("Error finding entity by ID:", error);
+      return null;
+    }
+  }
 }

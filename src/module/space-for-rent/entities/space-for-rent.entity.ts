@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
+import { ApplicationUser } from "../../application-user/entities/application-user.entity";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
 import { SpaceAccessMethod } from "../../space-access-method/entities/space-access-method.entity";
@@ -36,7 +37,14 @@ export class SpaceForRent extends BaseEntity {
   minimumPeriod: string;
 
   @Prop({ type: Boolean, default: false })
-  isVerifiedByAdmin: boolean;
+  isVerified: boolean;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: ApplicationUser.name,
+    required: true,
+  })
+  verifiedBy: string;
 
   @Prop({
     type: Types.ObjectId,

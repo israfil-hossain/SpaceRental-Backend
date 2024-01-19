@@ -84,7 +84,7 @@ export class SpaceForRentService {
         searchQuery.createdBy = userId;
       } else if (userRole === ApplicationUserRoleEnum.RENTER.toString()) {
         searchQuery.isActive = true;
-        searchQuery.isVerifiedByAdmin = true;
+        searchQuery.isVerified = true;
       }
 
       // Pagination setup
@@ -106,46 +106,7 @@ export class SpaceForRentService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceForRentRepository.findById(id, {
-      populate: [
-        {
-          path: "createdBy",
-          select: "id email fullName",
-        },
-        {
-          path: "updatedBy",
-          select: "id email fullName",
-        },
-        {
-          path: "type",
-          select: "id name",
-        },
-        {
-          path: "accessMethod",
-          select: "id name",
-        },
-        {
-          path: "storageConditions",
-          select: "id name",
-        },
-        {
-          path: "unloadingMovings",
-          select: "id name",
-        },
-        {
-          path: "spaceSecurities",
-          select: "id name",
-        },
-        {
-          path: "spaceSchedules",
-          select: "id name",
-        },
-        {
-          path: "spaceImages",
-          select: "id url name extension size mimeType",
-        },
-      ],
-    });
+    const result = await this._spaceForRentRepository.findOnePopulatedById(id);
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -195,7 +156,8 @@ export class SpaceForRentService {
   ): Promise<SuccessResponseDto> {
     try {
       const result = await this._spaceForRentRepository.updateOneById(spaceId, {
-        isVerifiedByAdmin: isVerified,
+        isVerified,
+        verifiedBy: auditUserId,
         updatedBy: auditUserId,
         updatedAt: new Date(),
       });
