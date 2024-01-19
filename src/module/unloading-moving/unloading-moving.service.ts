@@ -4,21 +4,16 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateUnloadingMovingDto } from "./dto/create-unloading-moving.dto";
-import {
-  UnloadingMoving,
-  UnloadingMovingType,
-} from "./entities/unloading-moving.entity";
+import { UnloadingMovingRepository } from "./unloading-moving.repository";
 
 @Injectable()
 export class UnloadingMovingService {
   private readonly _logger: Logger = new Logger(UnloadingMovingService.name);
 
   constructor(
-    @InjectModel(UnloadingMoving.name)
-    private _unloadingMoving: UnloadingMovingType,
+    private readonly _unloadingMovingRepository: UnloadingMovingRepository,
   ) {}
 
   async create(
@@ -26,11 +21,10 @@ export class UnloadingMovingService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._unloadingMoving({
+      const newSpaceType = await this._unloadingMovingRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
-      await newSpaceType.save();
 
       return new SuccessResponseDto(
         "New document created successfully",
@@ -49,7 +43,7 @@ export class UnloadingMovingService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._unloadingMoving.find().exec();
+      const results = await this._unloadingMovingRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
@@ -59,7 +53,7 @@ export class UnloadingMovingService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._unloadingMoving.findByIdAndDelete(id).exec();
+    const result = await this._unloadingMovingRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not delete with ID: ${id}`);
@@ -68,7 +62,4 @@ export class UnloadingMovingService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
-
-  //#region InternalMethods
-  //#endregion
 }

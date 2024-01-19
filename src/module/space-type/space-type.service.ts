@@ -5,33 +5,28 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
 import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
-import { SpaceType, SpaceTypeType } from "./entities/space-type.entity";
+import { SpaceTypeRepository } from "./space-type.repository";
 
 @Injectable()
 export class SpaceTypeService {
   private readonly _logger: Logger = new Logger(SpaceTypeService.name);
 
-  constructor(
-    @InjectModel(SpaceType.name)
-    private _spaceType: SpaceTypeType,
-  ) {}
+  constructor(private readonly _spaceTypeRepository: SpaceTypeRepository) {}
 
   async create(
     createSpaceTypeDto: CreateSpaceTypeDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._spaceType({
+      const newSpaceType = await this._spaceTypeRepository.create({
         ...createSpaceTypeDto,
         createdBy: userId,
       });
-      await newSpaceType.save();
 
       return new SuccessResponseDto(
         "Document created successfully",
@@ -54,22 +49,20 @@ export class SpaceTypeService {
     Name = "",
   }: ListSpaceTypeQuery): Promise<PaginatedResponseDto> {
     try {
-      // Pagination setup
-      const totalRecords = await this._spaceType.countDocuments().exec();
-      const skip = (Page - 1) * PageSize;
-
       // Search query setup
       const searchQuery: Record<string, any> = {};
       if (Name) {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const result = await this._spaceType
-        .where(searchQuery)
-        .find()
-        .skip(skip)
-        .limit(PageSize)
-        .exec();
+      // Pagination setup
+      const skip = (Page - 1) * PageSize;
+
+      const totalRecords = await this._spaceTypeRepository.count(searchQuery);
+      const result = await this._spaceTypeRepository.find(searchQuery, {
+        skip,
+        limit: PageSize,
+      });
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
@@ -79,9 +72,8 @@ export class SpaceTypeService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceType
-      .findById(id)
-      .populate([
+    const result = await this._spaceTypeRepository.findById(id, {
+      populate: [
         {
           path: "createdBy",
           select: "id email fullName",
@@ -90,8 +82,8 @@ export class SpaceTypeService {
           path: "updatedBy",
           select: "id email fullName",
         },
-      ])
-      .exec();
+      ],
+    });
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -107,22 +99,14 @@ export class SpaceTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceType = await this._spaceType
-        .findByIdAndUpdate(
-          id,
-          {
-            ...updateSpaceTypeDto,
-            updatedBy: userId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
-
-      if (!updatedSpaceType) {
-        this._logger.error(`Document not found with ID: ${id}`);
-        throw new NotFoundException(`Could not find space type with ID: ${id}`);
-      }
+      const updatedSpaceType = await this._spaceTypeRepository.updateOneById(
+        id,
+        {
+          ...updateSpaceTypeDto,
+          updatedBy: userId,
+          updatedAt: new Date(),
+        },
+      );
 
       return new SuccessResponseDto(
         "Document updated successfully",
@@ -144,7 +128,7 @@ export class SpaceTypeService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceType.findByIdAndDelete(id).exec();
+    const result = await this._spaceTypeRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not deleted with ID: ${id}`);

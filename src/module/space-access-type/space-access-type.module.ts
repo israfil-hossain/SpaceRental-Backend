@@ -16,6 +16,6 @@ import { SpaceAccessTypeService } from "./space-access-type.service";
   ],
   controllers: [SpaceAccessTypeController],
   providers: [SpaceAccessTypeService, SpaceAccessTypeRepository],
-  exports: [SpaceAccessTypeService],
+  exports: [SpaceAccessTypeRepository],
 })
 export class SpaceAccessTypeModule {}

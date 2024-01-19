@@ -5,6 +5,7 @@ import {
   SpaceSecuritySchema,
 } from "./entities/space-security.entity";
 import { SpaceSecurityController } from "./space-security.controller";
+import { SpaceSecurityRepository } from "./space-security.repository";
 import { SpaceSecurityService } from "./space-security.service";
 
 @Module({
@@ -17,7 +18,7 @@ import { SpaceSecurityService } from "./space-security.service";
     ]),
   ],
   controllers: [SpaceSecurityController],
-  providers: [SpaceSecurityService],
-  exports: [SpaceSecurityService],
+  providers: [SpaceSecurityService, SpaceSecurityRepository],
+  exports: [SpaceSecurityRepository],
 })
 export class SpaceSecurityModule {}

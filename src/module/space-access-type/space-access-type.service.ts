@@ -5,7 +5,6 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { ObjectId } from "mongodb";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
@@ -28,7 +27,7 @@ export class SpaceAccessTypeService {
     try {
       const result = await this._spaceAccessTypeRepository.create({
         ...createSpaceAccessTypeDto,
-        createdBy: new ObjectId(userId),
+        createdBy: userId,
       });
 
       return new SuccessResponseDto(

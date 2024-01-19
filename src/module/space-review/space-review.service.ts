@@ -5,23 +5,21 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceForRentService } from "../space-for-rent/space-for-rent.service";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
-import { SpaceReview, SpaceReviewType } from "./entities/space-review.entity";
+import { SpaceReviewRepository } from "./space-review.repository";
 
 @Injectable()
 export class SpaceReviewService {
   private readonly _logger: Logger = new Logger(SpaceReviewService.name);
 
   constructor(
-    @InjectModel(SpaceReview.name)
-    private _spaceReview: SpaceReviewType,
-    private _spaceForRentService: SpaceForRentService,
+    private readonly _spaceReviewRepository: SpaceReviewRepository,
+    private readonly _spaceForRentService: SpaceForRentService,
   ) {}
 
   async create(
@@ -36,12 +34,11 @@ export class SpaceReviewService {
         );
       }
 
-      const newItem = new this._spaceReview({
+      const newItem = await this._spaceReviewRepository.create({
         ...createSpaceReviewDto,
         reviewer: userId,
         createdBy: userId,
       });
-      await newItem.save();
 
       return new SuccessResponseDto("Document created successfully", newItem);
     } catch (error) {
@@ -65,28 +62,30 @@ export class SpaceReviewService {
   }: ListSpaceReviewQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceReview.countDocuments().exec();
+      const totalRecords = await this._spaceReviewRepository.count();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceReview
-        .find()
-        .skip(skip)
-        .limit(PageSize)
-        .populate([
-          {
-            path: "reviewer",
-            select: "id email fullName profilePicture",
-          },
-          {
-            path: "createdBy",
-            select: "id email fullName",
-          },
-          {
-            path: "updatedBy",
-            select: "id email fullName",
-          },
-        ])
-        .exec();
+      const result = await this._spaceReviewRepository.find(
+        {},
+        {
+          skip,
+          limit: PageSize,
+          populate: [
+            {
+              path: "reviewer",
+              select: "id email fullName profilePicture",
+            },
+            {
+              path: "createdBy",
+              select: "id email fullName",
+            },
+            {
+              path: "updatedBy",
+              select: "id email fullName",
+            },
+          ],
+        },
+      );
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
@@ -95,21 +94,25 @@ export class SpaceReviewService {
     }
   }
 
-  async findAllBySpaceId(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceReview
-      .find({ space: id })
-      .populate([
-        {
-          path: "reviewer",
-          select: "id email fullName profilePicture",
-        },
-      ])
-      .exec();
+  async findAllBySpaceId(spaceId: string): Promise<SuccessResponseDto> {
+    const result = await this._spaceReviewRepository.find(
+      {
+        space: spaceId,
+      },
+      {
+        populate: [
+          {
+            path: "reviewer",
+            select: "id email fullName profilePicture",
+          },
+        ],
+      },
+    );
 
     if (!result.length) {
-      this._logger.error(`No document found with Space ID: ${id}`);
+      this._logger.error(`No document found with Space ID: ${spaceId}`);
       throw new NotFoundException(
-        `Could not find any document with Space ID: ${id}`,
+        `Could not find any document with Space ID: ${spaceId}`,
       );
     }
 
@@ -140,11 +143,14 @@ export class SpaceReviewService {
     }
 
     try {
-      const result = await this._spaceReview.findOneAndDelete(searchQuery);
+      const result =
+        await this._spaceReviewRepository.findOneWhere(searchQuery);
 
       if (!result) {
         throw new Error("No deleted document was found");
       }
+
+      await this._spaceReviewRepository.removeOneById(result.id);
 
       return new SuccessResponseDto("Document deleted successfully");
     } catch (error) {

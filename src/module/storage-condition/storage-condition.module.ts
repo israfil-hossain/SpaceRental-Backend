@@ -5,6 +5,7 @@ import {
   StorageConditionSchema,
 } from "./entities/storage-condition.entity";
 import { StorageConditionController } from "./storage-condition.controller";
+import { StorageConditionRepository } from "./storage-condition.repository";
 import { StorageConditionService } from "./storage-condition.service";
 
 @Module({
@@ -17,7 +18,7 @@ import { StorageConditionService } from "./storage-condition.service";
     ]),
   ],
   controllers: [StorageConditionController],
-  providers: [StorageConditionService],
-  exports: [StorageConditionService],
+  providers: [StorageConditionService, StorageConditionRepository],
+  exports: [StorageConditionRepository],
 })
 export class StorageConditionModule {}

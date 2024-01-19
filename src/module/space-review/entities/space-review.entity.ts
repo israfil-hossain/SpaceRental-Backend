@@ -6,7 +6,7 @@ import { BaseEntity } from "../../common/entities/base.entity";
 import { SpaceForRent } from "../../space-for-rent/entities/space-for-rent.entity";
 
 export type SpaceReviewDocument = HydratedDocument<SpaceReview>;
-export type SpaceReviewType = Model<SpaceReview>;
+export type SpaceReviewType = Model<SpaceReviewDocument>;
 
 @Schema()
 export class SpaceReview extends BaseEntity {

@@ -5,6 +5,7 @@ import {
   SpaceScheduleSchema,
 } from "./entities/space-schedule.entity";
 import { SpaceScheduleController } from "./space-schedule.controller";
+import { SpaceScheduleRepository } from "./space-schedule.repository";
 import { SpaceScheduleService } from "./space-schedule.service";
 
 @Module({
@@ -17,7 +18,7 @@ import { SpaceScheduleService } from "./space-schedule.service";
     ]),
   ],
   controllers: [SpaceScheduleController],
-  providers: [SpaceScheduleService],
-  exports: [SpaceScheduleService],
+  providers: [SpaceScheduleService, SpaceScheduleRepository],
+  exports: [SpaceScheduleRepository],
 })
 export class SpaceScheduleModule {}

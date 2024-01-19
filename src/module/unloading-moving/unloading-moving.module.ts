@@ -5,6 +5,7 @@ import {
   UnloadingMovingSchema,
 } from "./entities/unloading-moving.entity";
 import { UnloadingMovingController } from "./unloading-moving.controller";
+import { UnloadingMovingRepository } from "./unloading-moving.repository";
 import { UnloadingMovingService } from "./unloading-moving.service";
 
 @Module({
@@ -17,7 +18,7 @@ import { UnloadingMovingService } from "./unloading-moving.service";
     ]),
   ],
   controllers: [UnloadingMovingController],
-  providers: [UnloadingMovingService],
-  exports: [UnloadingMovingService],
+  providers: [UnloadingMovingService, UnloadingMovingRepository],
+  exports: [UnloadingMovingRepository],
 })
 export class UnloadingMovingModule {}

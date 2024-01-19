@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type StorageConditionDocument = HydratedDocument<StorageCondition>;
-export type StorageConditionType = Model<StorageCondition>;
+export type StorageConditionType = Model<StorageConditionDocument>;
 
 @Schema()
 export class StorageCondition extends BaseEntity {

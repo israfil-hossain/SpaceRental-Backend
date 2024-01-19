@@ -10,7 +10,7 @@ import {
 } from "mongoose";
 
 export class GenericRepository<T extends Document> {
-  public readonly _logger: Logger;
+  private readonly _logger: Logger;
   private readonly _model: Model<T>;
 
   constructor(model: Model<T>, logger?: Logger) {
@@ -18,7 +18,7 @@ export class GenericRepository<T extends Document> {
     this._logger = logger || new Logger(this.constructor.name);
   }
 
-  async create(doc: Partial<T>, saveOptions?: SaveOptions): Promise<T> {
+  async create(doc: Partial<T>, saveOptions: SaveOptions = {}): Promise<T> {
     try {
       const createdEntity = new this._model(doc);
       const savedResult = await createdEntity.save(saveOptions);
@@ -39,7 +39,7 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async find(filter: FilterQuery<T>, options?: QueryOptions): Promise<T[]> {
+  async find(filter: FilterQuery<T>, options: QueryOptions = {}): Promise<T[]> {
     try {
       const result = await this._model.find(filter, null, options).exec();
       return result;
@@ -61,7 +61,7 @@ export class GenericRepository<T extends Document> {
 
   async findOneWhere(
     filter: FilterQuery<T>,
-    options?: QueryOptions,
+    options: QueryOptions = {},
   ): Promise<T | null> {
     try {
       const result = await this._model.findOne(filter, null, options).exec();
@@ -72,7 +72,7 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findById(id: string, options?: QueryOptions): Promise<T | null> {
+  async findById(id: string, options: QueryOptions = {}): Promise<T | null> {
     try {
       const result = await this._model
         .findOne({ _id: id }, null, options)
@@ -87,7 +87,7 @@ export class GenericRepository<T extends Document> {
   async updateOneById(
     id: string,
     updated: UpdateWithAggregationPipeline | UpdateQuery<T>,
-    options?: QueryOptions,
+    options: QueryOptions = {},
   ): Promise<T> {
     try {
       const result = await this._model
@@ -117,7 +117,7 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async count(filter: FilterQuery<T>): Promise<number> {
+  async count(filter: FilterQuery<T> = {}): Promise<number> {
     try {
       const count = await this._model.countDocuments(filter).exec();
       return count;

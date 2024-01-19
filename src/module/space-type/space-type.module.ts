@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { SpaceType, SpaceTypeSchema } from "./entities/space-type.entity";
 import { SpaceTypeController } from "./space-type.controller";
+import { SpaceTypeRepository } from "./space-type.repository";
 import { SpaceTypeService } from "./space-type.service";
 
 @Module({
@@ -11,7 +12,7 @@ import { SpaceTypeService } from "./space-type.service";
     ]),
   ],
   controllers: [SpaceTypeController],
-  providers: [SpaceTypeService],
-  exports: [SpaceTypeService],
+  providers: [SpaceTypeService, SpaceTypeRepository],
+  exports: [SpaceTypeRepository],
 })
 export class SpaceTypeModule {}

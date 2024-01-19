@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type TermsConditionDocument = HydratedDocument<TermsCondition>;
-export type TermsConditionType = Model<TermsCondition>;
+export type TermsConditionType = Model<TermsConditionDocument>;
 
 @Schema()
 export class TermsCondition extends BaseEntity {

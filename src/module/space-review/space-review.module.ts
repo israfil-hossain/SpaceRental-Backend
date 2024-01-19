@@ -3,6 +3,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { SpaceForRentModule } from "../space-for-rent/space-for-rent.module";
 import { SpaceReview, SpaceReviewSchema } from "./entities/space-review.entity";
 import { SpaceReviewController } from "./space-review.controller";
+import { SpaceReviewRepository } from "./space-review.repository";
 import { SpaceReviewService } from "./space-review.service";
 
 @Module({
@@ -13,6 +14,7 @@ import { SpaceReviewService } from "./space-review.service";
     SpaceForRentModule,
   ],
   controllers: [SpaceReviewController],
-  providers: [SpaceReviewService],
+  providers: [SpaceReviewService, SpaceReviewRepository],
+  exports: [SpaceReviewRepository],
 })
 export class SpaceReviewModule {}

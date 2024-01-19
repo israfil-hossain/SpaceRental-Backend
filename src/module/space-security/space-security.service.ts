@@ -4,21 +4,16 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceSecurityDto } from "./dto/create-space-security.dto";
-import {
-  SpaceSecurity,
-  SpaceSecurityType,
-} from "./entities/space-security.entity";
+import { SpaceSecurityRepository } from "./space-security.repository";
 
 @Injectable()
 export class SpaceSecurityService {
   private readonly _logger: Logger = new Logger(SpaceSecurityService.name);
 
   constructor(
-    @InjectModel(SpaceSecurity.name)
-    private _spaceSecurity: SpaceSecurityType,
+    private readonly _spaceSecurityRepository: SpaceSecurityRepository,
   ) {}
 
   async create(
@@ -26,11 +21,10 @@ export class SpaceSecurityService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._spaceSecurity({
+      const newSpaceType = await this._spaceSecurityRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
-      await newSpaceType.save();
 
       return new SuccessResponseDto(
         "New document created successfully",
@@ -49,7 +43,7 @@ export class SpaceSecurityService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._spaceSecurity.find().exec();
+      const results = await this._spaceSecurityRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
@@ -59,7 +53,7 @@ export class SpaceSecurityService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceSecurity.findByIdAndDelete(id).exec();
+    const result = await this._spaceSecurityRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not delete with ID: ${id}`);
@@ -68,7 +62,4 @@ export class SpaceSecurityService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
-
-  //#region InternalMethods
-  //#endregion
 }

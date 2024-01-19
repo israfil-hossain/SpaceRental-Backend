@@ -3,7 +3,7 @@ import { HydratedDocument, Model } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 
 export type UnloadingMovingDocument = HydratedDocument<UnloadingMoving>;
-export type UnloadingMovingType = Model<UnloadingMoving>;
+export type UnloadingMovingType = Model<UnloadingMovingDocument>;
 
 @Schema()
 export class UnloadingMoving extends BaseEntity {

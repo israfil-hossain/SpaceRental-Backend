@@ -23,6 +23,6 @@ import { RolesGuardProvider } from "./guards/application-user-roles.guard";
     ApplicationUserService,
     ApplicationUserRepository,
   ],
-  exports: [MongooseModule, ApplicationUserService, ApplicationUserRepository],
+  exports: [ApplicationUserService, ApplicationUserRepository],
 })
 export class ApplicationUserModule {}

@@ -5,22 +5,17 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateTermsConditionDto } from "./dto/create-terms-condition.dto";
 import { UpdateTermsConditionDto } from "./dto/update-terms-condition.dto";
-import {
-  TermsCondition,
-  TermsConditionType,
-} from "./entities/terms-condition.entity";
+import { TermsConditionRepository } from "./terms-condition.repository";
 
 @Injectable()
 export class TermsConditionService {
   private readonly _logger: Logger = new Logger(TermsConditionService.name);
 
   constructor(
-    @InjectModel(TermsCondition.name)
-    private _termsCondition: TermsConditionType,
+    private readonly _termsConditionRepository: TermsConditionRepository,
   ) {}
 
   async create(
@@ -28,11 +23,10 @@ export class TermsConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = new this._termsCondition({
+      const newSpaceType = await this._termsConditionRepository.create({
         ...createTermsConditionDto,
         createdBy: userId,
       });
-      await newSpaceType.save();
 
       return new SuccessResponseDto(
         "New document created successfully",
@@ -51,7 +45,7 @@ export class TermsConditionService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._termsCondition.find().exec();
+      const results = await this._termsConditionRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
@@ -66,17 +60,11 @@ export class TermsConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._termsCondition
-        .findByIdAndUpdate(
-          id,
-          {
-            ...updateTermsConditionDto,
-            updatedBy: userId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
+      const result = await this._termsConditionRepository.updateOneById(id, {
+        ...updateTermsConditionDto,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      });
 
       if (!result) {
         this._logger.error(`Document not found with ID: ${id}`);
@@ -100,7 +88,7 @@ export class TermsConditionService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._termsCondition.findByIdAndDelete(id).exec();
+    const result = await this._termsConditionRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not delete with ID: ${id}`);
