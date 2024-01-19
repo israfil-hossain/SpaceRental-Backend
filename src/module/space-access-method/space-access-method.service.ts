@@ -7,26 +7,26 @@ import {
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
-import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
-import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
-import { SpaceAccessTypeRepository } from "./space-access-type.repository";
+import { CreateSpaceAccessMethodDto } from "./dto/create-space-access-method.dto";
+import { ListSpaceAccessMethodQuery } from "./dto/list-space-access-method-query.dto";
+import { UpdateSpaceAccessMethodDto } from "./dto/update-space-access-method.dto";
+import { SpaceAccessMethodRepository } from "./space-access-method.repository";
 
 @Injectable()
-export class SpaceAccessTypeService {
-  private readonly _logger: Logger = new Logger(SpaceAccessTypeService.name);
+export class SpaceAccessMethodService {
+  private readonly _logger: Logger = new Logger(SpaceAccessMethodService.name);
 
   constructor(
-    private readonly _spaceAccessTypeRepository: SpaceAccessTypeRepository,
+    private readonly _spaceAccessMethodRepository: SpaceAccessMethodRepository,
   ) {}
 
   async create(
-    createSpaceAccessTypeDto: CreateSpaceAccessTypeDto,
+    createSpaceAccessMethodDto: CreateSpaceAccessMethodDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceAccessTypeRepository.create({
-        ...createSpaceAccessTypeDto,
+      const result = await this._spaceAccessMethodRepository.create({
+        ...createSpaceAccessMethodDto,
         createdBy: userId,
       });
 
@@ -38,7 +38,7 @@ export class SpaceAccessTypeService {
         throw error;
       }
 
-      this._logger.error("Error creating new document:", error.description);
+      this._logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -47,7 +47,7 @@ export class SpaceAccessTypeService {
     Page = 1,
     PageSize: limit = 10,
     Name = "",
-  }: ListSpaceAccessTypeQuery): Promise<PaginatedResponseDto> {
+  }: ListSpaceAccessMethodQuery): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
       const searchQuery: Record<string, any> = {};
@@ -55,10 +55,10 @@ export class SpaceAccessTypeService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const count = await this._spaceAccessTypeRepository.count(searchQuery);
+      const count = await this._spaceAccessMethodRepository.count(searchQuery);
       const skip = (Page - 1) * limit;
 
-      const result = await this._spaceAccessTypeRepository.find(searchQuery, {
+      const result = await this._spaceAccessMethodRepository.find(searchQuery, {
         limit,
         skip,
       });
@@ -71,7 +71,7 @@ export class SpaceAccessTypeService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessTypeRepository.findById(id, {
+    const result = await this._spaceAccessMethodRepository.findById(id, {
       populate: [
         {
           path: "createdBy",
@@ -94,14 +94,14 @@ export class SpaceAccessTypeService {
 
   async update(
     id: string,
-    updateSpaceAccessTypeDto: UpdateSpaceAccessTypeDto,
+    updateSpaceAccessMethodDto: UpdateSpaceAccessMethodDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceAccessTypeRepository.updateOneById(
+      const result = await this._spaceAccessMethodRepository.updateOneById(
         id,
         {
-          ...updateSpaceAccessTypeDto,
+          ...updateSpaceAccessMethodDto,
           updatedBy: userId,
           updatedAt: new Date(),
         },
@@ -130,7 +130,7 @@ export class SpaceAccessTypeService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessTypeRepository.removeOneById(id);
+    const result = await this._spaceAccessMethodRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);

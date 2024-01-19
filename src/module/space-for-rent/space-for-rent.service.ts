@@ -1,92 +1,65 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { ApplicationUser } from "../application-user/entities/application-user.entity";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { ImageMeta } from "../image-meta/entities/image-meta.entity";
 import { ImageMetaService } from "../image-meta/image-meta.service";
-import { SpaceAccessType } from "../space-access-type/entities/space-access-type.entity";
-import { SpaceReview } from "../space-review/entities/space-review.entity";
-import { SpaceSchedule } from "../space-schedule/entities/space-schedule.entity";
-import { SpaceSecurity } from "../space-security/entities/space-security.entity";
-import { SpaceType } from "../space-type/entities/space-type.entity";
-import { StorageCondition } from "../storage-condition/entities/storage-condition.entity";
-import { UnloadingMoving } from "../unloading-moving/entities/unloading-moving.entity";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
-import {
-  SpaceForRent,
-  SpaceForRentType,
-} from "./entities/space-for-rent.entity";
-import { SpaceForRentSubService } from "./space-for-rent.sub.service";
+import { SpaceForRentRepository } from "./space-for-rent.repository";
+import { SpaceForRentValidator } from "./space-for-rent.validator";
 
 @Injectable()
 export class SpaceForRentService {
   private readonly _logger: Logger = new Logger(SpaceForRentService.name);
 
   constructor(
-    @InjectModel(SpaceForRent.name)
-    private readonly _spaceForRent: SpaceForRentType,
+    private readonly _spaceForRentRepository: SpaceForRentRepository,
 
-    private readonly _subService: SpaceForRentSubService,
+    private readonly _spaceForRentValidator: SpaceForRentValidator,
     private readonly _imageService: ImageMetaService,
   ) {}
 
   async create(
-    createSpaceDto: CreateSpaceForRentDto,
+    { spaceImages, ...createSpaceDto }: CreateSpaceForRentDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
       // validate relations
-      await this._subService.validateSpaceTypeObjectId(createSpaceDto.type);
-      await this._subService.validateSpaceAccessTypeObjectId(
-        createSpaceDto.accessMethod,
-      );
-      await this._subService.validateStorageConditionObjectIds(
-        createSpaceDto.storageConditions,
-      );
-      await this._subService.validateUnloadingMovingObjectIds(
-        createSpaceDto.unloadingMovings,
-      );
-      await this._subService.validateSpaceSecurityObjectIds(
-        createSpaceDto.spaceSecurities,
-      );
-      await this._subService.validateSpaceScheduleObjectIds(
-        createSpaceDto.spaceSchedules,
-      );
+      await this._spaceForRentValidator.validateSpaceRelatedIDs(createSpaceDto);
 
       // create new document
-      const newItem = new this._spaceForRent({
+      const newItem = await this._spaceForRentRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
 
       const createdImages = await this._imageService.createMultipleImages(
-        createSpaceDto.spaceImages,
+        spaceImages,
         newItem.id,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
-      newItem.spaceImages = spaceImagesIDs;
 
-      await newItem.save();
-      return new SuccessResponseDto("New Space created successfully", newItem);
+      const result = await this._spaceForRentRepository.updateOneById(
+        newItem.id,
+        {
+          spaceImages: spaceImagesIDs,
+        },
+      );
+
+      return new SuccessResponseDto("New Space created successfully", result);
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (
+        error?.options?.cause === "RepositoryException" ||
+        error?.options?.cause === "ValidatorException"
+      ) {
         throw error;
-      }
-
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
       }
 
       this._logger.error("Error creating new document:", error);
@@ -115,124 +88,15 @@ export class SpaceForRentService {
       }
 
       // Pagination setup
-      const totalRecords = await this._spaceForRent
-        .countDocuments(searchQuery)
-        .exec();
+      const totalRecords =
+        await this._spaceForRentRepository.count(searchQuery);
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceForRent
-        .aggregate()
-        .match(searchQuery)
-        .skip(skip)
-        .limit(PageSize)
-        .lookup({
-          from: `${SpaceReview.name.toLowerCase()}s`,
-          let: { spaceId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: [{ $toObjectId: "$space" }, "$$spaceId"],
-                },
-              },
-            },
-          ],
-          as: "spaceReviews",
-        })
-        .addFields({
-          reviewCount: { $size: "$spaceReviews" },
-        })
-        .addFields({
-          averageRating: {
-            $cond: {
-              if: { $gt: ["$reviewCount", 0] },
-              then: {
-                $divide: [
-                  {
-                    $sum: "$spaceReviews.rating",
-                  },
-                  "$reviewCount",
-                ],
-              },
-              else: 0,
-            },
-          },
-        })
-        .lookup({
-          from: `${ImageMeta.name.toLowerCase()}s`,
-          let: {
-            spaceImagesIds: {
-              $map: {
-                input: "$spaceImages",
-                as: "spaceImage",
-                in: {
-                  $toObjectId: "$$spaceImage",
-                },
-              },
-            },
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: ["$_id", "$$spaceImagesIds"],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                url: 1,
-                name: 1,
-              },
-            },
-            {
-              $limit: 1,
-            },
-          ],
-          as: "coverImage",
-        })
-        .addFields({
-          coverImage: {
-            $arrayElemAt: ["$coverImage.url", 0],
-          },
-        })
-        .lookup({
-          from: `${SpaceAccessType.name.toLowerCase()}s`,
-          let: {
-            accessMethodId: "$accessMethod",
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: [
-                    { $toString: "$_id" },
-                    { $toString: "$$accessMethodId" },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "accessMethod",
-        })
-        .addFields({
-          accessMethod: {
-            $arrayElemAt: ["$accessMethod.name", 0],
-          },
-        })
-        .project({
-          _id: 1,
-          name: 1,
-          location: 1,
-          price: 1,
-          minimumPeriod: 1,
-          reviewCount: 1,
-          averageRating: 1,
-          coverImage: 1,
-          accessMethod: 1,
-        })
-        .exec();
+      const result = await this._spaceForRentRepository.findForCardView(
+        searchQuery,
+        skip,
+        PageSize,
+      );
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
@@ -242,56 +106,46 @@ export class SpaceForRentService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceForRent
-      .findById(id)
-      .populate([
+    const result = await this._spaceForRentRepository.findById(id, {
+      populate: [
         {
           path: "createdBy",
-          model: ApplicationUser.name,
           select: "id email fullName",
         },
         {
           path: "updatedBy",
-          model: ApplicationUser.name,
           select: "id email fullName",
         },
         {
           path: "type",
-          model: SpaceType.name,
           select: "id name",
         },
         {
           path: "accessMethod",
-          model: SpaceAccessType.name,
           select: "id name",
         },
         {
           path: "storageConditions",
-          model: StorageCondition.name,
           select: "id name",
         },
         {
           path: "unloadingMovings",
-          model: UnloadingMoving.name,
           select: "id name",
         },
         {
           path: "spaceSecurities",
-          model: SpaceSecurity.name,
           select: "id name",
         },
         {
           path: "spaceSchedules",
-          model: SpaceSchedule.name,
           select: "id name",
         },
         {
           path: "spaceImages",
-          model: ImageMeta.name,
           select: "id url name extension size mimeType",
         },
-      ])
-      .exec();
+      ],
+    });
 
     if (!result) {
       this._logger.error(`Document not found with ID: ${id}`);
@@ -308,52 +162,14 @@ export class SpaceForRentService {
   ): Promise<SuccessResponseDto> {
     try {
       // validate relations
-      if (updateSpaceDto.type) {
-        await this._subService.validateSpaceTypeObjectId(updateSpaceDto.type);
-      }
-      if (updateSpaceDto.accessMethod) {
-        await this._subService.validateSpaceAccessTypeObjectId(
-          updateSpaceDto.accessMethod,
-        );
-      }
-      if (updateSpaceDto.storageConditions?.length) {
-        await this._subService.validateStorageConditionObjectIds(
-          updateSpaceDto.storageConditions,
-        );
-      }
-      if (updateSpaceDto.unloadingMovings?.length) {
-        await this._subService.validateUnloadingMovingObjectIds(
-          updateSpaceDto.unloadingMovings,
-        );
-      }
-      if (updateSpaceDto.spaceSecurities?.length) {
-        await this._subService.validateSpaceSecurityObjectIds(
-          updateSpaceDto.spaceSecurities,
-        );
-      }
-      if (updateSpaceDto.spaceSchedules?.length) {
-        await this._subService.validateSpaceScheduleObjectIds(
-          updateSpaceDto.spaceSchedules,
-        );
-      }
+      await this._spaceForRentValidator.validateSpaceRelatedIDs(updateSpaceDto);
 
       // update document
-      const updatedItem = await this._spaceForRent
-        .findByIdAndUpdate(
-          id,
-          {
-            ...updateSpaceDto,
-            updatedBy: userId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
-
-      if (!updatedItem) {
-        this._logger.error(`Document not found with ID: ${id}`);
-        throw new NotFoundException(`Could not find space type with ID: ${id}`);
-      }
+      const updatedItem = await this._spaceForRentRepository.updateOneById(id, {
+        ...updateSpaceDto,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      });
 
       return new SuccessResponseDto(
         "Document updated successfully",
@@ -361,19 +177,14 @@ export class SpaceForRentService {
       );
     } catch (error) {
       if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
+        error?.options?.cause === "RepositoryException" ||
+        error?.options?.cause === "ValidatorException"
       ) {
         throw error;
       }
 
-      if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
-
-      this._logger.error("Error updating document:", error);
-      throw new BadRequestException("Error updating document");
+      this._logger.error("Error updating space document:", error);
+      throw new BadRequestException("Error updating space document");
     }
   }
 
@@ -383,17 +194,11 @@ export class SpaceForRentService {
     auditUserId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceForRent
-        .findByIdAndUpdate(
-          spaceId,
-          {
-            isVerifiedByAdmin: isVerified,
-            updatedBy: auditUserId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
+      const result = await this._spaceForRentRepository.updateOneById(spaceId, {
+        isVerifiedByAdmin: isVerified,
+        updatedBy: auditUserId,
+        updatedAt: new Date(),
+      });
 
       if (!result) {
         this._logger.error(`Document not found with ID: ${spaceId}`);
@@ -404,17 +209,17 @@ export class SpaceForRentService {
 
       return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error?.options?.cause === "RepositoryException") {
         throw error;
       }
 
-      this._logger.error("Error updating document:", error);
-      throw new BadRequestException("Error updating document");
+      this._logger.error("Error updating space document:", error);
+      throw new BadRequestException("Error updating space document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceForRent.findByIdAndDelete(id).exec();
+    const result = await this._spaceForRentRepository.removeOneById(id);
 
     if (!result) {
       this._logger.error(`Document not deleted with ID: ${id}`);
@@ -430,7 +235,7 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const existingSpace = await this._spaceForRent.findById(id).exec();
+      const existingSpace = await this._spaceForRentRepository.findById(id);
 
       if (!existingSpace) {
         this._logger.error(`Document not found with ID: ${id}`);
@@ -442,18 +247,13 @@ export class SpaceForRentService {
         existingSpace.id,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
+      const updatedImageIds = existingSpace.spaceImages.concat(spaceImagesIDs);
 
-      const result = await this._spaceForRent
-        .findByIdAndUpdate(
-          id,
-          {
-            spaceImages: spaceImagesIDs,
-            updatedBy: userId,
-            updatedAt: new Date(),
-          },
-          { new: true },
-        )
-        .exec();
+      const result = await this._spaceForRentRepository.updateOneById(id, {
+        spaceImages: updatedImageIds,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      });
 
       if (!result) {
         this._logger.error(`Document not found with ID: ${id}`);
@@ -462,17 +262,12 @@ export class SpaceForRentService {
 
       return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error?.options?.cause === "RepositoryException") {
         throw error;
       }
 
-      if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
-
-      this._logger.error("Error updating document:", error);
-      throw new BadRequestException("Error updating document");
+      this._logger.error("Error updating space document:", error);
+      throw new BadRequestException("Error updating space document");
     }
   }
 
@@ -480,9 +275,8 @@ export class SpaceForRentService {
     imageId: string,
     spaceForRentId: string,
   ): Promise<SuccessResponseDto> {
-    const existingSpaceForRent = await this._spaceForRent
-      .findById(spaceForRentId)
-      .exec();
+    const existingSpaceForRent =
+      await this._spaceForRentRepository.findById(spaceForRentId);
 
     if (!existingSpaceForRent) {
       throw new NotFoundException(
@@ -504,15 +298,4 @@ export class SpaceForRentService {
 
     return new SuccessResponseDto("Image deleted successfully");
   }
-
-  //#region InternalMethods
-  async validateObjectId(id: string): Promise<void> {
-    const result = await this._spaceForRent.findById(id).select("_id").exec();
-
-    if (!result) {
-      this._logger.error(`Invalid space ID: ${id}`);
-      throw new BadRequestException("Invalid space ID");
-    }
-  }
-  //#endregion
 }

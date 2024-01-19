@@ -15,20 +15,20 @@ import { AuthUserId } from "../authentication/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
-import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
-import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
-import { SpaceAccessTypeService } from "./space-access-type.service";
+import { CreateSpaceAccessMethodDto } from "./dto/create-space-access-method.dto";
+import { ListSpaceAccessMethodQuery } from "./dto/list-space-access-method-query.dto";
+import { UpdateSpaceAccessMethodDto } from "./dto/update-space-access-method.dto";
+import { SpaceAccessMethodService } from "./space-access-method.service";
 
-@ApiTags("Space - Access Type")
-@Controller("SpaceAccessType")
-export class SpaceAccessTypeController {
+@ApiTags("Space - Access Methods")
+@Controller("SpaceAccessMethod")
+export class SpaceAccessMethodController {
   constructor(
-    private readonly _spaceAccessTypeService: SpaceAccessTypeService,
+    private readonly _spaceAccessMethodService: SpaceAccessMethodService,
   ) {}
 
   @Post("Create")
-  @ApiBody({ type: CreateSpaceAccessTypeDto })
+  @ApiBody({ type: CreateSpaceAccessMethodDto })
   @ApiResponse({
     status: 201,
     type: SuccessResponseDto,
@@ -39,10 +39,10 @@ export class SpaceAccessTypeController {
   ])
   create(
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() createSpaceAccessTypeDto: CreateSpaceAccessTypeDto,
+    @Body() createSpaceAccessMethodDto: CreateSpaceAccessMethodDto,
   ) {
-    return this._spaceAccessTypeService.create(
-      createSpaceAccessTypeDto,
+    return this._spaceAccessMethodService.create(
+      createSpaceAccessMethodDto,
       userId,
     );
   }
@@ -52,8 +52,8 @@ export class SpaceAccessTypeController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  findAll(@Query() spaceTypeListQuery: ListSpaceAccessTypeQuery) {
-    return this._spaceAccessTypeService.findAll(spaceTypeListQuery);
+  findAll(@Query() query: ListSpaceAccessMethodQuery) {
+    return this._spaceAccessMethodService.findAll(query);
   }
 
   @Get("GetById/:DocId")
@@ -62,11 +62,11 @@ export class SpaceAccessTypeController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessTypeService.findOne(DocId);
+    return this._spaceAccessMethodService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
-  @ApiBody({ type: UpdateSpaceAccessTypeDto })
+  @ApiBody({ type: UpdateSpaceAccessMethodDto })
   @ApiResponse({
     status: 200,
     type: SuccessResponseDto,
@@ -78,13 +78,9 @@ export class SpaceAccessTypeController {
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
-    @Body() updateSpaceAccessTypeDto: UpdateSpaceAccessTypeDto,
+    @Body() updateDto: UpdateSpaceAccessMethodDto,
   ) {
-    return this._spaceAccessTypeService.update(
-      DocId,
-      updateSpaceAccessTypeDto,
-      userId,
-    );
+    return this._spaceAccessMethodService.update(DocId, updateDto, userId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -97,6 +93,6 @@ export class SpaceAccessTypeController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessTypeService.remove(DocId);
+    return this._spaceAccessMethodService.remove(DocId);
   }
 }

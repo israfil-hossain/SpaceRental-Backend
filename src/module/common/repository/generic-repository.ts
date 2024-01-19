@@ -1,4 +1,5 @@
 import { ConflictException, Logger, NotFoundException } from "@nestjs/common";
+import { ObjectId } from "mongodb";
 import {
   Document,
   FilterQuery,
@@ -122,8 +123,31 @@ export class GenericRepository<T extends Document> {
       const count = await this._model.countDocuments(filter).exec();
       return count;
     } catch (error) {
-      console.error("Error counting documents:", error);
+      this._logger.error("Error counting documents:", error);
       throw error;
+    }
+  }
+
+  async validateObjectIds(listOfIds: string[] = []): Promise<boolean> {
+    try {
+      if (!Array.isArray(listOfIds) || !listOfIds?.length) {
+        return false;
+      }
+
+      const objectIdStrings = listOfIds.map(String);
+      const objectIds = objectIdStrings.map((id) => new ObjectId(id));
+
+      // Query the database
+      const result = await this._model
+        .find({ _id: { $in: objectIds } })
+        .select("_id")
+        .lean()
+        .exec();
+
+      return listOfIds.length === result?.length;
+    } catch (error) {
+      this._logger.error("Error during validation:", error);
+      return false;
     }
   }
 }

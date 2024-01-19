@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Model, Types } from "mongoose";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { ImageMeta } from "../../image-meta/entities/image-meta.entity";
-import { SpaceAccessType } from "../../space-access-type/entities/space-access-type.entity";
+import { SpaceAccessMethod } from "../../space-access-method/entities/space-access-method.entity";
 import { SpaceSchedule } from "../../space-schedule/entities/space-schedule.entity";
 import { SpaceSecurity } from "../../space-security/entities/space-security.entity";
 import { SpaceType } from "../../space-type/entities/space-type.entity";
@@ -10,7 +10,7 @@ import { StorageCondition } from "../../storage-condition/entities/storage-condi
 import { UnloadingMoving } from "../../unloading-moving/entities/unloading-moving.entity";
 
 export type SpaceForRentDocument = HydratedDocument<SpaceForRent>;
-export type SpaceForRentType = Model<SpaceForRent>;
+export type SpaceForRentType = Model<SpaceForRentDocument>;
 
 @Schema()
 export class SpaceForRent extends BaseEntity {
@@ -47,7 +47,7 @@ export class SpaceForRent extends BaseEntity {
 
   @Prop({
     type: Types.ObjectId,
-    ref: SpaceAccessType.name,
+    ref: SpaceAccessMethod.name,
     required: true,
   })
   accessMethod: string;
