@@ -2,13 +2,13 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { EncryptionModule } from "../encryption/encryption.module";
 import { ApplicationUserController } from "./application-user.controller";
+import { ApplicationUserRepository } from "./application-user.repository";
 import { ApplicationUserService } from "./application-user.service";
 import {
   ApplicationUser,
   ApplicationUserSchema,
 } from "./entities/application-user.entity";
 import { RolesGuardProvider } from "./guards/application-user-roles.guard";
-import { ApplicationUserRepository } from "./repository/application-user.repository";
 
 @Module({
   imports: [

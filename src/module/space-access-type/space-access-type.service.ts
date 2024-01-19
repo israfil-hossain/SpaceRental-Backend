@@ -11,7 +11,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceAccessTypeDto } from "./dto/create-space-access-type.dto";
 import { ListSpaceAccessTypeQuery } from "./dto/list-space-access-type-query.dto";
 import { UpdateSpaceAccessTypeDto } from "./dto/update-space-access-type.dto";
-import { SpaceAccessTypeRepository } from "./repository/space-access-type.repository";
+import { SpaceAccessTypeRepository } from "./space-access-type.repository";
 
 @Injectable()
 export class SpaceAccessTypeService {

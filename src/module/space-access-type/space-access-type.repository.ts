@@ -1,11 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { GenericRepository } from "../../common/repository/generic-repository";
+import { GenericRepository } from "../common/repository/generic-repository";
 import {
   SpaceAccessType,
   SpaceAccessTypeDocument,
   SpaceAccessTypeType,
-} from "../entities/space-access-type.entity";
+} from "./entities/space-access-type.entity";
 
 @Injectable()
 export class SpaceAccessTypeRepository extends GenericRepository<SpaceAccessTypeDocument> {

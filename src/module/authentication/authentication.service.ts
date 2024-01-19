@@ -7,9 +7,9 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { ApplicationUserRepository } from "../application-user/application-user.repository";
 import { ApplicationUserDocument } from "../application-user/entities/application-user.entity";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
-import { ApplicationUserRepository } from "../application-user/repository/application-user.repository";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EmailService } from "../email/email.service";
 import { EncryptionService } from "../encryption/encryption.service";
@@ -18,7 +18,7 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { TokenResponseDto } from "./dto/token-response.dto";
-import { RefreshTokenRepository } from "./repository/refresh-token.repository";
+import { RefreshTokenRepository } from "./refresh-token.repository";
 
 @Injectable()
 export class AuthenticationService {

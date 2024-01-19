@@ -8,11 +8,11 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { EncryptionService } from "../encryption/encryption.service";
 import { ImageMetaService } from "../image-meta/image-meta.service";
+import { ApplicationUserRepository } from "./application-user.repository";
 import { CreateApplicationUserDto } from "./dto/create-application-user.dto";
 import { ListApplicationUserQuery } from "./dto/list-application-user-query.dto";
 import { UpdateApplicationUserProfilePictureDto } from "./dto/update-application-user-profile-picture.dto";
 import { UpdateApplicationUserDto } from "./dto/update-application-user.dto";
-import { ApplicationUserRepository } from "./repository/application-user.repository";
 
 @Injectable()
 export class ApplicationUserService {

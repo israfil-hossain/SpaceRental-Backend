@@ -12,7 +12,7 @@ import {
   RefreshTokenSchema,
 } from "./entities/refresh-token.entity";
 import { AuthenticationGuardProvider } from "./provider/authentication-guard.provider";
-import { RefreshTokenRepository } from "./repository/refresh-token.repository";
+import { RefreshTokenRepository } from "./refresh-token.repository";
 
 @Module({
   imports: [
