@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { ConfigurationRepository } from "./configuration.repository";
 import {
   CommissionSettingsDto,
   UpdateCommissionSettingsDto,
 } from "./dto/commission-settings.dto";
 import {
   Configuration,
-  ConfigurationType,
+  ConfigurationDocument,
 } from "./entities/configuration.entity";
 
 @Injectable()
@@ -15,8 +15,7 @@ export class ConfigurationService {
   private readonly _logger: Logger = new Logger(ConfigurationService.name);
 
   constructor(
-    @InjectModel(Configuration.name)
-    private _configurationModel: ConfigurationType,
+    private readonly _configurationRepository: ConfigurationRepository,
   ) {}
 
   async updateCommissionSettings(
@@ -24,23 +23,7 @@ export class ConfigurationService {
     userId: string,
   ) {
     try {
-      const existingConfig = await this._configurationModel.findOne().exec();
-
-      const updateQuery = existingConfig
-        ? this._configurationModel
-            .findOneAndUpdate(
-              {},
-              { ...configurationDto, updatedAt: new Date(), updatedBy: userId },
-              { new: true },
-            )
-            .exec()
-        : new this._configurationModel({
-            ...configurationDto,
-            createdBy: userId,
-            updatedBy: userId,
-          }).save();
-
-      const result = await updateQuery;
+      const result = await this._upsertConfiguration(configurationDto, userId);
 
       if (!result) {
         this._logger.error("Failed to update commission configuration");
@@ -69,10 +52,7 @@ export class ConfigurationService {
 
   async getCommissionSettings() {
     try {
-      const latestConfig = await this._configurationModel
-        .findOne()
-        .sort({ updatedAt: -1, createdAt: -1 })
-        .exec();
+      const latestConfig = await this._getLatestConfiguration();
 
       const commissionDto = new CommissionSettingsDto();
       commissionDto.ownerCommission = latestConfig?.ownerCommission ?? 0;
@@ -85,6 +65,36 @@ export class ConfigurationService {
     } catch (error) {
       this._logger.error("Error in getCommissionSettings:", error);
       throw new BadRequestException("Error getting document");
+    }
+  }
+
+  // Private helpers
+  private async _getLatestConfiguration(): Promise<ConfigurationDocument | null> {
+    return await this._configurationRepository.findOneWhere(
+      {},
+      {
+        sort: { updatedAt: -1, createdAt: -1 },
+      },
+    );
+  }
+
+  private async _upsertConfiguration(
+    configuration: Partial<Configuration>,
+    auditUserId: string,
+  ): Promise<ConfigurationDocument> {
+    const latestConfig = await this._getLatestConfiguration();
+
+    if (latestConfig) {
+      configuration.updatedBy = auditUserId;
+      configuration.updatedAt = new Date();
+      return await this._configurationRepository.updateOneById(
+        latestConfig.id,
+        configuration,
+      );
+    } else {
+      configuration.createdBy = auditUserId;
+      configuration.updatedBy = auditUserId;
+      return await this._configurationRepository.create(configuration);
     }
   }
 }

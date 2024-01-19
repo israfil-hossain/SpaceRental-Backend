@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigurationController } from "./configuration.controller";
+import { ConfigurationRepository } from "./configuration.repository";
 import { ConfigurationService } from "./configuration.service";
 import {
   Configuration,
@@ -14,7 +15,7 @@ import {
     ]),
   ],
   controllers: [ConfigurationController],
-  providers: [ConfigurationService],
+  providers: [ConfigurationService, ConfigurationRepository],
   exports: [ConfigurationService],
 })
 export class ConfigurationModule {}
