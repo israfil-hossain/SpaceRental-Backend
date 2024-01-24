@@ -11,7 +11,7 @@ import { SignUpDto } from "./dto/sign-up.dto";
 import { IsPublic } from "./guard/authentication.guard";
 
 @ApiTags("Authentication")
-@Controller("Auth")
+@Controller("Authentication")
 export class AuthenticationController {
   constructor(private readonly _authService: AuthenticationService) {}
 

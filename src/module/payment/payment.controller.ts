@@ -1,13 +1,24 @@
-import { Controller, Post, Query } from "@nestjs/common";
-import { GetPaymentIntentDto } from "./dto/get-payment-intent.dto";
+import { Controller, Get, Param } from "@nestjs/common";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import { AuthUserId } from "../authentication/decorator/auth-user-id.decorator";
+import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
+import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { PaymentService } from "./payment.service";
 
-@Controller("payment")
+@ApiTags("Payments")
+@Controller("Payment")
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @Post()
-  create(@Query() { BookingId }: GetPaymentIntentDto) {
-    return this.paymentService.createPaymentLink(BookingId);
+  @Get("GetIntentByBookingId/:DocId")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  create(
+    @AuthUserId() { userId }: ITokenPayload,
+    @Param() { DocId }: DocIdQueryDto,
+  ) {
+    return this.paymentService.getPaymentIntent(DocId, userId);
   }
 }

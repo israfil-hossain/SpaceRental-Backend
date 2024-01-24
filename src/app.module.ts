@@ -17,6 +17,7 @@ import { TermsConditionModule } from "./module/terms-condition/terms-condition.m
 import { UnloadingMovingModule } from "./module/unloading-moving/unloading-moving.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
 import { PaymentModule } from "./module/payment/payment.module";
+import { SpaceBookingModule } from "./module/space-booking/space-booking.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { PaymentModule } from "./module/payment/payment.module";
     UnloadingMovingModule,
     SpaceReviewModule,
     PaymentModule,
+    SpaceBookingModule,
   ],
   providers: [ValidationProvider],
 })
