@@ -1,13 +1,5 @@
-import {
-  Body,
-  Controller,
-  Post,
-  RawBodyRequest,
-  Req,
-  Res,
-} from "@nestjs/common";
-import { ApiConsumes } from "@nestjs/swagger";
-import { IsPublic } from "../authentication/guard/authentication.guard";
+import { Controller, Post, Query } from "@nestjs/common";
+import { GetPaymentIntentDto } from "./dto/get-payment-intent.dto";
 import { PaymentService } from "./payment.service";
 
 @Controller("payment")
@@ -15,21 +7,7 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post()
-  create() {
-    return this.paymentService.createPaymentLink();
-  }
-
-  @Post("webhook")
-  @IsPublic()
-  @ApiConsumes("text/plain")
-  async handleStripeWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Body() payload: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    console.log(req.rawBody);
-    console.log(payload);
-
-    await this.paymentService.handleStripeWebhook(req.rawBody, res);
+  create(@Query() { BookingId }: GetPaymentIntentDto) {
+    return this.paymentService.createPaymentLink(BookingId);
   }
 }
