@@ -32,8 +32,8 @@ export class SpaceForRent extends BaseEntity {
   @Prop({ type: Number, required: true })
   price: number;
 
-  @Prop({ type: String, required: true })
-  minimumPeriod: string;
+  @Prop({ type: Number, required: true })
+  minimumBookingMonths: number;
 
   @Prop({ type: Boolean, default: false })
   requiresApproval: boolean;

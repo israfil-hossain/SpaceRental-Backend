@@ -33,6 +33,14 @@ export class SpaceBookingService {
         );
       }
 
+      if (
+        bookingSpace.minimumBookingMonths > createSpaceBookingDto.bookingMonths
+      ) {
+        throw new ConflictException(
+          `Booking should be for at least ${bookingSpace.minimumBookingMonths} months.`,
+        );
+      }
+
       const bookingStartDate = new Date(createSpaceBookingDto.startDate);
       const bookingEndDate = new Date(
         bookingStartDate.getFullYear(),

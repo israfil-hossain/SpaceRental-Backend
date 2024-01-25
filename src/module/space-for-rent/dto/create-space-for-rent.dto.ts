@@ -2,10 +2,12 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import {
   IsArray,
+  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsString,
+  Min,
 } from "class-validator";
 
 export class CreateSpaceForRentDto {
@@ -50,12 +52,14 @@ export class CreateSpaceForRentDto {
   price: number;
 
   @ApiProperty({
-    required: true,
-    description: "The minimum rental period for the space",
+    description: "The number of minimum months for the booking.",
+    type: Number,
+    default: 1,
   })
-  @IsNotEmpty({ message: "Minimum period is required" })
-  @IsString({ message: "Minimum period must be a string" })
-  minimumPeriod: string;
+  @IsInt({ message: "Minimum booking months must be an integer." })
+  @Min(1, { message: "Minimum booking months must be at least 1." })
+  @IsNotEmpty({ message: "Minimum booking months cannot be empty." })
+  minimumBookingMonths: string;
   //#endregion
 
   //#region Space related features

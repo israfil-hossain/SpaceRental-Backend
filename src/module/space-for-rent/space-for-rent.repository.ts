@@ -160,7 +160,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           name: 1,
           location: 1,
           price: 1,
-          minimumPeriod: 1,
+          minimumBookingMonths: 1,
           reviewCount: 1,
           averageRating: 1,
           coverImage: 1,
