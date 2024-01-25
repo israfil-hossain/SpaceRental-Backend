@@ -42,10 +42,8 @@ export class SpaceBookingService {
 
       const conflictingBookings = await this.spaceBookingRepository.find({
         space: bookingSpace._id?.toString(),
-        $or: [
-          { endDate: { $gte: bookingStartDate } },
-          { startDate: { $lte: bookingEndDate } },
-        ],
+        endDate: { $gte: bookingStartDate },
+        startDate: { $lte: bookingEndDate },
       });
 
       if (conflictingBookings?.length) {
@@ -88,7 +86,7 @@ export class SpaceBookingService {
 
   private generateBookingCode() {
     const currentDate = new Date();
-    const year = currentDate.getFullYear().toString().slice(-2);
+    const year = currentDate.getFullYear().toString();
     const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
     const day = currentDate.getDate().toString().padStart(2, "0");
     const milliseconds = currentDate
