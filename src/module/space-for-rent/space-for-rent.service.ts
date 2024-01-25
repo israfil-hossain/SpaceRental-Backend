@@ -149,37 +149,6 @@ export class SpaceForRentService {
     }
   }
 
-  async verify(
-    spaceId: string,
-    isVerified: boolean,
-    auditUserId: string,
-  ): Promise<SuccessResponseDto> {
-    try {
-      const result = await this._spaceForRentRepository.updateOneById(spaceId, {
-        isVerified,
-        verifiedBy: auditUserId,
-        updatedBy: auditUserId,
-        updatedAt: new Date(),
-      });
-
-      if (!result) {
-        this._logger.error(`Document not found with ID: ${spaceId}`);
-        throw new NotFoundException(
-          `Could not find space type with ID: ${spaceId}`,
-        );
-      }
-
-      return new SuccessResponseDto("Document updated successfully", result);
-    } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
-
-      this._logger.error("Error updating space document:", error);
-      throw new BadRequestException("Error updating space document");
-    }
-  }
-
   async remove(id: string): Promise<SuccessResponseDto> {
     const result = await this._spaceForRentRepository.removeOneById(id);
 

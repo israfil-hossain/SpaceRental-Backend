@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsMongoId, IsNotEmpty } from "class-validator";
+import { IsDate, IsInt, IsMongoId, IsNotEmpty, Min } from "class-validator";
 
 export class CreateSpaceBookingDto {
   @ApiProperty({
@@ -19,10 +19,12 @@ export class CreateSpaceBookingDto {
   startDate: Date;
 
   @ApiProperty({
-    description: "The end date of the booking.",
-    type: Date,
+    description: "The number of months for the booking.",
+    type: Number,
+    default: 1,
   })
-  @IsDate()
+  @IsInt()
+  @Min(1, { message: "Booking should be for at least 1 month." })
   @IsNotEmpty()
-  endDate: Date;
+  bookingMonths: number;
 }

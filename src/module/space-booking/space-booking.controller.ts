@@ -10,7 +10,7 @@ import { SpaceBookingService } from "./space-booking.service";
 export class SpaceBookingController {
   constructor(private readonly spaceBookingService: SpaceBookingService) {}
 
-  @Post("Create")
+  @Post("Book")
   @ApiBody({ type: CreateSpaceBookingDto })
   @ApiResponse({
     status: 201,

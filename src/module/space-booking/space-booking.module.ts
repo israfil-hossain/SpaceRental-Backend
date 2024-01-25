@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
+import { SpaceForRentModule } from "../space-for-rent/space-for-rent.module";
 import {
   SpaceBooking,
   SpaceBookingSchema,
@@ -13,6 +14,7 @@ import { SpaceBookingService } from "./space-booking.service";
     MongooseModule.forFeature([
       { name: SpaceBooking.name, schema: SpaceBookingSchema },
     ]),
+    SpaceForRentModule,
   ],
   controllers: [SpaceBookingController],
   providers: [SpaceBookingService, SpaceBookingRepository],
