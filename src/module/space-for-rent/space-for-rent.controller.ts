@@ -85,6 +85,7 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])
@@ -103,6 +104,7 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])
@@ -117,6 +119,7 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])
@@ -143,6 +146,7 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
+    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])

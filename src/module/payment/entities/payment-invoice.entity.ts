@@ -17,10 +17,13 @@ export class PaymentInvoice extends BaseEntity {
   booking: string;
 
   @Prop({ type: Number, required: true })
-  totalPrice: number;
+  totalPayable: number;
 
   @Prop({ type: Number, default: 0 })
   totalPaid: number;
+
+  @Prop({ type: Number, required: true })
+  totalDue: number;
 
   @Prop({
     type: String,

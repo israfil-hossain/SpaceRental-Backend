@@ -10,19 +10,23 @@ import { PaymentInvoiceRepository } from "./payment-invoice.repository";
 @Injectable()
 export class PaymentService {
   private readonly stripe: Stripe;
+  private readonly stripePublishableKey: string;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly paymentInvoiceRepository: PaymentInvoiceRepository,
     private readonly spaceBookingRepository: SpaceBookingRepository,
   ) {
-    const stripeSecretKey = this.configService.get<string>("STRIPE_SECRET_KEY");
-
-    if (!stripeSecretKey) {
-      throw new Error("Stripe secret key not found in the configuration.");
-    }
+    const stripeSecretKey = this.configService.get<string>(
+      "STRIPE_SECRET_KEY",
+      "",
+    );
 
     this.stripe = new Stripe(stripeSecretKey, {});
+    this.stripePublishableKey = this.configService.get<string>(
+      "STRIPE_PUBLISHABLE_KEY",
+      "",
+    );
   }
 
   async getPaymentIntent(
@@ -30,9 +34,7 @@ export class PaymentService {
     auditUserId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const booking = await this.spaceBookingRepository.findById(bookingId, {
-        populate: [{ path: "space", select: "price" }],
-      });
+      const booking = await this.spaceBookingRepository.findById(bookingId);
 
       if (!booking) {
         throw new NotFoundException(`Booking with ID ${bookingId} not found.`);
@@ -40,25 +42,25 @@ export class PaymentService {
 
       let paymentIntent: Stripe.PaymentIntent;
       const paymentIntentResponse = new PaymentIntentResponseDto();
+
       let paymentInvoice = await this.paymentInvoiceRepository.findOneWhere({
         booking: bookingId,
       });
 
       if (!paymentInvoice) {
-        const totalPayable = this.calculateTotalPayable(booking);
-
         paymentIntent = await this.stripe.paymentIntents.create({
-          amount: totalPayable,
+          amount: booking.totalPrice * 100,
           currency: CurrencyEnum.USD,
           metadata: {
-            bookingId: booking._id.toString(),
+            bookingCode: booking.bookingCode,
           },
         });
 
         paymentInvoice = await this.paymentInvoiceRepository.create({
           booking: booking._id?.toString(),
           paymentIntentId: paymentIntent.id,
-          totalPrice: totalPayable,
+          totalPayable: booking.totalPrice,
+          totalDue: booking.totalPrice,
           createdBy: auditUserId,
         });
       } else {
@@ -67,9 +69,9 @@ export class PaymentService {
         );
       }
 
-      paymentIntentResponse.paymentInvoice =
-        paymentInvoice?._id?.toString() || "";
+      paymentIntentResponse.stipeKey = this.stripePublishableKey;
       paymentIntentResponse.clientSecret = paymentIntent.client_secret || "";
+      paymentIntentResponse.bookingCode = booking.bookingCode;
       paymentIntentResponse.status = paymentIntent.status;
       paymentIntentResponse.amount = paymentIntent.amount;
       paymentIntentResponse.currency = paymentIntent.currency;
@@ -82,16 +84,5 @@ export class PaymentService {
       console.error("Error in getPaymentIntent:", error);
       throw new Error("Failed to get payment intent");
     }
-  }
-
-  private calculateTotalPayable(booking: any): number {
-    const bookingSpace = booking.space;
-    const start = new Date(booking.startDate);
-    const end = new Date(booking.endDate);
-    const diffInMonths =
-      (end.getFullYear() - start.getFullYear()) * 12 +
-      end.getMonth() -
-      start.getMonth();
-    return diffInMonths * bookingSpace.price * 100;
   }
 }
