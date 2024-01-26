@@ -61,8 +61,8 @@ export class SpaceBookingService {
         toDate: { $gte: bookingStartDate },
         bookingStatus: {
           $in: [
-            SpaceBookingStatusEnum.Confirmed,
-            SpaceBookingStatusEnum.Completed,
+            SpaceBookingStatusEnum.PaymentCompleted,
+            SpaceBookingStatusEnum.BookingCompleted,
           ],
         },
       });
@@ -89,8 +89,8 @@ export class SpaceBookingService {
 
       const generatedBookingCode = this.generateBookingCode();
       const bookingStatus = bookingSpace?.requiresApproval
-        ? SpaceBookingStatusEnum.Pending
-        : SpaceBookingStatusEnum.Approved;
+        ? SpaceBookingStatusEnum.PendingActions
+        : SpaceBookingStatusEnum.BookingApproved;
 
       const result = await this.spaceBookingRepository.create({
         space: bookingSpace._id?.toString(),

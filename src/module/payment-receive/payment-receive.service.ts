@@ -81,7 +81,7 @@ export class PaymentReceiveService {
 
         await this.spaceBookingRepository.updateOneById(bookingId, {
           paymentReceive: paymentReceive._id?.toString(),
-          bookingStatus: SpaceBookingStatusEnum.Confirmed,
+          bookingStatus: SpaceBookingStatusEnum.PaymentInitiated,
         });
       } else {
         paymentIntent = await this.stripeService.paymentIntents.retrieve(
@@ -119,7 +119,7 @@ export class PaymentReceiveService {
       }
 
       // Validate the webhook signature
-      const event = this.stripeService.webhooks.constructEvent(
+      const event: any = this.stripeService.webhooks.constructEvent(
         request.rawBody as Buffer,
         signature,
         this.stripeWebhookSecret,
@@ -134,7 +134,20 @@ export class PaymentReceiveService {
         // Handle payment failure
         // Add more cases for other relevant events
         default:
-          this.logger.log("Success: " + JSON.stringify(event));
+        // this.logger.log("Success: " + JSON.stringify(event));
+      }
+
+      this.logger.log("meta : " + JSON.stringify(event.data.object?.metadata));
+
+      const bookingCode = event.data.object?.metadata?.bookingCode;
+      const booking = await this.spaceBookingRepository.findOneWhere({
+        bookingCode: bookingCode,
+      });
+
+      if (booking) {
+        await this.spaceBookingRepository.updateOneById(booking.id, {
+          lastPaymentEvent: JSON.stringify(event),
+        });
       }
 
       return { received: true };

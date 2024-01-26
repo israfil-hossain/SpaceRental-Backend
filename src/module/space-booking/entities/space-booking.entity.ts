@@ -31,7 +31,7 @@ export class SpaceBooking extends BaseEntity {
   @Prop({
     type: String,
     enum: Object.values(SpaceBookingStatusEnum),
-    default: SpaceBookingStatusEnum.Pending,
+    default: SpaceBookingStatusEnum.PendingActions,
   })
   bookingStatus: SpaceBookingStatusEnum;
 
@@ -48,5 +48,8 @@ export class SpaceBooking extends BaseEntity {
     default: null,
   })
   paymentReceive: string;
+
+  @Prop({ type: String })
+  lastPaymentEvent: string;
 }
 export const SpaceBookingSchema = SchemaFactory.createForClass(SpaceBooking);

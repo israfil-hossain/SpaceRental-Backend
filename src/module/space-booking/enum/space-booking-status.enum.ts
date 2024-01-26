@@ -1,7 +1,12 @@
 export enum SpaceBookingStatusEnum {
-  Pending = "Pending",
-  Approved = "Approved",
-  Confirmed = "Confirmed",
-  Completed = "Completed",
-  Cancelled = "Cancelled",
+  PendingActions = "PendingActions",
+  BookingApproved = "BookingApproved",
+
+  PaymentInitiated = "PaymentInitiated",
+  PaymentCreated = "PaymentCreated",
+  PaymentCompleted = "PaymentCompleted",
+  PaymentFailed = "PaymentFailed",
+
+  BookingCompleted = "BookingCompleted",
+  BookingCancelled = "BookingCancelled",
 }
