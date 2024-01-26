@@ -1,20 +1,21 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceBookingRepository } from "../space-booking/space-booking.repository";
 import { PaymentIntentResponseDto } from "./dto/payment-intent-response.dto";
-import { CurrencyEnum } from "./enum/currency.enum";
-import { PaymentInvoiceRepository } from "./payment-invoice.repository";
+import { PaymentReceiveDocument } from "./entities/payment-receive.entity";
+import { PaymentReceiveRepository } from "./payment-receive.repository";
 
 @Injectable()
-export class PaymentService {
-  private readonly stripe: Stripe;
+export class PaymentReceiveService {
+  private readonly logger: Logger = new Logger(PaymentReceiveService.name);
+  private readonly stripeService: Stripe;
   private readonly stripePublishableKey: string;
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly paymentInvoiceRepository: PaymentInvoiceRepository,
+    private readonly paymentReceiveRepository: PaymentReceiveRepository,
     private readonly spaceBookingRepository: SpaceBookingRepository,
   ) {
     const stripeSecretKey = this.configService.get<string>(
@@ -22,7 +23,7 @@ export class PaymentService {
       "",
     );
 
-    this.stripe = new Stripe(stripeSecretKey, {});
+    this.stripeService = new Stripe(stripeSecretKey, {});
     this.stripePublishableKey = this.configService.get<string>(
       "STRIPE_PUBLISHABLE_KEY",
       "",
@@ -34,43 +35,49 @@ export class PaymentService {
     auditUserId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const booking = await this.spaceBookingRepository.findById(bookingId);
+      const booking = await this.spaceBookingRepository.findById(bookingId, {
+        populate: "paymentReceive",
+      });
 
       if (!booking) {
+        this.logger.error(
+          `Booking with ID ${bookingId} requested by ${auditUserId} was not found.`,
+        );
         throw new NotFoundException(`Booking with ID ${bookingId} not found.`);
       }
 
       let paymentIntent: Stripe.PaymentIntent;
-      const paymentIntentResponse = new PaymentIntentResponseDto();
+      let paymentReceive =
+        booking?.paymentReceive as unknown as PaymentReceiveDocument;
 
-      let paymentInvoice = await this.paymentInvoiceRepository.findOneWhere({
-        booking: bookingId,
-      });
-
-      if (!paymentInvoice) {
-        paymentIntent = await this.stripe.paymentIntents.create({
+      if (!paymentReceive) {
+        paymentIntent = await this.stripeService.paymentIntents.create({
           amount: booking.totalPrice * 100,
-          currency: CurrencyEnum.USD,
+          currency: "usd",
           metadata: {
             bookingCode: booking.bookingCode,
           },
         });
 
-        paymentInvoice = await this.paymentInvoiceRepository.create({
-          booking: booking._id?.toString(),
+        paymentReceive = await this.paymentReceiveRepository.create({
           paymentIntentId: paymentIntent.id,
           totalPayable: booking.totalPrice,
           totalDue: booking.totalPrice,
           createdBy: auditUserId,
         });
+
+        await this.spaceBookingRepository.updateOneById(bookingId, {
+          paymentInvoice: paymentReceive._id?.toString(),
+        });
       } else {
-        paymentIntent = await this.stripe.paymentIntents.retrieve(
-          paymentInvoice?.paymentIntentId,
+        paymentIntent = await this.stripeService.paymentIntents.retrieve(
+          paymentReceive?.paymentIntentId,
         );
       }
 
+      const paymentIntentResponse = new PaymentIntentResponseDto();
       paymentIntentResponse.stipeKey = this.stripePublishableKey;
-      paymentIntentResponse.clientSecret = paymentIntent.client_secret || "";
+      paymentIntentResponse.stripeSecret = paymentIntent.client_secret || "";
       paymentIntentResponse.bookingCode = booking.bookingCode;
       paymentIntentResponse.status = paymentIntent.status;
       paymentIntentResponse.amount = paymentIntent.amount;
@@ -81,7 +88,7 @@ export class PaymentService {
         paymentIntentResponse,
       );
     } catch (error) {
-      console.error("Error in getPaymentIntent:", error);
+      this.logger.error("Error in getPaymentIntent:", error);
       throw new Error("Failed to get payment intent");
     }
   }

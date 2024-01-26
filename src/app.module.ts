@@ -6,7 +6,9 @@ import { ConfigurationModule } from "./module/configuration/configuration.module
 import { EmailModule } from "./module/email/email.module";
 import { EncryptionModule } from "./module/encryption/encryption.module";
 import { ImageMetaModule } from "./module/image-meta/image-meta.module";
+import { PaymentReceiveModule } from "./module/payment-receive/payment-receive.module";
 import { SpaceAccessMethodModule } from "./module/space-access-method/space-access-method.module";
+import { SpaceBookingModule } from "./module/space-booking/space-booking.module";
 import { SpaceForRentModule } from "./module/space-for-rent/space-for-rent.module";
 import { SpaceReviewModule } from "./module/space-review/space-review.module";
 import { SpaceScheduleModule } from "./module/space-schedule/space-schedule.module";
@@ -16,8 +18,6 @@ import { StorageConditionModule } from "./module/storage-condition/storage-condi
 import { TermsConditionModule } from "./module/terms-condition/terms-condition.module";
 import { UnloadingMovingModule } from "./module/unloading-moving/unloading-moving.module";
 import { ValidationProvider } from "./utility/provider/validation.provider";
-import { PaymentModule } from "./module/payment/payment.module";
-import { SpaceBookingModule } from "./module/space-booking/space-booking.module";
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ import { SpaceBookingModule } from "./module/space-booking/space-booking.module"
     StorageConditionModule,
     UnloadingMovingModule,
     SpaceReviewModule,
-    PaymentModule,
+    PaymentReceiveModule,
     SpaceBookingModule,
   ],
   providers: [ValidationProvider],

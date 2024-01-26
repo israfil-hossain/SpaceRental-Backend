@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
@@ -18,41 +19,56 @@ export class SpaceBookingService {
     private readonly spaceForRentRepository: SpaceForRentRepository,
   ) {}
 
-  async create(
-    createSpaceBookingDto: CreateSpaceBookingDto,
-    auditUserId: string,
-  ) {
+  async create(createDto: CreateSpaceBookingDto, auditUserId: string) {
     try {
       const bookingSpace = await this.spaceForRentRepository.findById(
-        createSpaceBookingDto.space,
+        createDto.space,
       );
 
       if (!bookingSpace) {
         throw new NotFoundException(
-          `Space for booking is not found with ID: ${createSpaceBookingDto.space}`,
+          `Space for booking is not found with ID: ${createDto.space}`,
         );
       }
 
-      if (
-        bookingSpace.minimumBookingMonths > createSpaceBookingDto.bookingMonths
-      ) {
-        throw new ConflictException(
-          `Booking should be for at least ${bookingSpace.minimumBookingMonths} months.`,
+      const bookingStartDate = new Date(createDto.fromDate);
+      const bookingEndDate = new Date(createDto.toDate);
+
+      if (bookingStartDate > bookingEndDate) {
+        throw new BadRequestException(
+          "Invalid date range: fromDate should be before toDate.",
         );
       }
 
-      const bookingStartDate = new Date(createSpaceBookingDto.startDate);
-      const bookingEndDate = new Date(
-        bookingStartDate.getFullYear(),
-        bookingStartDate.getMonth() + createSpaceBookingDto.bookingMonths,
-        bookingStartDate.getDate(),
+      bookingStartDate.setHours(0, 0, 0, 0);
+      bookingEndDate.setHours(23, 59, 59, 999);
+
+      const totalBookingTime =
+        bookingEndDate.getTime() - bookingStartDate.getTime();
+      const totalBookingDays = Math.ceil(
+        Math.abs(totalBookingTime) / (1000 * 60 * 60 * 24),
       );
 
-      const conflictingBookings = await this.spaceBookingRepository.find({
-        space: bookingSpace._id?.toString(),
-        endDate: { $gte: bookingStartDate },
-        startDate: { $lte: bookingEndDate },
-      });
+      if (bookingSpace.minimumBookingDays > totalBookingDays) {
+        throw new ConflictException(
+          `Booking should be for at least ${bookingSpace.minimumBookingDays} days.`,
+        );
+      }
+
+      const conflictingBookings = await this.spaceBookingRepository.find(
+        {
+          space: bookingSpace._id?.toString(),
+          fromDate: { $lte: bookingEndDate },
+          toDate: { $gte: bookingStartDate },
+        },
+        {
+          hint: {
+            space: 1,
+            fromDate: 1,
+            toDate: 1,
+          },
+        },
+      );
 
       if (conflictingBookings?.length) {
         throw new ConflictException(
@@ -60,8 +76,8 @@ export class SpaceBookingService {
         );
       }
 
-      const bookingPrice =
-        bookingSpace.price * createSpaceBookingDto.bookingMonths;
+      const bookingPricePerDay = bookingSpace.pricePerMonth / 30;
+      const bookingPrice = bookingPricePerDay * totalBookingDays;
       const platformFee = 0;
       const totalPrice = bookingPrice + platformFee;
 
@@ -73,11 +89,11 @@ export class SpaceBookingService {
       const result = await this.spaceBookingRepository.create({
         space: bookingSpace._id?.toString(),
         bookingCode: generatedBookingCode,
-        startDate: bookingStartDate,
-        endDate: bookingEndDate,
+        fromDate: bookingStartDate,
+        toDate: bookingEndDate,
         bookingPrice: bookingPrice,
         platformFee: platformFee,
-        totalPrice: totalPrice,
+        totalPrice: parseFloat(totalPrice.toFixed(2)),
         bookingStatus: bookingStatus,
         createdBy: auditUserId,
       });

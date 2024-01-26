@@ -3,12 +3,12 @@ import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthUserId } from "../authentication/decorator/auth-user-id.decorator";
 import { DocIdQueryDto } from "../common/dto/doc-id-query.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { PaymentService } from "./payment.service";
+import { PaymentReceiveService } from "./payment-receive.service";
 
-@ApiTags("Payments")
-@Controller("Payment")
-export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+@ApiTags("Payment Receive")
+@Controller("PaymentReceive")
+export class PaymentReceiveController {
+  constructor(private readonly paymentService: PaymentReceiveService) {}
 
   @Get("GetIntentByBookingId/:DocId")
   @ApiResponse({

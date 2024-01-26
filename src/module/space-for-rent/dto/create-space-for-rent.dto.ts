@@ -49,7 +49,7 @@ export class CreateSpaceForRentDto {
   })
   @IsNotEmpty({ message: "Price is required" })
   @IsNumber({}, { message: "Price must be a number" })
-  price: number;
+  pricePerMonth: number;
 
   @ApiProperty({
     description: "The number of minimum months for the booking.",
@@ -59,7 +59,7 @@ export class CreateSpaceForRentDto {
   @IsInt({ message: "Minimum booking months must be an integer." })
   @Min(1, { message: "Minimum booking months must be at least 1." })
   @IsNotEmpty({ message: "Minimum booking months cannot be empty." })
-  minimumBookingMonths: string;
+  minimumBookingMonths: number;
   //#endregion
 
   //#region Space related features
