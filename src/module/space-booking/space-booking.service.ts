@@ -22,12 +22,12 @@ export class SpaceBookingService {
   async create(createDto: CreateSpaceBookingDto, auditUserId: string) {
     try {
       const bookingSpace = await this.spaceForRentRepository.findById(
-        createDto.space,
+        createDto.spaceId,
       );
 
       if (!bookingSpace) {
         throw new NotFoundException(
-          `Space for booking is not found with ID: ${createDto.space}`,
+          `Space for booking is not found with ID: ${createDto.spaceId}`,
         );
       }
 

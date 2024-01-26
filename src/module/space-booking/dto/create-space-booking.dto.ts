@@ -8,7 +8,7 @@ export class CreateSpaceBookingDto {
   })
   @IsMongoId()
   @IsNotEmpty()
-  space: string;
+  spaceId: string;
 
   @ApiProperty({
     description: "The from date of the booking.",
