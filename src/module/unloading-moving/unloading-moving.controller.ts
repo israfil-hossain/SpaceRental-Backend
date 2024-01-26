@@ -12,7 +12,7 @@ import { UnloadingMovingService } from "./unloading-moving.service";
 @Controller("UnloadingAndMoving")
 export class UnloadingMovingController {
   constructor(
-    private readonly _unloadingMovingService: UnloadingMovingService,
+    private readonly unloadingMovingService: UnloadingMovingService,
   ) {}
 
   @Post("Create")
@@ -29,7 +29,7 @@ export class UnloadingMovingController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateUnloadingMovingDto,
   ) {
-    return this._unloadingMovingService.create(createSpaceDto, userId);
+    return this.unloadingMovingService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -38,7 +38,7 @@ export class UnloadingMovingController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._unloadingMovingService.findAll();
+    return this.unloadingMovingService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -51,6 +51,6 @@ export class UnloadingMovingController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._unloadingMovingService.remove(DocId);
+    return this.unloadingMovingService.remove(DocId);
   }
 }

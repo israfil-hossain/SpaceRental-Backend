@@ -12,7 +12,7 @@ import { StorageConditionService } from "./storage-condition.service";
 @Controller("StorageCondition")
 export class StorageConditionController {
   constructor(
-    private readonly _storageConditionService: StorageConditionService,
+    private readonly storageConditionService: StorageConditionService,
   ) {}
 
   @Post("Create")
@@ -29,7 +29,7 @@ export class StorageConditionController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateStorageConditionDto,
   ) {
-    return this._storageConditionService.create(createSpaceDto, userId);
+    return this.storageConditionService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -38,7 +38,7 @@ export class StorageConditionController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._storageConditionService.findAll();
+    return this.storageConditionService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -51,6 +51,6 @@ export class StorageConditionController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._storageConditionService.remove(DocId);
+    return this.storageConditionService.remove(DocId);
   }
 }

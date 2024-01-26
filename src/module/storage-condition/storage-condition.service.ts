@@ -10,10 +10,10 @@ import { StorageConditionRepository } from "./storage-condition.repository";
 
 @Injectable()
 export class StorageConditionService {
-  private readonly _logger: Logger = new Logger(StorageConditionService.name);
+  private readonly logger: Logger = new Logger(StorageConditionService.name);
 
   constructor(
-    private readonly _storageConditionRepository: StorageConditionRepository,
+    private readonly storageConditionRepository: StorageConditionRepository,
   ) {}
 
   async create(
@@ -21,7 +21,7 @@ export class StorageConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this._storageConditionRepository.create({
+      const newSpaceType = await this.storageConditionRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
@@ -32,31 +32,31 @@ export class StorageConditionService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._storageConditionRepository.findAll();
+      const results = await this.storageConditionRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._storageConditionRepository.removeOneById(id);
+    const result = await this.storageConditionRepository.removeOneById(id);
 
     if (!result) {
-      this._logger.error(`Document not delete with ID: ${id}`);
+      this.logger.error(`Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

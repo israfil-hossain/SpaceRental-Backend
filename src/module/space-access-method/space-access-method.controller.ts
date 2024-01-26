@@ -24,7 +24,7 @@ import { SpaceAccessMethodService } from "./space-access-method.service";
 @Controller("SpaceAccessMethod")
 export class SpaceAccessMethodController {
   constructor(
-    private readonly _spaceAccessMethodService: SpaceAccessMethodService,
+    private readonly spaceAccessMethodService: SpaceAccessMethodService,
   ) {}
 
   @Post("Create")
@@ -41,7 +41,7 @@ export class SpaceAccessMethodController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceAccessMethodDto: CreateSpaceAccessMethodDto,
   ) {
-    return this._spaceAccessMethodService.create(
+    return this.spaceAccessMethodService.create(
       createSpaceAccessMethodDto,
       userId,
     );
@@ -53,7 +53,7 @@ export class SpaceAccessMethodController {
     type: PaginatedResponseDto,
   })
   findAll(@Query() query: ListSpaceAccessMethodQuery) {
-    return this._spaceAccessMethodService.findAll(query);
+    return this.spaceAccessMethodService.findAll(query);
   }
 
   @Get("GetById/:DocId")
@@ -62,7 +62,7 @@ export class SpaceAccessMethodController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessMethodService.findOne(DocId);
+    return this.spaceAccessMethodService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -80,7 +80,7 @@ export class SpaceAccessMethodController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateDto: UpdateSpaceAccessMethodDto,
   ) {
-    return this._spaceAccessMethodService.update(DocId, updateDto, userId);
+    return this.spaceAccessMethodService.update(DocId, updateDto, userId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -93,6 +93,6 @@ export class SpaceAccessMethodController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceAccessMethodService.remove(DocId);
+    return this.spaceAccessMethodService.remove(DocId);
   }
 }

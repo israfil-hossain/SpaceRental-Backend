@@ -11,23 +11,23 @@ import {
 } from "mongoose";
 
 export class GenericRepository<T extends Document> {
-  private readonly _logger: Logger;
-  private readonly _model: Model<T>;
+  private readonly internalLogger: Logger;
+  private readonly internalModel: Model<T>;
 
   constructor(model: Model<T>, logger?: Logger) {
-    this._model = model;
-    this._logger = logger || new Logger(this.constructor.name);
+    this.internalModel = model;
+    this.internalLogger = logger || new Logger(this.constructor.name);
   }
 
   async create(doc: Partial<T>, saveOptions: SaveOptions = {}): Promise<T> {
     try {
-      const createdEntity = new this._model(doc);
+      const createdEntity = new this.internalModel(doc);
       const savedResult = await createdEntity.save(saveOptions);
 
       return savedResult;
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.internalLogger.error("Duplicate key error:", error);
         throw new ConflictException(
           "Document already exists with provided inputs",
           {
@@ -42,20 +42,22 @@ export class GenericRepository<T extends Document> {
 
   async find(filter: FilterQuery<T>, options: QueryOptions = {}): Promise<T[]> {
     try {
-      const result = await this._model.find(filter, null, options).exec();
+      const result = await this.internalModel
+        .find(filter, null, options)
+        .exec();
       return result;
     } catch (error) {
-      this._logger.error("Error finding entities:", error);
+      this.internalLogger.error("Error finding entities:", error);
       return [];
     }
   }
 
   async findAll(): Promise<T[]> {
     try {
-      const result = await this._model.find().exec();
+      const result = await this.internalModel.find().exec();
       return result;
     } catch (error) {
-      this._logger.error("Error finding all entities:", error);
+      this.internalLogger.error("Error finding all entities:", error);
       return [];
     }
   }
@@ -65,22 +67,24 @@ export class GenericRepository<T extends Document> {
     options: QueryOptions = {},
   ): Promise<T | null> {
     try {
-      const result = await this._model.findOne(filter, null, options).exec();
+      const result = await this.internalModel
+        .findOne(filter, null, options)
+        .exec();
       return result;
     } catch (error) {
-      this._logger.error("Error finding entity by ID:", error);
+      this.internalLogger.error("Error finding entity by ID:", error);
       return null;
     }
   }
 
   async findById(id: string, options: QueryOptions = {}): Promise<T | null> {
     try {
-      const result = await this._model
+      const result = await this.internalModel
         .findOne({ _id: id }, null, options)
         .exec();
       return result;
     } catch (error) {
-      this._logger.error("Error finding entity by ID:", error);
+      this.internalLogger.error("Error finding entity by ID:", error);
       return null;
     }
   }
@@ -91,7 +95,7 @@ export class GenericRepository<T extends Document> {
     options: QueryOptions = {},
   ): Promise<T> {
     try {
-      const result = await this._model
+      const result = await this.internalModel
         .findOneAndUpdate({ _id: id }, updated, { ...options, new: true })
         .exec();
 
@@ -103,27 +107,29 @@ export class GenericRepository<T extends Document> {
 
       return result;
     } catch (error) {
-      this._logger.error("Error updating one entity:", error);
+      this.internalLogger.error("Error updating one entity:", error);
       throw error;
     }
   }
 
   async removeOneById(id: string): Promise<boolean> {
     try {
-      const { acknowledged } = await this._model.deleteOne({ _id: id }).exec();
+      const { acknowledged } = await this.internalModel
+        .deleteOne({ _id: id })
+        .exec();
       return acknowledged;
     } catch (error) {
-      this._logger.error("Error removing entities:", error);
+      this.internalLogger.error("Error removing entities:", error);
       throw error;
     }
   }
 
   async count(filter: FilterQuery<T> = {}): Promise<number> {
     try {
-      const count = await this._model.countDocuments(filter).exec();
+      const count = await this.internalModel.countDocuments(filter).exec();
       return count;
     } catch (error) {
-      this._logger.error("Error counting documents:", error);
+      this.internalLogger.error("Error counting documents:", error);
       throw error;
     }
   }
@@ -138,7 +144,7 @@ export class GenericRepository<T extends Document> {
       const objectIds = objectIdStrings.map((id) => new ObjectId(id));
 
       // Query the database
-      const result = await this._model
+      const result = await this.internalModel
         .find({ _id: { $in: objectIds } })
         .select("_id")
         .lean()
@@ -146,7 +152,7 @@ export class GenericRepository<T extends Document> {
 
       return listOfIds.length === result?.length;
     } catch (error) {
-      this._logger.error("Error during validation:", error);
+      this.internalLogger.error("Error during validation:", error);
       return false;
     }
   }

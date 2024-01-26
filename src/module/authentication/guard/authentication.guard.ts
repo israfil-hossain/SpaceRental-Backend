@@ -17,17 +17,17 @@ export const IsPublic = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  private readonly _logger = new Logger(AuthenticationGuard.name);
+  private readonly logger = new Logger(AuthenticationGuard.name);
 
   constructor(
-    private _configService: ConfigService,
-    private _jwtService: JwtService,
-    private _reflector: Reflector,
+    private configService: ConfigService,
+    private jwtService: JwtService,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     //#region Allow when IsPublic is used
-    const isPublic = this._reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -38,13 +38,13 @@ export class AuthenticationGuard implements CanActivate {
 
     //#region Verify jwt token from request or throw
     const request = context.switchToHttp().getRequest();
-    const token = this._extractTokenFromHeader(request);
+    const token = this.extractTokenFromHeader(request);
 
     try {
-      const tokenPayload: ITokenPayload = await this._jwtService.verifyAsync(
+      const tokenPayload: ITokenPayload = await this.jwtService.verifyAsync(
         token,
         {
-          secret: this._configService.get<string>(
+          secret: this.configService.get<string>(
             "JWT_SECRET",
             "ACOMPLEXSECRETANDKEEPITSAFE",
           ),
@@ -52,7 +52,7 @@ export class AuthenticationGuard implements CanActivate {
       );
 
       if (!tokenPayload.userId || !tokenPayload.userRole) {
-        this._logger.error(`Invalid payload found in token: ${token}`);
+        this.logger.error(`Invalid payload found in token: ${token}`);
         throw new UnauthorizedException(
           "User is not authorized to perform this action",
         );
@@ -64,7 +64,7 @@ export class AuthenticationGuard implements CanActivate {
         throw error;
       }
 
-      this._logger.error(
+      this.logger.error(
         `User is not authorized to perform this action with token: ${token}`,
       );
       throw new UnauthorizedException(
@@ -77,10 +77,10 @@ export class AuthenticationGuard implements CanActivate {
   }
 
   //#region Private helper methods
-  private _extractTokenFromHeader(request: Request): string {
+  private extractTokenFromHeader(request: Request): string {
     const [type, token] = request?.headers?.authorization?.split(" ") ?? [];
     if (type !== "Bearer" || !token) {
-      this._logger.error(
+      this.logger.error(
         `Invalid authorization header: ${request?.headers?.authorization}`,
       );
       throw new UnauthorizedException(

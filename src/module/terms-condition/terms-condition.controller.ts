@@ -20,7 +20,7 @@ import { TermsConditionService } from "./terms-condition.service";
 @ApiTags("Terms and Conditions")
 @Controller("TermsAndCondition")
 export class TermsConditionController {
-  constructor(private readonly _termsConditionService: TermsConditionService) {}
+  constructor(private readonly termsConditionService: TermsConditionService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateTermsConditionDto })
@@ -36,7 +36,7 @@ export class TermsConditionController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateTermsConditionDto,
   ) {
-    return this._termsConditionService.create(createSpaceDto, userId);
+    return this.termsConditionService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -45,7 +45,7 @@ export class TermsConditionController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._termsConditionService.findAll();
+    return this.termsConditionService.findAll();
   }
 
   @Patch("UpdateById/:DocId")
@@ -63,7 +63,7 @@ export class TermsConditionController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateTermsConditionDto: UpdateTermsConditionDto,
   ) {
-    return this._termsConditionService.update(
+    return this.termsConditionService.update(
       DocId,
       updateTermsConditionDto,
       userId,
@@ -80,6 +80,6 @@ export class TermsConditionController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._termsConditionService.remove(DocId);
+    return this.termsConditionService.remove(DocId);
   }
 }

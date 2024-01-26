@@ -28,7 +28,7 @@ import { SpaceForRentService } from "./space-for-rent.service";
 @ApiTags("Space - For Rent")
 @Controller("SpaceForRent")
 export class SpaceForRentController {
-  constructor(private readonly _spaceForRentService: SpaceForRentService) {}
+  constructor(private readonly spaceForRentService: SpaceForRentService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateSpaceForRentDto })
@@ -50,7 +50,7 @@ export class SpaceForRentController {
   ) {
     createSpaceDto.spaceImages = spaceImages;
 
-    return this._spaceForRentService.create(createSpaceDto, userId);
+    return this.spaceForRentService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -62,7 +62,7 @@ export class SpaceForRentController {
     @AuthUserId() { userId, userRole }: ITokenPayload,
     @Query() listSpaceForRentQuery: ListSpaceForRentQuery,
   ) {
-    return this._spaceForRentService.findAll(
+    return this.spaceForRentService.findAll(
       listSpaceForRentQuery,
       userId,
       userRole,
@@ -75,7 +75,7 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceForRentService.findOne(DocId);
+    return this.spaceForRentService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -95,7 +95,7 @@ export class SpaceForRentController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateSpaceDto: UpdateSpaceForRentDto,
   ) {
-    return this._spaceForRentService.update(DocId, updateSpaceDto, userId);
+    return this.spaceForRentService.update(DocId, updateSpaceDto, userId);
   }
 
   @Delete("DeleteById/:DocId")
@@ -109,7 +109,7 @@ export class SpaceForRentController {
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceForRentService.remove(DocId);
+    return this.spaceForRentService.remove(DocId);
   }
 
   @Post("AddSpaceImageById/:DocId")
@@ -133,7 +133,7 @@ export class SpaceForRentController {
   ) {
     addSpaceImageDto.spaceImages = spaceImages;
 
-    return this._spaceForRentService.addSpaceImage(
+    return this.spaceForRentService.addSpaceImage(
       DocId,
       addSpaceImageDto,
       userId,
@@ -151,6 +151,6 @@ export class SpaceForRentController {
     ApplicationUserRoleEnum.SPACE_OWNER,
   ])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
-    return this._spaceForRentService.removeSpaceImage(ImageId, SpaceId);
+    return this.spaceForRentService.removeSpaceImage(ImageId, SpaceId);
   }
 }

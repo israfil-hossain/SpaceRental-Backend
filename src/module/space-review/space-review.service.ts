@@ -15,10 +15,10 @@ import { SpaceReviewRepository } from "./space-review.repository";
 
 @Injectable()
 export class SpaceReviewService {
-  private readonly _logger: Logger = new Logger(SpaceReviewService.name);
+  private readonly logger: Logger = new Logger(SpaceReviewService.name);
 
   constructor(
-    private readonly _spaceReviewRepository: SpaceReviewRepository,
+    private readonly spaceReviewRepository: SpaceReviewRepository,
     private readonly spaceForRentRepository: SpaceForRentRepository,
   ) {}
 
@@ -34,7 +34,7 @@ export class SpaceReviewService {
         ]);
       }
 
-      const newItem = await this._spaceReviewRepository.create({
+      const newItem = await this.spaceReviewRepository.create({
         ...createSpaceReviewDto,
         reviewer: userId,
         createdBy: userId,
@@ -47,11 +47,11 @@ export class SpaceReviewService {
       }
 
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -62,10 +62,10 @@ export class SpaceReviewService {
   }: ListSpaceReviewQuery): Promise<PaginatedResponseDto> {
     try {
       // Pagination setup
-      const totalRecords = await this._spaceReviewRepository.count();
+      const totalRecords = await this.spaceReviewRepository.count();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._spaceReviewRepository.find(
+      const result = await this.spaceReviewRepository.find(
         {},
         {
           skip,
@@ -81,13 +81,13 @@ export class SpaceReviewService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findAllBySpaceId(spaceId: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceReviewRepository.find(
+    const result = await this.spaceReviewRepository.find(
       {
         space: spaceId,
       },
@@ -102,7 +102,7 @@ export class SpaceReviewService {
     );
 
     if (!result.length) {
-      this._logger.error(`No document found with Space ID: ${spaceId}`);
+      this.logger.error(`No document found with Space ID: ${spaceId}`);
       throw new NotFoundException(
         `Could not find any document with Space ID: ${spaceId}`,
       );
@@ -135,18 +135,17 @@ export class SpaceReviewService {
     }
 
     try {
-      const result =
-        await this._spaceReviewRepository.findOneWhere(searchQuery);
+      const result = await this.spaceReviewRepository.findOneWhere(searchQuery);
 
       if (!result) {
         throw new Error("No deleted document was found");
       }
 
-      await this._spaceReviewRepository.removeOneById(result.id);
+      await this.spaceReviewRepository.removeOneById(result.id);
 
       return new SuccessResponseDto("Document deleted successfully");
     } catch (error) {
-      this._logger.error(`Error deleting document with ID: ${id}`, error);
+      this.logger.error(`Error deleting document with ID: ${id}`, error);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
   }

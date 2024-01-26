@@ -10,7 +10,7 @@ import { UpdateCommissionSettingsDto } from "./dto/commission-settings.dto";
 @ApiTags("Configurations")
 @Controller("Configuration")
 export class ConfigurationController {
-  constructor(private readonly _configurationService: ConfigurationService) {}
+  constructor(private readonly configurationService: ConfigurationService) {}
 
   @Patch("SetCommissionSettings")
   @ApiBody({ type: UpdateCommissionSettingsDto })
@@ -23,7 +23,7 @@ export class ConfigurationController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateCommissionSettingsDto: UpdateCommissionSettingsDto,
   ) {
-    return this._configurationService.updateCommissionSettings(
+    return this.configurationService.updateCommissionSettings(
       updateCommissionSettingsDto,
       userId,
     );
@@ -36,6 +36,6 @@ export class ConfigurationController {
   })
   @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
   getCommission() {
-    return this._configurationService.getCommissionSettings();
+    return this.configurationService.getCommissionSettings();
   }
 }

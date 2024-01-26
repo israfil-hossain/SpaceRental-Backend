@@ -12,10 +12,10 @@ import { TermsConditionRepository } from "./terms-condition.repository";
 
 @Injectable()
 export class TermsConditionService {
-  private readonly _logger: Logger = new Logger(TermsConditionService.name);
+  private readonly logger: Logger = new Logger(TermsConditionService.name);
 
   constructor(
-    private readonly _termsConditionRepository: TermsConditionRepository,
+    private readonly termsConditionRepository: TermsConditionRepository,
   ) {}
 
   async create(
@@ -23,7 +23,7 @@ export class TermsConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this._termsConditionRepository.create({
+      const newSpaceType = await this.termsConditionRepository.create({
         ...createTermsConditionDto,
         createdBy: userId,
       });
@@ -34,22 +34,22 @@ export class TermsConditionService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._termsConditionRepository.findAll();
+      const results = await this.termsConditionRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
@@ -60,14 +60,14 @@ export class TermsConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._termsConditionRepository.updateOneById(id, {
+      const result = await this.termsConditionRepository.updateOneById(id, {
         ...updateTermsConditionDto,
         updatedBy: userId,
         updatedAt: new Date(),
       });
 
       if (!result) {
-        this._logger.error(`Document not found with ID: ${id}`);
+        this.logger.error(`Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find document with ID: ${id}`);
       }
 
@@ -78,20 +78,20 @@ export class TermsConditionService {
       }
 
       if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error updating document:", error);
+      this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._termsConditionRepository.removeOneById(id);
+    const result = await this.termsConditionRepository.removeOneById(id);
 
     if (!result) {
-      this._logger.error(`Document not delete with ID: ${id}`);
+      this.logger.error(`Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

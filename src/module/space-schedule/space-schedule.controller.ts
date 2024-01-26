@@ -12,7 +12,7 @@ import { SpaceScheduleService } from "./space-schedule.service";
 @Controller("SpaceSchedule")
 export class SpaceScheduleController {
   constructor(
-    private readonly _spaceScheduleFeatureService: SpaceScheduleService,
+    private readonly spaceScheduleFeatureService: SpaceScheduleService,
   ) {}
 
   @Post("Create")
@@ -29,7 +29,7 @@ export class SpaceScheduleController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceFeatureDto: CreateSpaceScheduleDto,
   ) {
-    return this._spaceScheduleFeatureService.create(
+    return this.spaceScheduleFeatureService.create(
       createSpaceFeatureDto,
       userId,
     );
@@ -41,7 +41,7 @@ export class SpaceScheduleController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._spaceScheduleFeatureService.findAll();
+    return this.spaceScheduleFeatureService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -54,6 +54,6 @@ export class SpaceScheduleController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceScheduleFeatureService.remove(DocId);
+    return this.spaceScheduleFeatureService.remove(DocId);
   }
 }

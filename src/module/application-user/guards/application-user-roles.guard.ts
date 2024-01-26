@@ -12,14 +12,14 @@ import { ApplicationUserRoleEnum } from "../enum/application-user-role.enum";
 
 @Injectable()
 export class ApplicationUserRolesGuard implements CanActivate {
-  private readonly _logger = new Logger(ApplicationUserRolesGuard.name);
+  private readonly logger = new Logger(ApplicationUserRolesGuard.name);
 
-  constructor(private _reflector: Reflector) {}
+  constructor(private reflector: Reflector) {}
 
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const roles = this._reflector.get<ApplicationUserRoleEnum[]>(
+    const roles = this.reflector.get<ApplicationUserRoleEnum[]>(
       RequiredRoles,
       context.getHandler(),
     );
@@ -35,7 +35,7 @@ export class ApplicationUserRolesGuard implements CanActivate {
       !user ||
       !roles.some((role: ApplicationUserRoleEnum) => user.userRole === role)
     ) {
-      this._logger.error(
+      this.logger.error(
         `User does not have required roles: ${roles.join(", ")}`,
       );
       throw new ForbiddenException(

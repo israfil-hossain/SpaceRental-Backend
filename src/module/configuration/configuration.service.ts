@@ -12,10 +12,10 @@ import {
 
 @Injectable()
 export class ConfigurationService {
-  private readonly _logger: Logger = new Logger(ConfigurationService.name);
+  private readonly logger: Logger = new Logger(ConfigurationService.name);
 
   constructor(
-    private readonly _configurationRepository: ConfigurationRepository,
+    private readonly configurationRepository: ConfigurationRepository,
   ) {}
 
   async updateCommissionSettings(
@@ -23,10 +23,10 @@ export class ConfigurationService {
     userId: string,
   ) {
     try {
-      const result = await this._upsertConfiguration(configurationDto, userId);
+      const result = await this.upsertConfiguration(configurationDto, userId);
 
       if (!result) {
-        this._logger.error("Failed to update commission configuration");
+        this.logger.error("Failed to update commission configuration");
         throw new BadRequestException(
           "Failed to update commission configuration",
         );
@@ -45,14 +45,14 @@ export class ConfigurationService {
         throw error;
       }
 
-      this._logger.error("Error updating document:", error);
+      this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
     }
   }
 
   async getCommissionSettings() {
     try {
-      const latestConfig = await this._getLatestConfiguration();
+      const latestConfig = await this.getLatestConfiguration();
 
       const commissionDto = new CommissionSettingsDto();
       commissionDto.ownerCommission = latestConfig?.ownerCommission ?? 0;
@@ -63,14 +63,14 @@ export class ConfigurationService {
         commissionDto,
       );
     } catch (error) {
-      this._logger.error("Error in getCommissionSettings:", error);
+      this.logger.error("Error in getCommissionSettings:", error);
       throw new BadRequestException("Error getting document");
     }
   }
 
   // Private helpers
-  private async _getLatestConfiguration(): Promise<ConfigurationDocument | null> {
-    return await this._configurationRepository.findOneWhere(
+  private async getLatestConfiguration(): Promise<ConfigurationDocument | null> {
+    return await this.configurationRepository.findOneWhere(
       {},
       {
         sort: { updatedAt: -1, createdAt: -1 },
@@ -78,23 +78,23 @@ export class ConfigurationService {
     );
   }
 
-  private async _upsertConfiguration(
+  private async upsertConfiguration(
     configuration: Partial<Configuration>,
     auditUserId: string,
   ): Promise<ConfigurationDocument> {
-    const latestConfig = await this._getLatestConfiguration();
+    const latestConfig = await this.getLatestConfiguration();
 
     if (latestConfig) {
       configuration.updatedBy = auditUserId;
       configuration.updatedAt = new Date();
-      return await this._configurationRepository.updateOneById(
+      return await this.configurationRepository.updateOneById(
         latestConfig.id,
         configuration,
       );
     } else {
       configuration.createdBy = auditUserId;
       configuration.updatedBy = auditUserId;
-      return await this._configurationRepository.create(configuration);
+      return await this.configurationRepository.create(configuration);
     }
   }
 }

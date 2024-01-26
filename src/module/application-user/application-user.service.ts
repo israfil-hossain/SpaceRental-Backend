@@ -16,25 +16,25 @@ import { UpdateApplicationUserDto } from "./dto/update-application-user.dto";
 
 @Injectable()
 export class ApplicationUserService {
-  private readonly _logger: Logger = new Logger(ApplicationUserService.name);
+  private readonly logger: Logger = new Logger(ApplicationUserService.name);
 
   constructor(
-    private readonly _applicationUserRepository: ApplicationUserRepository,
+    private readonly applicationUserRepository: ApplicationUserRepository,
 
-    private readonly _encryptionService: EncryptionService,
-    private readonly _imageService: ImageMetaService,
+    private readonly encryptionService: EncryptionService,
+    private readonly imageService: ImageMetaService,
   ) {}
 
   async create(
     userCreateDto: CreateApplicationUserDto,
   ): Promise<SuccessResponseDto> {
     try {
-      userCreateDto["password"] = await this._encryptionService.hashPassword(
+      userCreateDto["password"] = await this.encryptionService.hashPassword(
         userCreateDto.password,
       );
 
       const newUser =
-        await this._applicationUserRepository.create(userCreateDto);
+        await this.applicationUserRepository.create(userCreateDto);
 
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
@@ -42,7 +42,7 @@ export class ApplicationUserService {
         throw error;
       }
 
-      this._logger.error("Error creating new document:", error.description);
+      this.logger.error("Error creating new document:", error.description);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -69,26 +69,26 @@ export class ApplicationUserService {
 
       // Pagination setup
       const totalRecords =
-        await this._applicationUserRepository.count(searchQuery);
+        await this.applicationUserRepository.count(searchQuery);
       const skip = (Page - 1) * PageSize;
 
-      const result = await this._applicationUserRepository.find(searchQuery, {
+      const result = await this.applicationUserRepository.find(searchQuery, {
         limit: PageSize,
         skip,
       });
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this._logger.error("Error finding users:", error);
+      this.logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const user = await this._applicationUserRepository.findById(id);
+    const user = await this.applicationUserRepository.findById(id);
 
     if (!user) {
-      this._logger.error(`User Document not found with ID: ${id}`);
+      this.logger.error(`User Document not found with ID: ${id}`);
       throw new NotFoundException(`Could not find user with ID: ${id}`);
     }
 
@@ -97,7 +97,7 @@ export class ApplicationUserService {
 
   async update(id: string, updateUserDto: UpdateApplicationUserDto) {
     try {
-      const result = await this._applicationUserRepository.updateOneById(
+      const result = await this.applicationUserRepository.updateOneById(
         id,
         updateUserDto,
       );
@@ -108,15 +108,15 @@ export class ApplicationUserService {
         throw error;
       }
 
-      this._logger.error("Error updating new document:", error.description);
+      this.logger.error("Error updating new document:", error.description);
       throw new BadRequestException("Error updating new document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._applicationUserRepository.removeOneById(id);
+    const result = await this.applicationUserRepository.removeOneById(id);
     if (!result) {
-      this._logger.error(`User Document not delete with ID: ${id}`);
+      this.logger.error(`User Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete user with ID: ${id}`);
     }
 
@@ -128,26 +128,26 @@ export class ApplicationUserService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this._applicationUserRepository.findById(userId);
+      const user = await this.applicationUserRepository.findById(userId);
 
       if (!user) {
-        this._logger.error(`User Document not found with ID: ${userId}`);
+        this.logger.error(`User Document not found with ID: ${userId}`);
         throw new NotFoundException(`Could not find user with ID: ${userId}`);
       }
 
       if (user?.profilePicture) {
-        await this._imageService.removeImage(
+        await this.imageService.removeImage(
           user?.profilePicture as unknown as string,
           userId,
         );
       }
 
-      const createdImage = await this._imageService.createSingleImage(
+      const createdImage = await this.imageService.createSingleImage(
         profilePicture,
         userId,
       );
 
-      await this._applicationUserRepository.updateOneById(user?.id, {
+      await this.applicationUserRepository.updateOneById(user?.id, {
         profilePicture: createdImage.id,
       });
 
@@ -157,7 +157,7 @@ export class ApplicationUserService {
         throw error;
       }
 
-      this._logger.error("Error updating new document:", error.description);
+      this.logger.error("Error updating new document:", error.description);
       throw new BadRequestException("Error updating new document");
     }
   }

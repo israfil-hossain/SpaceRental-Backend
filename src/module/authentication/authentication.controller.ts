@@ -13,7 +13,7 @@ import { IsPublic } from "./guard/authentication.guard";
 @ApiTags("Authentication")
 @Controller("Authentication")
 export class AuthenticationController {
-  constructor(private readonly _authService: AuthenticationService) {}
+  constructor(private readonly authService: AuthenticationService) {}
 
   @Post("SignUp")
   @HttpCode(200)
@@ -24,7 +24,7 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   signUp(@Body() signUpDto: SignUpDto) {
-    return this._authService.signUp(signUpDto);
+    return this.authService.signUp(signUpDto);
   }
 
   @Post("SignIn")
@@ -36,7 +36,7 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   signIn(@Body() signInDto: SignInDto) {
-    return this._authService.signIn(signInDto);
+    return this.authService.signIn(signInDto);
   }
 
   @Post("AdminSignIn")
@@ -48,7 +48,7 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   adminSignIn(@Body() adminSignInDto: AdminSignInDto) {
-    return this._authService.adminSignIn(adminSignInDto);
+    return this.authService.adminSignIn(adminSignInDto);
   }
 
   @Post("TokenRefresh")
@@ -60,7 +60,7 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   tokenRefresh(@Body() tokenRefreshDto: RefreshTokenDto) {
-    return this._authService.refreshAccessToken(tokenRefreshDto.refreshToken);
+    return this.authService.refreshAccessToken(tokenRefreshDto.refreshToken);
   }
 
   @Post("TokenRevoke")
@@ -72,7 +72,7 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   tokenRevoke(@Body() tokenRefreshDto: RefreshTokenDto) {
-    return this._authService.revokeRefreshToken(tokenRefreshDto.refreshToken);
+    return this.authService.revokeRefreshToken(tokenRefreshDto.refreshToken);
   }
 
   @Post("ChangePassword")
@@ -86,7 +86,7 @@ export class AuthenticationController {
     @Body() changePasswordDto: ChangePasswordDto,
     @AuthUserId() { userId }: ITokenPayload,
   ) {
-    return this._authService.changePassword(changePasswordDto, userId);
+    return this.authService.changePassword(changePasswordDto, userId);
   }
 
   @Get("GetLoggedInUser")
@@ -95,6 +95,6 @@ export class AuthenticationController {
     type: SuccessResponseDto,
   })
   getLoggedInUser(@AuthUserId() { userId }: ITokenPayload) {
-    return this._authService.getLoggedInUser(userId);
+    return this.authService.getLoggedInUser(userId);
   }
 }

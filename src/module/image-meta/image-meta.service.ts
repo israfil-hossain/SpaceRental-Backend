@@ -11,9 +11,9 @@ import { ImageMetaRepository } from "./image-meta.repository";
 
 @Injectable()
 export class ImageMetaService {
-  private readonly _logger: Logger = new Logger(ImageMetaService.name);
+  private readonly logger: Logger = new Logger(ImageMetaService.name);
 
-  constructor(private readonly _imageMetaRepository: ImageMetaRepository) {}
+  constructor(private readonly imageMetaRepository: ImageMetaRepository) {}
 
   async createSingleImage(
     singleImageFile: Express.Multer.File,
@@ -23,10 +23,10 @@ export class ImageMetaService {
       throw new Error("No image file provided");
     }
 
-    const extension = this._getFileExtension(singleImageFile.originalname);
-    const uploadResult = await this._uploadImageToCloudinary(singleImageFile);
+    const extension = this.getFileExtension(singleImageFile.originalname);
+    const uploadResult = await this.uploadImageToCloudinary(singleImageFile);
 
-    const singleImage = await this._imageMetaRepository.create({
+    const singleImage = await this.imageMetaRepository.create({
       url: uploadResult.secure_url,
       name: uploadResult.public_id,
       extension: extension,
@@ -59,7 +59,7 @@ export class ImageMetaService {
     imageId: string,
     ownerId: string,
   ): Promise<ImageMetaDocument | null> {
-    const deletedImage = await this._imageMetaRepository.findOneWhere({
+    const deletedImage = await this.imageMetaRepository.findOneWhere({
       _id: imageId,
       ownerId: ownerId,
     });
@@ -68,13 +68,13 @@ export class ImageMetaService {
       throw new Error(`Could not find image with id: ${imageId}`);
     }
 
-    await this._deleteImageFromCloudinary(deletedImage.name);
-    await this._imageMetaRepository.removeOneById(imageId);
+    await this.deleteImageFromCloudinary(deletedImage.name);
+    await this.imageMetaRepository.removeOneById(imageId);
 
     return deletedImage;
   }
 
-  private async _uploadImageToCloudinary(
+  private async uploadImageToCloudinary(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse> {
     return new Promise<UploadApiResponse>((resolve, reject) => {
@@ -84,13 +84,13 @@ export class ImageMetaService {
           result: UploadApiResponse | undefined,
         ) => {
           if (error) {
-            this._logger.error(
+            this.logger.error(
               `Failed to upload image to Cloudinary: ${error.message}`,
             );
             reject(error);
           } else if (!result) {
             const errorMessage = "Upload result is undefined";
-            this._logger.error(
+            this.logger.error(
               `Failed to upload image to Cloudinary: ${errorMessage}`,
             );
             reject(new Error(errorMessage));
@@ -103,13 +103,13 @@ export class ImageMetaService {
     });
   }
 
-  private async _deleteImageFromCloudinary(
+  private async deleteImageFromCloudinary(
     publicId: string,
   ): Promise<DeleteApiResponse> {
     return CloudinaryAPI.uploader.destroy(publicId);
   }
 
-  private _getFileExtension(originalName: string): string {
+  private getFileExtension(originalName: string): string {
     const lastDotIndex = originalName?.lastIndexOf(".");
 
     if (lastDotIndex === -1) {

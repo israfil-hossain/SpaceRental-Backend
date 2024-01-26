@@ -14,16 +14,16 @@ import { SpaceTypeRepository } from "./space-type.repository";
 
 @Injectable()
 export class SpaceTypeService {
-  private readonly _logger: Logger = new Logger(SpaceTypeService.name);
+  private readonly logger: Logger = new Logger(SpaceTypeService.name);
 
-  constructor(private readonly _spaceTypeRepository: SpaceTypeRepository) {}
+  constructor(private readonly spaceTypeRepository: SpaceTypeRepository) {}
 
   async create(
     createSpaceTypeDto: CreateSpaceTypeDto,
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this._spaceTypeRepository.create({
+      const newSpaceType = await this.spaceTypeRepository.create({
         ...createSpaceTypeDto,
         createdBy: userId,
       });
@@ -34,11 +34,11 @@ export class SpaceTypeService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -58,21 +58,21 @@ export class SpaceTypeService {
       // Pagination setup
       const skip = (Page - 1) * PageSize;
 
-      const totalRecords = await this._spaceTypeRepository.count(searchQuery);
-      const result = await this._spaceTypeRepository.find(searchQuery, {
+      const totalRecords = await this.spaceTypeRepository.count(searchQuery);
+      const result = await this.spaceTypeRepository.find(searchQuery, {
         skip,
         limit: PageSize,
       });
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeRepository.findById(id, {
+    const result = await this.spaceTypeRepository.findById(id, {
       populate: [
         {
           path: "createdBy",
@@ -86,7 +86,7 @@ export class SpaceTypeService {
     });
 
     if (!result) {
-      this._logger.error(`Document not found with ID: ${id}`);
+      this.logger.error(`Document not found with ID: ${id}`);
       throw new NotFoundException(`Could not find document with ID: ${id}`);
     }
 
@@ -99,7 +99,7 @@ export class SpaceTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const updatedSpaceType = await this._spaceTypeRepository.updateOneById(
+      const updatedSpaceType = await this.spaceTypeRepository.updateOneById(
         id,
         {
           ...updateSpaceTypeDto,
@@ -118,20 +118,20 @@ export class SpaceTypeService {
       }
 
       if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error updating document:", error);
+      this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceTypeRepository.removeOneById(id);
+    const result = await this.spaceTypeRepository.removeOneById(id);
 
     if (!result) {
-      this._logger.error(`Document not deleted with ID: ${id}`);
+      this.logger.error(`Document not deleted with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

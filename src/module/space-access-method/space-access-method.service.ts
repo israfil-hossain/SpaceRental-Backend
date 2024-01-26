@@ -14,10 +14,10 @@ import { SpaceAccessMethodRepository } from "./space-access-method.repository";
 
 @Injectable()
 export class SpaceAccessMethodService {
-  private readonly _logger: Logger = new Logger(SpaceAccessMethodService.name);
+  private readonly logger: Logger = new Logger(SpaceAccessMethodService.name);
 
   constructor(
-    private readonly _spaceAccessMethodRepository: SpaceAccessMethodRepository,
+    private readonly spaceAccessMethodRepository: SpaceAccessMethodRepository,
   ) {}
 
   async create(
@@ -25,7 +25,7 @@ export class SpaceAccessMethodService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceAccessMethodRepository.create({
+      const result = await this.spaceAccessMethodRepository.create({
         ...createSpaceAccessMethodDto,
         createdBy: userId,
       });
@@ -38,7 +38,7 @@ export class SpaceAccessMethodService {
         throw error;
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
@@ -55,23 +55,23 @@ export class SpaceAccessMethodService {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
 
-      const count = await this._spaceAccessMethodRepository.count(searchQuery);
+      const count = await this.spaceAccessMethodRepository.count(searchQuery);
       const skip = (Page - 1) * limit;
 
-      const result = await this._spaceAccessMethodRepository.find(searchQuery, {
+      const result = await this.spaceAccessMethodRepository.find(searchQuery, {
         limit,
         skip,
       });
 
       return new PaginatedResponseDto(count, Page, limit, result);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessMethodRepository.findById(id, {
+    const result = await this.spaceAccessMethodRepository.findById(id, {
       populate: [
         {
           path: "createdBy",
@@ -85,7 +85,7 @@ export class SpaceAccessMethodService {
     });
 
     if (!result) {
-      this._logger.error(`Document not found with ID: ${id}`);
+      this.logger.error(`Document not found with ID: ${id}`);
       throw new NotFoundException(`Could not find document with ID: ${id}`);
     }
 
@@ -98,7 +98,7 @@ export class SpaceAccessMethodService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const result = await this._spaceAccessMethodRepository.updateOneById(
+      const result = await this.spaceAccessMethodRepository.updateOneById(
         id,
         {
           ...updateSpaceAccessMethodDto,
@@ -109,7 +109,7 @@ export class SpaceAccessMethodService {
       );
 
       if (!result) {
-        this._logger.error(`Document not found with ID: ${id}`);
+        this.logger.error(`Document not found with ID: ${id}`);
         throw new NotFoundException(`Could not find document with ID: ${id}`);
       }
 
@@ -120,20 +120,20 @@ export class SpaceAccessMethodService {
       }
 
       if (error.name === "MongoError" && error.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error updating document:", error);
+      this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceAccessMethodRepository.removeOneById(id);
+    const result = await this.spaceAccessMethodRepository.removeOneById(id);
 
     if (!result) {
-      this._logger.error(`Document not found with ID: ${id}`);
+      this.logger.error(`Document not found with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

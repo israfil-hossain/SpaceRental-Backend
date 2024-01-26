@@ -10,10 +10,10 @@ import { SpaceSecurityRepository } from "./space-security.repository";
 
 @Injectable()
 export class SpaceSecurityService {
-  private readonly _logger: Logger = new Logger(SpaceSecurityService.name);
+  private readonly logger: Logger = new Logger(SpaceSecurityService.name);
 
   constructor(
-    private readonly _spaceSecurityRepository: SpaceSecurityRepository,
+    private readonly spaceSecurityRepository: SpaceSecurityRepository,
   ) {}
 
   async create(
@@ -21,7 +21,7 @@ export class SpaceSecurityService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this._spaceSecurityRepository.create({
+      const newSpaceType = await this.spaceSecurityRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
@@ -32,31 +32,31 @@ export class SpaceSecurityService {
       );
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this._logger.error("Duplicate key error:", error);
+        this.logger.error("Duplicate key error:", error);
         throw new ConflictException("Document already exists");
       }
 
-      this._logger.error("Error creating new document:", error);
+      this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
     }
   }
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this._spaceSecurityRepository.findAll();
+      const results = await this.spaceSecurityRepository.findAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
-      this._logger.error("Error finding all document:", error);
+      this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this._spaceSecurityRepository.removeOneById(id);
+    const result = await this.spaceSecurityRepository.removeOneById(id);
 
     if (!result) {
-      this._logger.error(`Document not delete with ID: ${id}`);
+      this.logger.error(`Document not delete with ID: ${id}`);
       throw new BadRequestException(`Could not delete document with ID: ${id}`);
     }
 

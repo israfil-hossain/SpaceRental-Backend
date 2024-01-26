@@ -11,7 +11,7 @@ import { SpaceSecurityService } from "./space-security.service";
 @ApiTags("Space - Security")
 @Controller("SpaceSecurity")
 export class SpaceSecurityController {
-  constructor(private readonly _spaceSecurityService: SpaceSecurityService) {}
+  constructor(private readonly spaceSecurityService: SpaceSecurityService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateSpaceSecurityDto })
@@ -27,7 +27,7 @@ export class SpaceSecurityController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateSpaceSecurityDto,
   ) {
-    return this._spaceSecurityService.create(createSpaceDto, userId);
+    return this.spaceSecurityService.create(createSpaceDto, userId);
   }
 
   @Get("GetAll")
@@ -36,7 +36,7 @@ export class SpaceSecurityController {
     type: SuccessResponseDto,
   })
   findAll() {
-    return this._spaceSecurityService.findAll();
+    return this.spaceSecurityService.findAll();
   }
 
   @Delete("DeleteById/:DocId")
@@ -49,6 +49,6 @@ export class SpaceSecurityController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._spaceSecurityService.remove(DocId);
+    return this.spaceSecurityService.remove(DocId);
   }
 }

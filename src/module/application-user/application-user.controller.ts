@@ -27,7 +27,7 @@ import { ApplicationUserRoleEnum } from "./enum/application-user-role.enum";
 @ApiTags("Application Users")
 @Controller("ApplicationUser")
 export class ApplicationUserController {
-  constructor(private readonly _userService: ApplicationUserService) {}
+  constructor(private readonly userService: ApplicationUserService) {}
 
   @Post("Create")
   @ApiBody({ type: CreateApplicationUserDto })
@@ -37,7 +37,7 @@ export class ApplicationUserController {
   })
   @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
   create(@Body() createUserDto: CreateApplicationUserDto) {
-    return this._userService.create(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @Get("GetAll")
@@ -50,7 +50,7 @@ export class ApplicationUserController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   findAll(@Query() query: ListApplicationUserQuery) {
-    return this._userService.findAll(query);
+    return this.userService.findAll(query);
   }
 
   @Get("GetById/:DocId")
@@ -63,7 +63,7 @@ export class ApplicationUserController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this._userService.findOne(DocId);
+    return this.userService.findOne(DocId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -80,7 +80,7 @@ export class ApplicationUserController {
     @Param() { DocId }: DocIdQueryDto,
     @Body() updateApplicationUserDto: UpdateApplicationUserDto,
   ) {
-    return this._userService.update(DocId, updateApplicationUserDto);
+    return this.userService.update(DocId, updateApplicationUserDto);
   }
 
   @Delete("DeleteById/:DocId")
@@ -93,7 +93,7 @@ export class ApplicationUserController {
     ApplicationUserRoleEnum.ADMIN,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
-    return this._userService.remove(DocId);
+    return this.userService.remove(DocId);
   }
 
   @Patch("UpdateOwnProfile")
@@ -106,7 +106,7 @@ export class ApplicationUserController {
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateApplicationUserDto: UpdateApplicationUserDto,
   ) {
-    return this._userService.update(userId, updateApplicationUserDto);
+    return this.userService.update(userId, updateApplicationUserDto);
   }
 
   @Patch("UpdateOwnProfilePicture")
@@ -124,7 +124,7 @@ export class ApplicationUserController {
   ) {
     updateProfilePictureDto.profilePicture = profilePicture;
 
-    return this._userService.updateOwnUserProfilePicture(
+    return this.userService.updateOwnUserProfilePicture(
       updateProfilePictureDto,
       userId,
     );

@@ -3,7 +3,7 @@ import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class EmailService {
-  private readonly _logger: Logger = new Logger(EmailService.name);
+  private readonly logger: Logger = new Logger(EmailService.name);
 
   constructor(private mailerService: MailerService) {}
 
@@ -17,9 +17,9 @@ export class EmailService {
       //     name: userName,
       //   },
       // });
-      this._logger.log("Email sent successfully to: " + userEmail);
+      this.logger.log("Email sent successfully to: " + userEmail);
     } catch (error) {
-      this._logger.error("Failed to send email: " + error);
+      this.logger.error("Failed to send email: " + error);
     }
   }
 
@@ -34,9 +34,9 @@ export class EmailService {
       //     userName,
       //   },
       // });
-      this._logger.log("Email sent successfully to: " + userEmail);
+      this.logger.log("Email sent successfully to: " + userEmail);
     } catch (error) {
-      this._logger.error("Failed to send email: " + error);
+      this.logger.error("Failed to send email: " + error);
     }
   }
 }

@@ -22,21 +22,21 @@ import { RefreshTokenRepository } from "./refresh-token.repository";
 
 @Injectable()
 export class AuthenticationService {
-  private readonly _logger: Logger = new Logger(AuthenticationService.name);
+  private readonly logger: Logger = new Logger(AuthenticationService.name);
 
   constructor(
-    private readonly _applicationUserRepository: ApplicationUserRepository,
-    private readonly _refreshTokenRepository: RefreshTokenRepository,
+    private readonly applicationUserRepository: ApplicationUserRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
 
-    private readonly _jwtService: JwtService,
-    private readonly _encryptionService: EncryptionService,
-    private readonly _mailService: EmailService,
+    private readonly jwtService: JwtService,
+    private readonly encryptionService: EncryptionService,
+    private readonly mailService: EmailService,
   ) {}
 
   async adminSignIn(
     adminSignInDto: AdminSignInDto,
   ): Promise<SuccessResponseDto> {
-    const user = await this._applicationUserRepository.findOneWhere({
+    const user = await this.applicationUserRepository.findOneWhere({
       email: adminSignInDto.email,
       role:
         ApplicationUserRoleEnum.SUPER_ADMIN || ApplicationUserRoleEnum.ADMIN,
@@ -49,19 +49,19 @@ export class AuthenticationService {
     }
 
     if (
-      !(await this._encryptionService.verifyPassword(
+      !(await this.encryptionService.verifyPassword(
         adminSignInDto.password,
         user.password,
       ))
     ) {
-      this._logger.error(
+      this.logger.error(
         `Invalid credentials provided with email: ${adminSignInDto.email}`,
       );
       throw new UnauthorizedException("Invalid credentials provided");
     }
 
     if (user.isPasswordLess) {
-      this._logger.error(
+      this.logger.error(
         `Password-less login attempted with email: ${adminSignInDto.email}`,
       );
       throw new BadRequestException(
@@ -69,23 +69,23 @@ export class AuthenticationService {
       );
     }
 
-    const accessToken = await this._generateAccessToken(
+    const accessToken = await this.generateAccessToken(
       user?.id?.toString(),
       user?.role,
     );
-    const refreshToken = await this._createRefreshToken(user?.id?.toString());
+    const refreshToken = await this.createRefreshToken(user?.id?.toString());
 
     user.lastLogin = new Date();
     await user.save();
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
-    this._mailService.sendUserSigninMail(user.email, user.fullName ?? "");
+    this.mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async signIn(signInDto: SignInDto): Promise<SuccessResponseDto> {
-    const user = await this._applicationUserRepository.findOneWhere({
+    const user = await this.applicationUserRepository.findOneWhere({
       email: signInDto.email,
       role: signInDto.role,
     });
@@ -96,19 +96,19 @@ export class AuthenticationService {
       );
     }
     if (
-      !(await this._encryptionService.verifyPassword(
+      !(await this.encryptionService.verifyPassword(
         signInDto.password,
         user.password,
       ))
     ) {
-      this._logger.error(
+      this.logger.error(
         `Invalid credentials provided with email: ${signInDto.email}`,
       );
       throw new UnauthorizedException("Invalid credentials provided");
     }
 
     if (user.isPasswordLess) {
-      this._logger.error(
+      this.logger.error(
         `Password-less login attempted with email: ${signInDto.email}`,
       );
       throw new BadRequestException(
@@ -116,44 +116,42 @@ export class AuthenticationService {
       );
     }
 
-    const accessToken = await this._generateAccessToken(
+    const accessToken = await this.generateAccessToken(
       user?.id?.toString(),
       user?.role,
     );
-    const refreshToken = await this._createRefreshToken(user?.id?.toString());
+    const refreshToken = await this.createRefreshToken(user?.id?.toString());
 
     user.lastLogin = new Date();
     await user.save();
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
-    this._mailService.sendUserSigninMail(user.email, user.fullName ?? "");
+    this.mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async signUp(signupDto: SignUpDto): Promise<SuccessResponseDto> {
-    signupDto.password = await this._encryptionService.hashPassword(
+    signupDto.password = await this.encryptionService.hashPassword(
       signupDto.password,
     );
 
-    const newUser = await this._applicationUserRepository.create(signupDto);
+    const newUser = await this.applicationUserRepository.create(signupDto);
 
-    const accessToken = await this._generateAccessToken(
+    const accessToken = await this.generateAccessToken(
       newUser?.id?.toString(),
       newUser?.role,
     );
-    const refreshToken = await this._createRefreshToken(
-      newUser?.id?.toString(),
-    );
+    const refreshToken = await this.createRefreshToken(newUser?.id?.toString());
 
     const tokenDto = new TokenResponseDto(accessToken, refreshToken);
-    this._mailService.sendUserSignupMail(newUser.email, newUser.fullName ?? "");
+    this.mailService.sendUserSignupMail(newUser.email, newUser.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc = await this._refreshTokenRepository.findOneWhere(
+    const refreshTokenDoc = await this.refreshTokenRepository.findOneWhere(
       {
         token: refreshToken,
         expiresAt: { $gt: new Date() },
@@ -169,14 +167,14 @@ export class AuthenticationService {
     );
 
     if (!refreshTokenDoc) {
-      this._logger.error("Refresh token is invalid or expired");
+      this.logger.error("Refresh token is invalid or expired");
       throw new BadRequestException("Refresh token is invalid or expired");
     }
 
     const userData =
       refreshTokenDoc?.user as unknown as ApplicationUserDocument;
 
-    const accessToken = await this._generateAccessToken(
+    const accessToken = await this.generateAccessToken(
       userData._id.toString(),
       userData.role,
     );
@@ -187,19 +185,19 @@ export class AuthenticationService {
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<SuccessResponseDto> {
-    const refreshTokenDoc = await this._refreshTokenRepository.findOneWhere({
+    const refreshTokenDoc = await this.refreshTokenRepository.findOneWhere({
       token: refreshToken,
       expiresAt: { $gt: new Date() },
     });
 
     if (!refreshTokenDoc) {
-      this._logger.error(`Token is either invalid or expired: ${refreshToken}`);
+      this.logger.error(`Token is either invalid or expired: ${refreshToken}`);
       throw new BadRequestException(
         "Refresh token is either invalid or expired",
       );
     }
 
-    await this._refreshTokenRepository.updateOneById(refreshTokenDoc.id, {
+    await this.refreshTokenRepository.updateOneById(refreshTokenDoc.id, {
       expiresAt: new Date(),
     });
 
@@ -211,7 +209,7 @@ export class AuthenticationService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     if (changePasswordDto.oldPassword === changePasswordDto.newPassword) {
-      this._logger.error(
+      this.logger.error(
         `User ${userId} tried to change password with the same old and new password`,
       );
       throw new BadRequestException(
@@ -219,29 +217,29 @@ export class AuthenticationService {
       );
     }
 
-    const user = await this._applicationUserRepository.findById(userId);
+    const user = await this.applicationUserRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundException(`No user found with id: ${userId}`);
     }
 
     if (
-      !(await this._encryptionService.verifyPassword(
+      !(await this.encryptionService.verifyPassword(
         changePasswordDto.oldPassword,
         user.password,
       ))
     ) {
-      this._logger.error(
+      this.logger.error(
         `User ${userId} tried to change password with an incorrect old password`,
       );
       throw new BadRequestException("Old Password is incorrect");
     }
 
-    const hashedPassword = await this._encryptionService.hashPassword(
+    const hashedPassword = await this.encryptionService.hashPassword(
       changePasswordDto.newPassword,
     );
 
-    await this._applicationUserRepository.updateOneById(userId, {
+    await this.applicationUserRepository.updateOneById(userId, {
       password: hashedPassword,
     });
 
@@ -249,7 +247,7 @@ export class AuthenticationService {
   }
 
   async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
-    const user = await this._applicationUserRepository.findById(userId, {
+    const user = await this.applicationUserRepository.findById(userId, {
       populate: [
         {
           path: "profilePicture",
@@ -267,27 +265,27 @@ export class AuthenticationService {
   }
 
   // Private Helper Methods
-  private async _generateAccessToken(userId: string, userRole: string) {
+  private async generateAccessToken(userId: string, userRole: string) {
     const tokenPayload: ITokenPayload = {
       userId,
       userRole,
     };
 
-    return await this._jwtService.signAsync(tokenPayload);
+    return await this.jwtService.signAsync(tokenPayload);
   }
 
-  private async _createRefreshToken(userId: string): Promise<string> {
+  private async createRefreshToken(userId: string): Promise<string> {
     try {
-      const token = this._encryptionService.generateUniqueToken();
+      const token = this.encryptionService.generateUniqueToken();
 
-      const refreshToken = await this._refreshTokenRepository.create({
+      const refreshToken = await this.refreshTokenRepository.create({
         token,
         user: userId,
       });
 
       return refreshToken.token;
     } catch (error) {
-      this._logger.error("Error generating token", error);
+      this.logger.error("Error generating token", error);
       throw new InternalServerErrorException("Error generating token");
     }
   }
