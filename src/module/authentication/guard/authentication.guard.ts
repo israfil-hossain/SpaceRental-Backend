@@ -1,4 +1,4 @@
-import type { Request } from "express";
+import type { Request as ExpressRequest } from "express";
 
 import {
   CanActivate,
@@ -77,7 +77,7 @@ export class AuthenticationGuard implements CanActivate {
   }
 
   //#region Private helper methods
-  private extractTokenFromHeader(request: Request): string {
+  private extractTokenFromHeader(request: ExpressRequest): string {
     const [type, token] = request?.headers?.authorization?.split(" ") ?? [];
     if (type !== "Bearer" || !token) {
       this.logger.error(
