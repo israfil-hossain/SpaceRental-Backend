@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { NameIdResponseDto } from "../common/dto/name-id-respones.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
@@ -23,15 +24,14 @@ export class SpaceTypeService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this.spaceTypeRepository.create({
+      const result = await this.spaceTypeRepository.create({
         ...createSpaceTypeDto,
         createdBy: userId,
       });
 
-      return new SuccessResponseDto(
-        "Document created successfully",
-        newSpaceType,
-      );
+      const response = new NameIdResponseDto(result.id, result.name);
+
+      return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this.logger.error("Duplicate key error:", error);

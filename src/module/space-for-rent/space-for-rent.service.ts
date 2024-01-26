@@ -80,7 +80,7 @@ export class SpaceForRentService {
         searchQuery.name = { $regex: Name, $options: "i" };
       }
 
-      if (userRole === ApplicationUserRoleEnum.SPACE_OWNER.toString()) {
+      if (userRole === ApplicationUserRoleEnum.OWNER.toString()) {
         searchQuery.createdBy = userId;
       } else if (userRole === ApplicationUserRoleEnum.RENTER.toString()) {
         searchQuery.isActive = true;

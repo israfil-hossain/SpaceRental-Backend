@@ -37,9 +37,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.AGENT,
+    ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
@@ -85,9 +85,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.AGENT,
+    ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
   update(
@@ -104,9 +104,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.AGENT,
+    ApplicationUserRoleEnum.OWNER,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceForRentService.remove(DocId);
@@ -119,9 +119,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.AGENT,
+    ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FilesInterceptor("spaceImages"))
@@ -146,9 +146,9 @@ export class SpaceForRentController {
     type: SuccessResponseDto,
   })
   @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.SPACE_OWNER,
+    ApplicationUserRoleEnum.AGENT,
+    ApplicationUserRoleEnum.OWNER,
   ])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
     return this.spaceForRentService.removeSpaceImage(ImageId, SpaceId);

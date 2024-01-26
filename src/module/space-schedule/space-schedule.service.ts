@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
+import { NameIdResponseDto } from "../common/dto/name-id-respones.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceScheduleDto } from "./dto/create-space-schedule.dto";
 import { SpaceScheduleRepository } from "./space-schedule.repository";
@@ -21,15 +22,14 @@ export class SpaceScheduleService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this.spaceScheduleRepository.create({
+      const result = await this.spaceScheduleRepository.create({
         ...createSpaceFeatureDto,
         createdBy: userId,
       });
 
-      return new SuccessResponseDto(
-        "New document created successfully",
-        newSpaceType,
-      );
+      const response = new NameIdResponseDto(result.id, result.name);
+
+      return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
         this.logger.error("Duplicate key error:", error);

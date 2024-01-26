@@ -34,9 +34,9 @@ export class SpaceBookingService {
       const bookingStartDate = new Date(createDto.fromDate);
       const bookingEndDate = new Date(createDto.toDate);
 
-      if (bookingStartDate > bookingEndDate) {
+      if (bookingStartDate >= bookingEndDate) {
         throw new BadRequestException(
-          "Invalid date range: fromDate should be before toDate.",
+          "Invalid date range: The start date (fromDate) should be before the end date (toDate)",
         );
       }
 
@@ -50,36 +50,42 @@ export class SpaceBookingService {
       );
 
       if (bookingSpace.minimumBookingDays > totalBookingDays) {
-        throw new ConflictException(
-          `Booking should be for at least ${bookingSpace.minimumBookingDays} days.`,
+        throw new BadRequestException(
+          `The booking duration must be at least ${bookingSpace.minimumBookingDays} days for this space.`,
         );
       }
 
-      const conflictingBookings = await this.spaceBookingRepository.find(
-        {
-          space: bookingSpace._id?.toString(),
-          fromDate: { $lte: bookingEndDate },
-          toDate: { $gte: bookingStartDate },
+      const conflictingBookings = await this.spaceBookingRepository.find({
+        space: bookingSpace._id?.toString(),
+        fromDate: { $lte: bookingEndDate },
+        toDate: { $gte: bookingStartDate },
+        bookingStatus: {
+          $in: [
+            SpaceBookingStatusEnum.Confirmed,
+            SpaceBookingStatusEnum.Completed,
+          ],
         },
-        {
-          hint: {
-            space: 1,
-            fromDate: 1,
-            toDate: 1,
-          },
-        },
-      );
+      });
 
-      if (conflictingBookings?.length) {
+      if (conflictingBookings?.length > 0) {
+        const conflictDateRanges = conflictingBookings
+          .map(
+            (booking) =>
+              `${booking.fromDate.toDateString()} to ${booking.toDate.toDateString()}`,
+          )
+          .join(", ");
+
         throw new ConflictException(
-          `The space is unavailable for booking from ${bookingStartDate.toDateString()} to ${bookingEndDate.toDateString()} due to existing bookings.`,
+          `The selected space is already booked between ${bookingStartDate.toDateString()} and ${bookingEndDate.toDateString()}. Booked date ranges: ${conflictDateRanges}. Please choose different dates.`,
         );
       }
 
       const bookingPricePerDay = bookingSpace.pricePerMonth / 30;
-      const bookingPrice = bookingPricePerDay * totalBookingDays;
-      const platformFee = 0;
-      const totalPrice = bookingPrice + platformFee;
+      const bookingPrice = parseFloat(
+        (bookingPricePerDay * totalBookingDays).toFixed(2),
+      );
+      const platformFee = 0; // TODO: You may replace this with the actual platform fee calculation
+      const totalPrice = parseFloat((bookingPrice + platformFee).toFixed(2));
 
       const generatedBookingCode = this.generateBookingCode();
       const bookingStatus = bookingSpace?.requiresApproval
@@ -93,7 +99,7 @@ export class SpaceBookingService {
         toDate: bookingEndDate,
         bookingPrice: bookingPrice,
         platformFee: platformFee,
-        totalPrice: parseFloat(totalPrice.toFixed(2)),
+        totalPrice: totalPrice,
         bookingStatus: bookingStatus,
         createdBy: auditUserId,
       });
@@ -108,21 +114,16 @@ export class SpaceBookingService {
     }
   }
 
-  private generateBookingCode() {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear().toString();
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-    const day = currentDate.getDate().toString().padStart(2, "0");
-    const milliseconds = currentDate
-      .getTime()
-      .toString()
-      .slice(-4)
-      .padStart(4, "0");
-
-    const randomCode = (Math.floor(Math.random() * 90000) + 10000).toString();
-
-    const bookingCode = `SRB${year}${month}${day}${milliseconds}${randomCode}`;
-
-    return bookingCode;
-  }
+  private generateBookingCode = () => {
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hour = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    const milliseconds = date.getMilliseconds().toString().padStart(4, "0");
+    const randomCode = Math.random().toString(36).toUpperCase().slice(2, 7);
+    return `SRB${year}${month}${day}${hour}${minutes}${seconds}${milliseconds}${randomCode}`;
+  };
 }

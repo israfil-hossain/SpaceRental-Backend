@@ -19,10 +19,7 @@ export class SpaceSecurityController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateSpaceSecurityDto,
@@ -44,10 +41,7 @@ export class SpaceSecurityController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceSecurityService.remove(DocId);
   }

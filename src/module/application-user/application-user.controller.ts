@@ -35,7 +35,7 @@ export class ApplicationUserController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   create(@Body() createUserDto: CreateApplicationUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -45,10 +45,7 @@ export class ApplicationUserController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   findAll(@Query() query: ListApplicationUserQuery) {
     return this.userService.findAll(query);
   }
@@ -58,10 +55,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.findOne(DocId);
   }
@@ -72,10 +66,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @Body() updateApplicationUserDto: UpdateApplicationUserDto,
@@ -88,10 +79,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([
-    ApplicationUserRoleEnum.SUPER_ADMIN,
-    ApplicationUserRoleEnum.ADMIN,
-  ])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.remove(DocId);
   }

@@ -18,7 +18,7 @@ export class ConfigurationController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   updateCommission(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() updateCommissionSettingsDto: UpdateCommissionSettingsDto,
@@ -34,7 +34,7 @@ export class ConfigurationController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.SUPER_ADMIN])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   getCommission() {
     return this.configurationService.getCommissionSettings();
   }

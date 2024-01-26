@@ -7,6 +7,9 @@ export type PaymentReceiveType = Model<PaymentReceiveDocument>;
 
 @Schema()
 export class PaymentReceive extends BaseEntity {
+  @Prop({ type: String })
+  paymentIntentId: string;
+
   @Prop({ type: Number, required: true })
   totalPayable: number;
 
@@ -15,9 +18,6 @@ export class PaymentReceive extends BaseEntity {
 
   @Prop({ type: Number, required: true })
   totalDue: number;
-
-  @Prop({ type: String })
-  paymentIntentId: string;
 }
 
 export const PaymentReceiveSchema =

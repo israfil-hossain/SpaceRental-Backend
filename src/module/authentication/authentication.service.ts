@@ -38,8 +38,7 @@ export class AuthenticationService {
   ): Promise<SuccessResponseDto> {
     const user = await this.applicationUserRepository.findOneWhere({
       email: adminSignInDto.email,
-      role:
-        ApplicationUserRoleEnum.SUPER_ADMIN || ApplicationUserRoleEnum.ADMIN,
+      role: ApplicationUserRoleEnum.ADMIN || ApplicationUserRoleEnum.AGENT,
     });
 
     if (!user) {

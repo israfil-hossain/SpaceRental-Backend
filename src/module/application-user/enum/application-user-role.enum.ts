@@ -1,11 +1,11 @@
 export enum ApplicationUserRoleEnum {
   RENTER = "RENTER",
-  SPACE_OWNER = "SPACE_OWNER",
+  OWNER = "OWNER",
+  AGENT = "AGENT",
   ADMIN = "ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export enum ApplicationUserRoleDtoEnum {
   RENTER = ApplicationUserRoleEnum.RENTER,
-  SPACE_OWNER = ApplicationUserRoleEnum.SPACE_OWNER,
+  OWNER = ApplicationUserRoleEnum.OWNER,
 }

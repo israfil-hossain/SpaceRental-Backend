@@ -59,7 +59,7 @@ export class CreateSpaceForRentDto {
   @IsInt({ message: "Minimum booking months must be an integer." })
   @Min(1, { message: "Minimum booking months must be at least 1." })
   @IsNotEmpty({ message: "Minimum booking months cannot be empty." })
-  minimumBookingMonths: number;
+  minimumBookingDays: number;
   //#endregion
 
   //#region Space related features

@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { NameIdResponseDto } from "../common/dto/name-id-respones.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceAccessMethodDto } from "./dto/create-space-access-method.dto";
@@ -30,9 +31,9 @@ export class SpaceAccessMethodService {
         createdBy: userId,
       });
 
-      return new SuccessResponseDto(
-        `Document created successfully with ID: ${result.id}`,
-      );
+      const response = new NameIdResponseDto(result.id, result.name);
+
+      return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
       if (error?.options?.cause === "RepositoryException") {
         throw error;

@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { SpaceBookingStatusEnum } from "../space-booking/enum/space-booking-status.enum";
 import { SpaceBookingRepository } from "../space-booking/space-booking.repository";
 import { PaymentIntentResponseDto } from "./dto/payment-intent-response.dto";
 import { PaymentReceiveDocument } from "./entities/payment-receive.entity";
@@ -67,7 +68,8 @@ export class PaymentReceiveService {
         });
 
         await this.spaceBookingRepository.updateOneById(bookingId, {
-          paymentInvoice: paymentReceive._id?.toString(),
+          paymentReceive: paymentReceive._id?.toString(),
+          bookingStatus: SpaceBookingStatusEnum.Confirmed,
         });
       } else {
         paymentIntent = await this.stripeService.paymentIntents.retrieve(
@@ -76,11 +78,11 @@ export class PaymentReceiveService {
       }
 
       const paymentIntentResponse = new PaymentIntentResponseDto();
+      paymentIntentResponse.bookingCode = booking.bookingCode;
+      paymentIntentResponse.bookingPrice = paymentReceive.totalPayable;
       paymentIntentResponse.stipeKey = this.stripePublishableKey;
       paymentIntentResponse.stripeSecret = paymentIntent.client_secret || "";
-      paymentIntentResponse.bookingCode = booking.bookingCode;
       paymentIntentResponse.status = paymentIntent.status;
-      paymentIntentResponse.amount = paymentIntent.amount;
       paymentIntentResponse.currency = paymentIntent.currency;
 
       return new SuccessResponseDto(
@@ -92,4 +94,7 @@ export class PaymentReceiveService {
       throw new Error("Failed to get payment intent");
     }
   }
+
+  //#region Internal helper methods
+  //#endregion
 }

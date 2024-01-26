@@ -127,8 +127,8 @@ export class SpaceReviewService {
     // Check if the user is not SUPER_ADMIN or ADMIN
     if (
       ![
-        ApplicationUserRoleEnum.SUPER_ADMIN.toString(),
         ApplicationUserRoleEnum.ADMIN.toString(),
+        ApplicationUserRoleEnum.AGENT.toString(),
       ].includes(userRole)
     ) {
       searchQuery["reviewer"] = userId;
