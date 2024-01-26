@@ -8,7 +8,9 @@ import { configureSwaggerUI } from "./config/swagger.config";
 const logger = new Logger("SpaceRental");
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
 
   app.setGlobalPrefix("api");
 

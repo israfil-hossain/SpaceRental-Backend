@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  RawBodyRequest,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -12,6 +18,8 @@ import { PaymentReceiveRepository } from "./payment-receive.repository";
 export class PaymentReceiveService {
   private readonly logger: Logger = new Logger(PaymentReceiveService.name);
   private readonly stripeService: Stripe;
+
+  private readonly stripeWebhookSecret: string;
   private readonly stripePublishableKey: string;
 
   constructor(
@@ -23,12 +31,16 @@ export class PaymentReceiveService {
       "STRIPE_SECRET_KEY",
       "",
     );
-
-    this.stripeService = new Stripe(stripeSecretKey, {});
     this.stripePublishableKey = this.configService.get<string>(
       "STRIPE_PUBLISHABLE_KEY",
       "",
     );
+    this.stripeWebhookSecret = this.configService.get<string>(
+      "STRIPE_WEBHOOK_SECRET",
+      "",
+    );
+
+    this.stripeService = new Stripe(stripeSecretKey, {});
   }
 
   async getPaymentIntent(
@@ -92,6 +104,43 @@ export class PaymentReceiveService {
     } catch (error) {
       this.logger.error("Error in getPaymentIntent:", error);
       throw new Error("Failed to get payment intent");
+    }
+  }
+
+  async handleStripeWebhook(
+    request: RawBodyRequest<Request>,
+    signature: string,
+  ) {
+    try {
+      if (!this.stripeWebhookSecret) {
+        throw new Error(
+          "Stripe webhook secret not found in the configuration.",
+        );
+      }
+
+      // Validate the webhook signature
+      const event = this.stripeService.webhooks.constructEvent(
+        request.rawBody as Buffer,
+        signature,
+        this.stripeWebhookSecret,
+      );
+
+      // Handle the Stripe event based on its type
+      switch (event.type) {
+        case "payment_intent.created":
+        case "payment_intent.succeeded":
+        // Handle successful payment
+        case "payment_intent.payment_failed":
+        // Handle payment failure
+        // Add more cases for other relevant events
+        default:
+          this.logger.log("Success: " + JSON.stringify(event));
+      }
+
+      return { received: true };
+    } catch (error) {
+      this.logger.log("Error: " + error);
+      throw new BadRequestException("Error in webhook");
     }
   }
 
