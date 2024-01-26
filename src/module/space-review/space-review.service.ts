@@ -8,7 +8,7 @@ import {
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
-import { SpaceForRentService } from "../space-for-rent/space-for-rent.service";
+import { SpaceForRentRepository } from "../space-for-rent/space-for-rent.repository";
 import { CreateSpaceReviewDto } from "./dto/create-space-review.dto";
 import { ListSpaceReviewQuery } from "./dto/list-space-review-query.dto";
 import { SpaceReviewRepository } from "./space-review.repository";
@@ -19,7 +19,7 @@ export class SpaceReviewService {
 
   constructor(
     private readonly _spaceReviewRepository: SpaceReviewRepository,
-    private readonly _spaceForRentService: SpaceForRentService,
+    private readonly spaceForRentRepository: SpaceForRentRepository,
   ) {}
 
   async create(
@@ -29,9 +29,9 @@ export class SpaceReviewService {
     try {
       // validate relations
       if (createSpaceReviewDto.space) {
-        await this._spaceForRentService.validateObjectId(
+        await this.spaceForRentRepository.validateObjectIds([
           createSpaceReviewDto.space,
-        );
+        ]);
       }
 
       const newItem = await this._spaceReviewRepository.create({
@@ -74,14 +74,6 @@ export class SpaceReviewService {
             {
               path: "reviewer",
               select: "id email fullName profilePicture",
-            },
-            {
-              path: "createdBy",
-              select: "id email fullName",
-            },
-            {
-              path: "updatedBy",
-              select: "id email fullName",
             },
           ],
         },

@@ -35,6 +35,6 @@ import { SpaceForRentValidator } from "./space-for-rent.validator";
     SpaceForRentValidator,
     SpaceForRentRepository,
   ],
-  exports: [SpaceForRentService, SpaceForRentRepository],
+  exports: [SpaceForRentRepository],
 })
 export class SpaceForRentModule {}
