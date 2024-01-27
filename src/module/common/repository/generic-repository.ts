@@ -90,13 +90,17 @@ export class GenericRepository<T extends Document> {
   }
 
   async updateOneById(
-    id: string,
+    documentId: string,
     updated: UpdateWithAggregationPipeline | UpdateQuery<T>,
     options: QueryOptions = {},
   ): Promise<T> {
     try {
       const result = await this.internalModel
-        .findOneAndUpdate({ _id: id }, updated, { ...options, new: true })
+        .findOneAndUpdate(
+          { _id: documentId },
+          { ...updated, updatedAt: new Date() },
+          { ...options, new: true },
+        )
         .exec();
 
       if (!result) {

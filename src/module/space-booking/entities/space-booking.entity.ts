@@ -48,8 +48,5 @@ export class SpaceBooking extends BaseEntity {
     default: null,
   })
   paymentReceive: string;
-
-  @Prop({ type: String })
-  lastPaymentEvent: string;
 }
 export const SpaceBookingSchema = SchemaFactory.createForClass(SpaceBooking);

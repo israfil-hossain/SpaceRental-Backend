@@ -6,8 +6,10 @@ import {
   RawBodyRequest,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { UpdateQuery } from "mongoose";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
+import { SpaceBookingDocument } from "../space-booking/entities/space-booking.entity";
 import { SpaceBookingStatusEnum } from "../space-booking/enum/space-booking-status.enum";
 import { SpaceBookingRepository } from "../space-booking/space-booking.repository";
 import { PaymentIntentResponseDto } from "./dto/payment-intent-response.dto";
@@ -59,32 +61,40 @@ export class PaymentReceiveService {
         throw new NotFoundException(`Booking with ID ${bookingId} not found.`);
       }
 
-      let paymentIntent: Stripe.PaymentIntent;
+      let stripeIntent: Stripe.PaymentIntent;
       let paymentReceive =
         booking?.paymentReceive as unknown as PaymentReceiveDocument;
 
       if (!paymentReceive) {
-        paymentIntent = await this.stripeService.paymentIntents.create({
-          amount: booking.totalPrice * 100,
-          currency: "usd",
-          metadata: {
-            bookingCode: booking.bookingCode,
-          },
-        });
-
         paymentReceive = await this.paymentReceiveRepository.create({
-          paymentIntentId: paymentIntent.id,
           totalPayable: booking.totalPrice,
           totalDue: booking.totalPrice,
           createdBy: auditUserId,
         });
 
+        stripeIntent = await this.stripeService.paymentIntents.create({
+          amount: booking.totalPrice * 100,
+          currency: "usd",
+          metadata: {
+            bookingCode: booking.bookingCode,
+            bookingId: booking._id?.toString(),
+            paymentReceiveId: paymentReceive._id?.toString(),
+          },
+        });
+
+        await this.paymentReceiveRepository.updateOneById(paymentReceive.id, {
+          paymentIntentId: stripeIntent.id,
+          lastPaymentEvent: JSON.stringify(stripeIntent),
+          updatedBy: auditUserId,
+        });
+
         await this.spaceBookingRepository.updateOneById(bookingId, {
           paymentReceive: paymentReceive._id?.toString(),
           bookingStatus: SpaceBookingStatusEnum.PaymentInitiated,
+          updatedBy: auditUserId,
         });
       } else {
-        paymentIntent = await this.stripeService.paymentIntents.retrieve(
+        stripeIntent = await this.stripeService.paymentIntents.retrieve(
           paymentReceive?.paymentIntentId,
         );
       }
@@ -93,9 +103,9 @@ export class PaymentReceiveService {
       paymentIntentResponse.bookingCode = booking.bookingCode;
       paymentIntentResponse.bookingPrice = paymentReceive.totalPayable;
       paymentIntentResponse.stipeKey = this.stripePublishableKey;
-      paymentIntentResponse.stripeSecret = paymentIntent.client_secret || "";
-      paymentIntentResponse.status = paymentIntent.status;
-      paymentIntentResponse.currency = paymentIntent.currency;
+      paymentIntentResponse.stripeSecret = stripeIntent.client_secret || "";
+      paymentIntentResponse.status = stripeIntent.status;
+      paymentIntentResponse.currency = stripeIntent.currency;
 
       return new SuccessResponseDto(
         "Payment intent retrieved successfully",
@@ -125,34 +135,53 @@ export class PaymentReceiveService {
         this.stripeWebhookSecret,
       );
 
+      const bookingSpaceUpdates: UpdateQuery<SpaceBookingDocument> = {};
+      const paymentReceiveUpdates: UpdateQuery<PaymentReceiveDocument> = {};
+
       // Handle the Stripe event based on its type
       switch (event.type) {
         case "payment_intent.created":
+          bookingSpaceUpdates.bookingStatus =
+            SpaceBookingStatusEnum.PaymentCreated;
+          break;
+
         case "payment_intent.succeeded":
-        // Handle successful payment
+          bookingSpaceUpdates.bookingStatus =
+            SpaceBookingStatusEnum.PaymentCompleted;
+
+          paymentReceiveUpdates.totalPaid =
+            event.data?.object?.amount_received ?? 0;
+          paymentReceiveUpdates.totalDue =
+            event.data?.object?.amount - event.data?.object?.amount_received;
+          break;
+
         case "payment_intent.payment_failed":
-        // Handle payment failure
-        // Add more cases for other relevant events
+          bookingSpaceUpdates.bookingStatus =
+            SpaceBookingStatusEnum.PaymentFailed;
+          break;
+
         default:
-        // this.logger.log("Success: " + JSON.stringify(event));
+          this.logger.log("Unhandled event type: " + event.type);
       }
 
-      this.logger.log("meta : " + JSON.stringify(event.data.object?.metadata));
+      await this.paymentReceiveRepository.updateOneById(
+        event.data.object?.metadata?.paymentReceiveId,
+        {
+          ...paymentReceiveUpdates,
+          lastPaymentEvent: JSON.stringify(event?.data?.object),
+        },
+      );
 
-      const bookingCode = event.data.object?.metadata?.bookingCode;
-      const booking = await this.spaceBookingRepository.findOneWhere({
-        bookingCode: bookingCode,
-      });
-
-      if (booking) {
-        await this.spaceBookingRepository.updateOneById(booking.id, {
-          lastPaymentEvent: JSON.stringify(event),
-        });
+      if (Object.keys(bookingSpaceUpdates).length > 0) {
+        await this.spaceBookingRepository.updateOneById(
+          event.data.object?.metadata?.bookingId,
+          bookingSpaceUpdates,
+        );
       }
 
       return { received: true };
     } catch (error) {
-      this.logger.log("Error: " + error);
+      this.logger.error("Error handling Stripe webhook event:", error);
       throw new BadRequestException("Error in webhook");
     }
   }
