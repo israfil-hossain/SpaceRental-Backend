@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
@@ -61,6 +62,18 @@ export class PaymentReceiveService {
         throw new NotFoundException(`Booking with ID ${bookingId} not found.`);
       }
 
+      if (
+        booking.bookingStatus === SpaceBookingStatusEnum.PaymentCompleted ||
+        booking.bookingStatus === SpaceBookingStatusEnum.BookingCompleted
+      ) {
+        this.logger.error(
+          `Booking with ID ${bookingId} requested by ${auditUserId} is already completed.`,
+        );
+        throw new BadRequestException(
+          "Payment already completed for this booking",
+        );
+      }
+
       let stripeIntent: Stripe.PaymentIntent;
       let paymentReceive =
         booking?.paymentReceive as unknown as PaymentReceiveDocument;
@@ -112,8 +125,12 @@ export class PaymentReceiveService {
         paymentIntentResponse,
       );
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       this.logger.error("Error in getPaymentIntent:", error);
-      throw new Error("Failed to get payment intent");
+      throw new BadRequestException("Failed to get payment intent");
     }
   }
 
