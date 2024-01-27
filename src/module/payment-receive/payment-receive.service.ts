@@ -149,10 +149,19 @@ export class PaymentReceiveService {
           bookingSpaceUpdates.bookingStatus =
             SpaceBookingStatusEnum.PaymentCompleted;
 
-          paymentReceiveUpdates.totalPaid =
-            event.data?.object?.amount_received ?? 0;
-          paymentReceiveUpdates.totalDue =
-            event.data?.object?.amount - event.data?.object?.amount_received;
+          const amountReceived = event.data?.object?.amount_received ?? 0;
+          const totalAmount = event.data?.object?.amount ?? 0;
+
+          if (isNaN(amountReceived) || isNaN(totalAmount)) {
+            throw new Error("Invalid amount values in the Stripe event.");
+          }
+
+          paymentReceiveUpdates.totalPaid = parseFloat(
+            (amountReceived / 100).toFixed(2),
+          );
+          paymentReceiveUpdates.totalDue = parseFloat(
+            ((totalAmount - amountReceived) / 100).toFixed(2),
+          );
           break;
 
         case "payment_intent.payment_failed":
