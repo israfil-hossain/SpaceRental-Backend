@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  space-rental-backend:
+    build:
+      context: .
+      target: builder
+    image: space-rental:backend
+    container_name: space-rental-backend
+    ports:
+      - "5021:4000"
+    volumes:
+      - ./.env:/app/.env
+    command: npm run start:prod
