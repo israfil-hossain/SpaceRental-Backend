@@ -30,6 +30,7 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     TermsConditionModule,
     ConfigurationModule,
     SpaceForRentModule,
+    SpaceBookingModule,
     SpaceTypeModule,
     SpaceAccessMethodModule,
     SpaceScheduleModule,
@@ -38,7 +39,6 @@ import { ValidationProvider } from "./utility/provider/validation.provider";
     UnloadingMovingModule,
     SpaceReviewModule,
     PaymentReceiveModule,
-    SpaceBookingModule,
   ],
   providers: [ValidationProvider],
 })

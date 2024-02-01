@@ -5,7 +5,7 @@ import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceBookingDto } from "./dto/create-space-booking.dto";
 import { SpaceBookingService } from "./space-booking.service";
 
-@ApiTags("Space Bookings")
+@ApiTags("Space - Bookings")
 @Controller("SpaceBooking")
 export class SpaceBookingController {
   constructor(private readonly spaceBookingService: SpaceBookingService) {}
