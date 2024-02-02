@@ -84,7 +84,7 @@ export class SpaceForRentService {
         searchQuery.createdBy = userId;
       } else if (userRole === ApplicationUserRoleEnum.RENTER.toString()) {
         searchQuery.isActive = true;
-        searchQuery.isVerified = true;
+        // searchQuery.isVerified = true;
       }
 
       // Pagination setup
