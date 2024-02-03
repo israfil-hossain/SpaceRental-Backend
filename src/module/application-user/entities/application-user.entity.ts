@@ -61,6 +61,7 @@ export class ApplicationUser {
   @Prop({
     type: Types.ObjectId,
     ref: ImageMeta.name,
+    default: null,
   })
   profilePicture?: string;
 }

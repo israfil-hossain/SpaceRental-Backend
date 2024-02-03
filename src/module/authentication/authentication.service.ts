@@ -251,7 +251,7 @@ export class AuthenticationService {
         {
           path: "profilePicture",
           select: "url",
-          transform: (doc) => doc?.url,
+          transform: (doc) => doc?.url ?? null,
         },
       ],
     });
