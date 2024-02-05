@@ -141,6 +141,18 @@ export class SpaceAccessMethodService {
     return new SuccessResponseDto("Document deleted successfully");
   }
 
+  async findAllForDropdown() {
+    try {
+      const result =
+        await this.spaceAccessMethodRepository.findAllForDropdown();
+
+      return result;
+    } catch (error) {
+      this.logger.error("Error in findAllForDropdown:", error);
+      throw new BadRequestException("Could not get all document");
+    }
+  }
+
   //#region InternalMethods
   //#endregion
 }

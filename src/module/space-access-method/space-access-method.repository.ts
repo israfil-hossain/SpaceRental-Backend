@@ -9,10 +9,28 @@ import {
 
 @Injectable()
 export class SpaceAccessMethodRepository extends GenericRepository<SpaceAccessMethodDocument> {
+  private readonly logger: Logger;
+
   constructor(
     @InjectModel(SpaceAccessMethod.name)
     private model: SpaceAccessMethodType,
   ) {
-    super(model, new Logger(SpaceAccessMethodRepository.name));
+    const logger = new Logger(SpaceAccessMethodRepository.name);
+    super(model, logger);
+    this.logger = logger;
+  }
+
+  async findAllForDropdown() {
+    try {
+      const result = await this.model
+        .find({}, { value: "$_id", label: "$name", _id: 0 })
+        .lean()
+        .exec();
+
+      return result;
+    } catch (error) {
+      this.logger.error("Error in findAllForDropdown:", error);
+      throw error;
+    }
   }
 }

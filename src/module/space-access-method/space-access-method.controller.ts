@@ -86,4 +86,13 @@ export class SpaceAccessMethodController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceAccessMethodService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: PaginatedResponseDto,
+  })
+  findAllForDropdown() {
+    return this.spaceAccessMethodService.findAllForDropdown();
+  }
 }
