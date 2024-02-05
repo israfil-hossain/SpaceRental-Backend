@@ -62,4 +62,15 @@ export class StorageConditionService {
 
     return new SuccessResponseDto("Document deleted successfully");
   }
+
+  async findAllForDropdown() {
+    try {
+      const result = await this.storageConditionRepository.findAllForDropdown();
+
+      return new SuccessResponseDto("All document fetched", result);
+    } catch (error) {
+      this.logger.error("Error in findAllForDropdown:", error);
+      throw new BadRequestException("Could not get all document");
+    }
+  }
 }

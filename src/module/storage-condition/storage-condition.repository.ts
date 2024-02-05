@@ -9,10 +9,28 @@ import {
 
 @Injectable()
 export class StorageConditionRepository extends GenericRepository<StorageConditionDocument> {
+  private readonly logger: Logger;
+
   constructor(
     @InjectModel(StorageCondition.name)
     private model: StorageConditionType,
   ) {
-    super(model, new Logger(StorageConditionRepository.name));
+    const logger = new Logger(StorageConditionRepository.name);
+    super(model, logger);
+    this.logger = logger;
+  }
+
+  async findAllForDropdown() {
+    try {
+      const result = await this.model
+        .find({}, { value: "$_id", label: "$name", _id: 0 })
+        .lean()
+        .exec();
+
+      return result;
+    } catch (error) {
+      this.logger.error("Error in findAllForDropdown:", error);
+      throw error;
+    }
   }
 }

@@ -47,4 +47,13 @@ export class StorageConditionController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.storageConditionService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  findAllForDropdown() {
+    return this.storageConditionService.findAllForDropdown();
+  }
 }
