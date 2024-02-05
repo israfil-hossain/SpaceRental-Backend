@@ -77,7 +77,7 @@ export class AuthenticationService {
     user.lastLogin = new Date();
     await user.save();
 
-    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken, user);
     this.mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
@@ -124,7 +124,7 @@ export class AuthenticationService {
     user.lastLogin = new Date();
     await user.save();
 
-    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken, user);
     this.mailService.sendUserSigninMail(user.email, user.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
@@ -143,7 +143,7 @@ export class AuthenticationService {
     );
     const refreshToken = await this.createRefreshToken(newUser?.id?.toString());
 
-    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken, newUser);
     this.mailService.sendUserSignupMail(newUser.email, newUser.fullName ?? "");
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
@@ -178,7 +178,7 @@ export class AuthenticationService {
       userData.role,
     );
 
-    const tokenDto = new TokenResponseDto(accessToken, refreshToken);
+    const tokenDto = new TokenResponseDto(accessToken, refreshToken, userData);
 
     return new SuccessResponseDto("Authenticated successfully", tokenDto);
   }
