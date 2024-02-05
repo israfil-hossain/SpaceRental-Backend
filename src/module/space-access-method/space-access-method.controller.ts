@@ -90,7 +90,7 @@ export class SpaceAccessMethodController {
   @Get("GetAllForDropdown")
   @ApiResponse({
     status: 200,
-    type: PaginatedResponseDto,
+    type: SuccessResponseDto,
   })
   findAllForDropdown() {
     return this.spaceAccessMethodService.findAllForDropdown();

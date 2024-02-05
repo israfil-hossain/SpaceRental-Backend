@@ -50,4 +50,13 @@ export class SpaceScheduleController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceScheduleFeatureService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  findAllForDropdown() {
+    return this.spaceScheduleFeatureService.findAllForDropdown();
+  }
 }
