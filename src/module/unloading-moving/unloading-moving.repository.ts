@@ -9,10 +9,28 @@ import {
 
 @Injectable()
 export class UnloadingMovingRepository extends GenericRepository<UnloadingMovingDocument> {
+  private readonly logger: Logger;
+
   constructor(
     @InjectModel(UnloadingMoving.name)
     private model: UnloadingMovingType,
   ) {
-    super(model, new Logger(UnloadingMovingRepository.name));
+    const logger = new Logger(UnloadingMovingRepository.name);
+    super(model, logger);
+    this.logger = logger;
+  }
+
+  async findAllForDropdown() {
+    try {
+      const result = await this.model
+        .find({}, { value: "$_id", label: "$name", _id: 0 })
+        .lean()
+        .exec();
+
+      return result;
+    } catch (error) {
+      this.logger.error("Error in findAllForDropdown:", error);
+      throw error;
+    }
   }
 }

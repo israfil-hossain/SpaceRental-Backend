@@ -47,4 +47,13 @@ export class UnloadingMovingController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.unloadingMovingService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  findAllForDropdown() {
+    return this.unloadingMovingService.findAllForDropdown();
+  }
 }
