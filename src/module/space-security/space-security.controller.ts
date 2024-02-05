@@ -45,4 +45,13 @@ export class SpaceSecurityController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceSecurityService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  findAllForDropdown() {
+    return this.spaceSecurityService.findAllForDropdown();
+  }
 }
