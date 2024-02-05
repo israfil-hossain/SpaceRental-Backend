@@ -81,4 +81,13 @@ export class SpaceTypeController {
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceTypeService.remove(DocId);
   }
+
+  @Get("GetAllForDropdown")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  findAllForDropdown() {
+    return this.spaceTypeService.findAllForDropdown();
+  }
 }
