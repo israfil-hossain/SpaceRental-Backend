@@ -23,7 +23,7 @@ export class SpaceTypeRepository extends GenericRepository<SpaceTypeDocument> {
   async findAllForDropdown() {
     try {
       const result = await this.model
-        .find({}, { value: "$_id", label: "$name", _id: 0 })
+        .find({}, { value: "$_id", label: "$name", pricePerMonth: 1, _id: 0 })
         .lean()
         .exec();
 

@@ -9,6 +9,9 @@ export type SpaceTypeType = Model<SpaceTypeDocument>;
 export class SpaceType extends BaseEntity {
   @Prop({ type: String, required: true, unique: true })
   name: string;
+
+  @Prop({ type: Number, required: true, default: 0 })
+  pricePerMonth: number;
 }
 
 export const SpaceTypeSchema = SchemaFactory.createForClass(SpaceType);
