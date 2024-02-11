@@ -105,7 +105,11 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
         })
         .addFields({
           coverImage: {
-            $arrayElemAt: ["$coverImage.url", 0],
+            $cond: {
+              if: { $eq: [{ $size: "$coverImage" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$coverImage.url", 0] },
+            },
           },
         })
         .lookup({
@@ -129,7 +133,11 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
         })
         .addFields({
           accessMethod: {
-            $arrayElemAt: ["$accessMethod.name", 0],
+            $cond: {
+              if: { $eq: [{ $size: "$accessMethod" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$accessMethod.name", 0] },
+            },
           },
         })
         .lookup({
@@ -153,7 +161,11 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
         })
         .addFields({
           ownerProfilePicture: {
-            $arrayElemAt: ["$createdByUserProfilePicture.url", 0],
+            $cond: {
+              if: { $eq: [{ $size: "$createdByUserProfilePicture" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$createdByUserProfilePicture.url", 0] },
+            },
           },
         })
         .project({
