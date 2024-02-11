@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { FilterQuery } from "mongoose";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -12,6 +13,7 @@ import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
+import { SpaceForRentDocument } from "./entities/space-for-rent.entity";
 import { SpaceForRentRepository } from "./space-for-rent.repository";
 import { SpaceForRentValidator } from "./space-for-rent.validator";
 
@@ -68,16 +70,28 @@ export class SpaceForRentService {
   }
 
   async findAll(
-    { Page = 1, PageSize = 10, Name = "" }: ListSpaceForRentQuery,
+    { Page = 1, PageSize = 10, ...queryFilters }: ListSpaceForRentQuery,
     userId: string,
     userRole: string,
   ): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
-      const searchQuery: Record<string, any> = {};
+      const searchQuery: FilterQuery<SpaceForRentDocument> = {};
 
-      if (Name) {
-        searchQuery.name = { $regex: Name, $options: "i" };
+      if (queryFilters.Name) {
+        const escapedName = queryFilters.Name.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&",
+        );
+        const regex = new RegExp(
+          `(?=.*${escapedName.split(/\s+/).join(")(?=.*")})`,
+          "i",
+        );
+        searchQuery.name = { $regex: regex };
+      }
+
+      if (queryFilters.SpaceType) {
+        searchQuery.type = queryFilters.SpaceType;
       }
 
       if (userRole === ApplicationUserRoleEnum.OWNER.toString()) {
