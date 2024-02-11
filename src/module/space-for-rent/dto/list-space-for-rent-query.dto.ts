@@ -14,6 +14,15 @@ export class ListSpaceForRentQuery extends PaginationQuery {
   public readonly Name?: string;
 
   @ApiProperty({
+    description: "Location of the space",
+    required: false,
+  })
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  public readonly Location?: string;
+
+  @ApiProperty({
     description: "The Id of Space Type",
     required: false,
   })

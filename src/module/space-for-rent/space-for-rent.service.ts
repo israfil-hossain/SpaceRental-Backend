@@ -90,6 +90,18 @@ export class SpaceForRentService {
         searchQuery.name = { $regex: regex };
       }
 
+      if (queryFilters.Location) {
+        const escapedLocation = queryFilters.Location.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&",
+        );
+        const regex = new RegExp(
+          `(?=.*${escapedLocation.split(/\s+/).join(")(?=.*")})`,
+          "i",
+        );
+        searchQuery.location = { $regex: regex };
+      }
+
       if (queryFilters.SpaceType) {
         searchQuery.type = queryFilters.SpaceType;
       }
