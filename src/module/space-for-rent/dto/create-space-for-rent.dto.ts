@@ -60,6 +60,14 @@ export class CreateSpaceForRentDto {
   @Min(1, { message: "Minimum booking months must be at least 1." })
   @IsNotEmpty({ message: "Minimum booking months cannot be empty." })
   minimumBookingDays: number;
+
+  @ApiProperty({
+    required: true,
+    description: "An array of space images",
+    type: "file",
+    isArray: true,
+  })
+  spaceImages: Express.Multer.File[];
   //#endregion
 
   //#region Space related features
@@ -82,55 +90,44 @@ export class CreateSpaceForRentDto {
 
   //#region List of Space related features
   @ApiProperty({
-    required: true,
+    required: false,
     description:
       "An array of storage condition IDs (e.g., temperature-controlled, humidity-controlled)",
   })
-  @IsNotEmpty({ message: "Storage conditions are required" })
   @IsArray({ message: "Storage conditions must be an array" })
   @IsMongoId({ each: true, message: "Invalid storage condition" })
   @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
-  storageConditions: string[];
+  storageConditions?: string[] = [];
 
   @ApiProperty({
-    required: true,
+    required: false,
     description:
       "An array of unloading/moving option IDs (e.g., truck access, loading dock)",
   })
-  @IsNotEmpty({ message: "Unloading/moving options are required" })
   @IsArray({ message: "Unloading/moving options must be an array" })
   @IsMongoId({ each: true, message: "Invalid unloading/moving option" })
   @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
-  unloadingMovings: string[];
+  unloadingMovings?: string[] = [];
 
   @ApiProperty({
-    required: true,
+    required: false,
     description:
       "An array of space security feature IDs (e.g., alarm system, surveillance cameras)",
   })
-  @IsNotEmpty({ message: "Space security features are required" })
   @IsArray({ message: "Space security features must be an array" })
   @IsMongoId({ each: true, message: "Invalid space security feature" })
   @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
-  spaceSecurities: string[];
+  spaceSecurities?: string[] = [];
 
   @ApiProperty({
-    required: true,
+    required: false,
     description:
       "An array of space schedule IDs (e.g., 24/7 access, restricted access)",
   })
-  @IsNotEmpty({ message: "Space schedules are required" })
   @IsArray({ message: "Space schedules must be an array" })
   @IsMongoId({ each: true, message: "Invalid space schedule" })
   @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(",")))
-  spaceSchedules: string[];
+  spaceSchedules?: string[] = [];
 
-  @ApiProperty({
-    required: true,
-    description: "An array of space images",
-    type: "file",
-    isArray: true,
-  })
-  spaceImages: Express.Multer.File[];
   //#endregion
 }
