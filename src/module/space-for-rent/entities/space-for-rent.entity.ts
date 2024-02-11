@@ -39,6 +39,13 @@ export class SpaceForRent extends BaseEntity {
   requiresApproval: boolean;
 
   @Prop({
+    type: [Types.ObjectId],
+    ref: ImageMeta.name,
+    required: true,
+  })
+  spaceImages: string[];
+
+  @Prop({
     type: Types.ObjectId,
     ref: SpaceType.name,
     required: true,
@@ -55,37 +62,30 @@ export class SpaceForRent extends BaseEntity {
   @Prop({
     type: [Types.ObjectId],
     ref: StorageCondition.name,
-    required: true,
+    required: false,
   })
-  storageConditions: string[];
+  storageConditions?: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: UnloadingMoving.name,
-    required: true,
+    required: false,
   })
-  unloadingMovings: string[];
+  unloadingMovings?: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: SpaceSecurity.name,
-    required: true,
+    required: false,
   })
-  spaceSecurities: string[];
+  spaceSecurities?: string[];
 
   @Prop({
     type: [Types.ObjectId],
     ref: SpaceSchedule.name,
-    required: true,
+    required: false,
   })
-  spaceSchedules: string[];
-
-  @Prop({
-    type: [Types.ObjectId],
-    ref: ImageMeta.name,
-    required: true,
-  })
-  spaceImages: string[];
+  spaceSchedules?: string[];
 }
 
 export const SpaceForRentSchema = SchemaFactory.createForClass(SpaceForRent);

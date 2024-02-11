@@ -32,6 +32,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     try {
       const result = await this.model
         .aggregate()
+        .sort({ createdAt: -1 })
         .match(filter)
         .skip(skip)
         .limit(limit)
@@ -159,7 +160,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           _id: 1,
           name: 1,
           location: 1,
-          price: 1,
+          pricePerMonth: 1,
           minimumBookingDays: 1,
           reviewCount: 1,
           averageRating: 1,
