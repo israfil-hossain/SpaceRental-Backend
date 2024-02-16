@@ -7,6 +7,7 @@ import {
   RawBodyRequest,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { UpdateQuery } from "mongoose";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceBookingDocument } from "../space-booking/entities/space-booking.entity";
@@ -156,8 +157,8 @@ export class PaymentReceiveService {
         this.stripeWebhookSecret,
       );
 
-      const bookingSpaceUpdates: Partial<SpaceBookingDocument> = {};
-      const paymentReceiveUpdates: Partial<PaymentReceiveDocument> = {};
+      const bookingSpaceUpdates: UpdateQuery<SpaceBookingDocument> = {};
+      const paymentReceiveUpdates: UpdateQuery<PaymentReceiveDocument> = {};
 
       // Handle the Stripe event based on its type
       switch (event.type) {
