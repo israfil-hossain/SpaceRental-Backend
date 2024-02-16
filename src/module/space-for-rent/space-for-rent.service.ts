@@ -1,11 +1,13 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { FilterQuery } from "mongoose";
 import { ApplicationUserRoleEnum } from "../application-user/enum/application-user-role.enum";
+import { IdNameResponseDto } from "../common/dto/id-name-respones.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ImageMetaService } from "../image-meta/image-meta.service";
@@ -37,32 +39,25 @@ export class SpaceForRentService {
       await this.spaceForRentValidator.validateSpaceRelatedIDs(createSpaceDto);
 
       // create new document
-      const newItem = await this.spaceForRentRepository.create({
+      const newSpace = await this.spaceForRentRepository.create({
         ...createSpaceDto,
         createdBy: userId,
       });
 
       const createdImages = await this.imageService.createMultipleImages(
         spaceImages,
-        newItem.id,
+        newSpace.id,
       );
+
       const spaceImagesIDs = createdImages.map((image) => image.id);
+      await this.spaceForRentRepository.updateOneById(newSpace.id, {
+        spaceImages: spaceImagesIDs,
+      });
 
-      const result = await this.spaceForRentRepository.updateOneById(
-        newItem.id,
-        {
-          spaceImages: spaceImagesIDs,
-        },
-      );
-
-      return new SuccessResponseDto("New Space created successfully", result);
+      const response = new IdNameResponseDto(newSpace.id, newSpace.name);
+      return new SuccessResponseDto("New Space created successfully", response);
     } catch (error) {
-      if (
-        error?.options?.cause === "RepositoryException" ||
-        error?.options?.cause === "ValidatorException"
-      ) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
@@ -125,20 +120,29 @@ export class SpaceForRentService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceForRentRepository.findOnePopulatedById(id);
+    try {
+      const result = await this.spaceForRentRepository.findOnePopulatedById(id);
 
-    if (!result) {
-      this.logger.error(`Document not found with ID: ${id}`);
-      throw new NotFoundException(`Could not find document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find document with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("Document found successfully", result);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error finding document:", error);
+      throw new BadRequestException("Could not get document");
     }
-
-    return new SuccessResponseDto("Document found successfully", result);
   }
 
   async update(
@@ -162,27 +166,31 @@ export class SpaceForRentService {
         updatedItem,
       );
     } catch (error) {
-      if (
-        error?.options?.cause === "RepositoryException" ||
-        error?.options?.cause === "ValidatorException"
-      ) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
-      this.logger.error("Error updating space document:", error);
-      throw new BadRequestException("Error updating space document");
+      this.logger.error("Error updating new document:", error);
+      throw new BadRequestException("Error updating new document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceForRentRepository.removeOneById(id);
+    try {
+      const result = await this.spaceForRentRepository.removeOneById(id);
 
-    if (!result) {
-      this.logger.error(`Document not deleted with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not deleted with ID: ${id}`);
+        throw new BadRequestException(
+          `Could not delete document with ID: ${id}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting new document:", error);
+      throw new BadRequestException("Error deleting new document");
     }
-
-    return new SuccessResponseDto("Document deleted successfully");
   }
 
   async addSpaceImage(
@@ -203,7 +211,11 @@ export class SpaceForRentService {
         existingSpace.id,
       );
       const spaceImagesIDs = createdImages.map((image) => image.id);
-      const updatedImageIds = existingSpace.spaceImages.concat(spaceImagesIDs);
+
+      const existingSpaceImageIds = Array.isArray(existingSpace.spaceImages)
+        ? existingSpace.spaceImages
+        : [];
+      const updatedImageIds = existingSpaceImageIds.concat(spaceImagesIDs);
 
       const result = await this.spaceForRentRepository.updateOneById(id, {
         spaceImages: updatedImageIds,
@@ -218,9 +230,7 @@ export class SpaceForRentService {
 
       return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating space document:", error);
       throw new BadRequestException("Error updating space document");
@@ -231,24 +241,34 @@ export class SpaceForRentService {
     imageId: string,
     spaceForRentId: string,
   ): Promise<SuccessResponseDto> {
-    const existingSpaceForRent =
-      await this.spaceForRentRepository.getOneById(spaceForRentId);
+    try {
+      const existingSpaceForRent =
+        await this.spaceForRentRepository.getOneById(spaceForRentId);
 
-    if (!existingSpaceForRent) {
-      throw new NotFoundException(
-        `Could not find space for rent with ID: ${spaceForRentId}`,
+      if (!existingSpaceForRent) {
+        throw new NotFoundException(
+          `Could not find space for rent with ID: ${spaceForRentId}`,
+        );
+      }
+
+      const result = await this.imageService.removeImage(
+        imageId,
+        spaceForRentId,
       );
+
+      if (!result) {
+        this.logger.error(`Image not deleted with ID: ${imageId}`);
+        throw new BadRequestException(
+          `Could not delete image with ID: ${imageId}`,
+        );
+      }
+
+      return new SuccessResponseDto("Image deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting image:", error);
+      throw new BadRequestException("Error deleting image");
     }
-
-    const result = await this.imageService.removeImage(imageId, spaceForRentId);
-
-    if (!result) {
-      this.logger.error(`Image not deleted with ID: ${imageId}`);
-      throw new BadRequestException(
-        `Could not delete image with ID: ${imageId}`,
-      );
-    }
-
-    return new SuccessResponseDto("Image deleted successfully");
   }
 }

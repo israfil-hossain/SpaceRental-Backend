@@ -203,17 +203,6 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
               select: "-_id email fullName",
             },
             {
-              path: "verifiedBy",
-              select: "-_id email fullName profilePicture",
-              populate: [
-                {
-                  path: "profilePicture",
-                  select: "url",
-                  transform: (doc) => doc?.url,
-                },
-              ],
-            },
-            {
               path: "type",
               select: "name",
             },
@@ -244,6 +233,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           ],
         })
         .exec();
+
       return result;
     } catch (error) {
       this.logger.error("Error finding entity by ID:", error);

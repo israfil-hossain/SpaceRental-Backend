@@ -31,12 +31,7 @@ export class SpaceForRentValidator {
       !(await this.spaceType.validateObjectIds([spaceDTO.type]))
     ) {
       this.logger.error(`Space type ${spaceDTO.type} is not valid`);
-      throw new BadRequestException(
-        `Space type ${spaceDTO.type} is not valid`,
-        {
-          cause: "ValidatorException",
-        },
-      );
+      throw new BadRequestException(`Space type ${spaceDTO.type} is not valid`);
     }
 
     // validate space access method
@@ -49,9 +44,6 @@ export class SpaceForRentValidator {
       );
       throw new BadRequestException(
         `Space access method ${spaceDTO.accessMethod} is not valid`,
-        {
-          cause: "ValidatorException",
-        },
       );
     }
 
@@ -66,9 +58,6 @@ export class SpaceForRentValidator {
       this.logger.error(`Storage conditions ${objectIdsString} are not valid`);
       throw new BadRequestException(
         `Storage conditions ${objectIdsString} are not valid`,
-        {
-          cause: "ValidatorException",
-        },
       );
     }
 
@@ -81,9 +70,6 @@ export class SpaceForRentValidator {
       this.logger.error(`Unloading moving ${objectIdsString} are not valid`);
       throw new BadRequestException(
         `Unloading moving ${objectIdsString} are not valid`,
-        {
-          cause: "ValidatorException",
-        },
       );
     }
 
@@ -96,9 +82,6 @@ export class SpaceForRentValidator {
       this.logger.error(`Space security ${objectIdsString} are not valid`);
       throw new BadRequestException(
         `Space security ${objectIdsString} are not valid`,
-        {
-          cause: "ValidatorException",
-        },
       );
     }
 
@@ -111,9 +94,6 @@ export class SpaceForRentValidator {
       this.logger.error(`Space schedule ${objectIdsString} are not valid`);
       throw new BadRequestException(
         `Space schedule ${objectIdsString} are not valid`,
-        {
-          cause: "ValidatorException",
-        },
       );
     }
 
