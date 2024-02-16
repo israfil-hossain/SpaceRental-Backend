@@ -41,7 +41,7 @@ export class SpaceReviewController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   findAll(@Query() listSpaceReviewQuery: ListSpaceReviewQuery) {
     return this.spaceReviewService.findAll(listSpaceReviewQuery);
   }

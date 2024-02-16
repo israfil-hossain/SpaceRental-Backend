@@ -28,7 +28,7 @@ export class TermsConditionController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateTermsConditionDto,
@@ -51,7 +51,7 @@ export class TermsConditionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -69,7 +69,7 @@ export class TermsConditionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.termsConditionService.remove(DocId);
   }

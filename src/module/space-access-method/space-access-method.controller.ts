@@ -33,7 +33,7 @@ export class SpaceAccessMethodController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceAccessMethodDto: CreateSpaceAccessMethodDto,
@@ -68,7 +68,7 @@ export class SpaceAccessMethodController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @AuthUserId() { userId }: ITokenPayload,
@@ -82,7 +82,7 @@ export class SpaceAccessMethodController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.spaceAccessMethodService.remove(DocId);
   }

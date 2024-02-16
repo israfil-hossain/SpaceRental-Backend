@@ -38,7 +38,7 @@ export class SpaceForRentController {
   })
   @RequiredRoles([
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.AGENT,
+    ,
     ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
@@ -86,7 +86,7 @@ export class SpaceForRentController {
   })
   @RequiredRoles([
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.AGENT,
+    ,
     ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
@@ -105,7 +105,7 @@ export class SpaceForRentController {
   })
   @RequiredRoles([
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.AGENT,
+    ,
     ApplicationUserRoleEnum.OWNER,
   ])
   remove(@Param() { DocId }: DocIdQueryDto) {
@@ -120,7 +120,7 @@ export class SpaceForRentController {
   })
   @RequiredRoles([
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.AGENT,
+    ,
     ApplicationUserRoleEnum.OWNER,
   ])
   @ApiConsumes("multipart/form-data")
@@ -147,7 +147,7 @@ export class SpaceForRentController {
   })
   @RequiredRoles([
     ApplicationUserRoleEnum.ADMIN,
-    ApplicationUserRoleEnum.AGENT,
+    ,
     ApplicationUserRoleEnum.OWNER,
   ])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {

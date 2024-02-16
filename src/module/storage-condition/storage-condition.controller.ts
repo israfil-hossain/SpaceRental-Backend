@@ -21,7 +21,7 @@ export class StorageConditionController {
     status: 201,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   create(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceDto: CreateStorageConditionDto,
@@ -43,7 +43,7 @@ export class StorageConditionController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.storageConditionService.remove(DocId);
   }

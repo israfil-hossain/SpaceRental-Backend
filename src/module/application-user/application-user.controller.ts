@@ -45,7 +45,7 @@ export class ApplicationUserController {
     status: 200,
     type: PaginatedResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   findAll(@Query() query: ListApplicationUserQuery) {
     return this.userService.findAll(query);
   }
@@ -55,7 +55,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   findOne(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.findOne(DocId);
   }
@@ -66,7 +66,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   update(
     @Param() { DocId }: DocIdQueryDto,
     @Body() updateApplicationUserDto: UpdateApplicationUserDto,
@@ -79,7 +79,7 @@ export class ApplicationUserController {
     status: 200,
     type: SuccessResponseDto,
   })
-  @RequiredRoles([ApplicationUserRoleEnum.ADMIN, ApplicationUserRoleEnum.AGENT])
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
   remove(@Param() { DocId }: DocIdQueryDto) {
     return this.userService.remove(DocId);
   }
