@@ -43,7 +43,7 @@ export class SpaceSecurityService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.spaceSecurityRepository.findAll();
+      const results = await this.spaceSecurityRepository.getAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {

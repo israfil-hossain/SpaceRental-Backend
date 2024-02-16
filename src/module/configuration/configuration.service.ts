@@ -24,7 +24,7 @@ export class ConfigurationService {
     userId: string,
   ) {
     try {
-      const latestConfig = await this.configurationRepository.findOneWhere(
+      const latestConfig = await this.configurationRepository.getOneWhere(
         {},
         { sort: { updatedAt: -1, createdAt: -1 } },
       );
@@ -60,7 +60,7 @@ export class ConfigurationService {
 
   async getCommissionSettings() {
     try {
-      const latestConfig = await this.configurationRepository.findOneWhere(
+      const latestConfig = await this.configurationRepository.getOneWhere(
         {},
         { sort: { updatedAt: -1, createdAt: -1 } },
       );

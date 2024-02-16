@@ -59,7 +59,7 @@ export class SpaceTypeService {
       const skip = (Page - 1) * PageSize;
 
       const totalRecords = await this.spaceTypeRepository.count(searchQuery);
-      const result = await this.spaceTypeRepository.find(searchQuery, {
+      const result = await this.spaceTypeRepository.getAll(searchQuery, {
         skip,
         limit: PageSize,
       });
@@ -72,7 +72,7 @@ export class SpaceTypeService {
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceTypeRepository.findById(id, {
+    const result = await this.spaceTypeRepository.getOneById(id, {
       populate: [
         {
           path: "createdBy",

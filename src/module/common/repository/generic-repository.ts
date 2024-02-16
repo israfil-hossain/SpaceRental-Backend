@@ -5,7 +5,6 @@ import {
   FilterQuery,
   FlattenMaps,
   Model,
-  ProjectionType,
   QueryOptions,
   SaveOptions,
   UpdateQuery,
@@ -39,14 +38,13 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async find(
-    filter: FilterQuery<T>,
+  async getAll(
+    filter: FilterQuery<T> = {},
     options: QueryOptions = {},
-    projection: ProjectionType<T> | null = null,
   ): Promise<FlattenMaps<T>[]> {
     try {
       const result = await this.internalModel
-        .find(filter, projection, options)
+        .find(filter, null, options)
         .lean()
         .exec();
       return result;
@@ -56,24 +54,13 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findAll(): Promise<FlattenMaps<T>[]> {
-    try {
-      const result = await this.internalModel.find().lean().exec();
-      return result;
-    } catch (error) {
-      this.internalLogger.error("Error finding all entities:", error);
-      return [];
-    }
-  }
-
-  async findOneWhere(
+  async getOneWhere(
     filter: FilterQuery<T>,
     options: QueryOptions = {},
-    projection: ProjectionType<T> | null = null,
   ): Promise<T | null> {
     try {
       const result = await this.internalModel
-        .findOne(filter, projection, options)
+        .findOne(filter, null, options)
         .exec();
       return result;
     } catch (error) {
@@ -82,14 +69,10 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findById(
-    id: string,
-    options: QueryOptions = {},
-    projection: ProjectionType<T> | null = null,
-  ): Promise<T | null> {
+  async getOneById(id: string, options: QueryOptions = {}): Promise<T | null> {
     try {
       const result = await this.internalModel
-        .findOne({ _id: id }, projection, options)
+        .findOne({ _id: id }, null, options)
         .exec();
       return result;
     } catch (error) {
@@ -118,6 +101,13 @@ export class GenericRepository<T extends Document> {
 
       return result;
     } catch (error) {
+      if (error?.name === "MongoServerError" && error?.code === 11000) {
+        this.internalLogger.error("Duplicate key error while updating:", error);
+        throw new ConflictException(
+          "Document already exists with provided inputs",
+        );
+      }
+
       this.internalLogger.error("Error updating one entity:", error);
       throw error;
     }

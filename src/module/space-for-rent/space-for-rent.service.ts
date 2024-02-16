@@ -191,7 +191,7 @@ export class SpaceForRentService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const existingSpace = await this.spaceForRentRepository.findById(id);
+      const existingSpace = await this.spaceForRentRepository.getOneById(id);
 
       if (!existingSpace) {
         this.logger.error(`Document not found with ID: ${id}`);
@@ -232,7 +232,7 @@ export class SpaceForRentService {
     spaceForRentId: string,
   ): Promise<SuccessResponseDto> {
     const existingSpaceForRent =
-      await this.spaceForRentRepository.findById(spaceForRentId);
+      await this.spaceForRentRepository.getOneById(spaceForRentId);
 
     if (!existingSpaceForRent) {
       throw new NotFoundException(

@@ -43,7 +43,7 @@ export class UnloadingMovingService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.unloadingMovingRepository.findAll();
+      const results = await this.unloadingMovingRepository.getAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {

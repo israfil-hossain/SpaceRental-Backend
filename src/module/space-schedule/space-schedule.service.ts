@@ -43,7 +43,7 @@ export class SpaceScheduleService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.spaceScheduleRepository.findAll();
+      const results = await this.spaceScheduleRepository.getAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {

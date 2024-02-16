@@ -45,7 +45,7 @@ export class TermsConditionService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.termsConditionRepository.findAll();
+      const results = await this.termsConditionRepository.getAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {

@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  ConflictException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
@@ -35,9 +35,7 @@ export class SpaceAccessMethodService {
 
       return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
@@ -59,38 +57,50 @@ export class SpaceAccessMethodService {
       const count = await this.spaceAccessMethodRepository.count(searchQuery);
       const skip = (Page - 1) * limit;
 
-      const result = await this.spaceAccessMethodRepository.find(searchQuery, {
-        limit,
-        skip,
-      });
+      const result = await this.spaceAccessMethodRepository.getAll(
+        searchQuery,
+        {
+          limit,
+          skip,
+        },
+      );
 
       return new PaginatedResponseDto(count, Page, limit, result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceAccessMethodRepository.findById(id, {
-      populate: [
-        {
-          path: "createdBy",
-          select: "id email fullName",
-        },
-        {
-          path: "updatedBy",
-          select: "id email fullName",
-        },
-      ],
-    });
+    try {
+      const result = await this.spaceAccessMethodRepository.getOneById(id, {
+        populate: [
+          {
+            path: "createdBy",
+            select: "id email fullName",
+          },
+          {
+            path: "updatedBy",
+            select: "id email fullName",
+          },
+        ],
+      });
 
-    if (!result) {
-      this.logger.error(`Document not found with ID: ${id}`);
-      throw new NotFoundException(`Could not find document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find document with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("Document found successfully", result);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error finding document:", error);
+      throw new BadRequestException("Could not get document");
     }
-
-    return new SuccessResponseDto("Document found successfully", result);
   }
 
   async update(
@@ -116,14 +126,7 @@ export class SpaceAccessMethodService {
 
       return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      if (error.name === "MongoError" && error.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
@@ -131,20 +134,31 @@ export class SpaceAccessMethodService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceAccessMethodRepository.removeOneById(id);
+    try {
+      const result = await this.spaceAccessMethodRepository.removeOneById(id);
 
-    if (!result) {
-      this.logger.error(`Document not found with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new BadRequestException(
+          `Could not delete document with ID: ${id}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting document:", error);
+      throw new BadRequestException("Error deleting document");
     }
-
-    return new SuccessResponseDto("Document deleted successfully");
   }
 
   async findAllForDropdown() {
     try {
-      const result =
-        await this.spaceAccessMethodRepository.findAllForDropdown();
+      const result = await this.spaceAccessMethodRepository.getAll(
+        {},
+        { projection: { value: "$_id", label: "$name", _id: 0 } },
+      );
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {

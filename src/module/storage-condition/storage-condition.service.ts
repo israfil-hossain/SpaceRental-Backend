@@ -43,7 +43,7 @@ export class StorageConditionService {
 
   async findAll(): Promise<SuccessResponseDto> {
     try {
-      const results = await this.storageConditionRepository.findAll();
+      const results = await this.storageConditionRepository.getAll();
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {

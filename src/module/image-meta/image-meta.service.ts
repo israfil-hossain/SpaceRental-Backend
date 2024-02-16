@@ -86,7 +86,7 @@ export class ImageMetaService {
     ownerId: string,
   ): Promise<ImageMetaDocument | null> {
     try {
-      const deletedImage = await this.imageMetaRepository.findOneWhere({
+      const deletedImage = await this.imageMetaRepository.getOneWhere({
         _id: imageId,
         ownerId: ownerId,
       });

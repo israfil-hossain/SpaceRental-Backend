@@ -71,7 +71,7 @@ export class ApplicationUserService {
         await this.applicationUserRepository.count(searchQuery);
       const skip = (Page - 1) * PageSize;
 
-      const result = await this.applicationUserRepository.find(searchQuery, {
+      const result = await this.applicationUserRepository.getAll(searchQuery, {
         limit: PageSize,
         skip,
       });
@@ -87,7 +87,7 @@ export class ApplicationUserService {
 
   async findOne(id: string): Promise<SuccessResponseDto> {
     try {
-      const user = await this.applicationUserRepository.findById(id);
+      const user = await this.applicationUserRepository.getOneById(id);
 
       if (!user) {
         this.logger.error(`User Document not found with ID: ${id}`);
@@ -141,7 +141,7 @@ export class ApplicationUserService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this.applicationUserRepository.findById(userId);
+      const user = await this.applicationUserRepository.getOneById(userId);
 
       if (!user) {
         this.logger.error(`User Document not found with ID: ${userId}`);

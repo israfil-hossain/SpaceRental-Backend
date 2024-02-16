@@ -72,7 +72,7 @@ export class AuthenticationService {
     userRole?: ApplicationUserRoleEnum,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this.applicationUserRepository.findOneWhere({
+      const user = await this.applicationUserRepository.getOneWhere({
         email: signInDto.email,
         role: userRole ? userRole : signInDto.role,
       });
@@ -138,7 +138,7 @@ export class AuthenticationService {
 
   async refreshAccessToken(refreshToken: string): Promise<SuccessResponseDto> {
     try {
-      const refreshTokenDoc = await this.refreshTokenRepository.findOneWhere(
+      const refreshTokenDoc = await this.refreshTokenRepository.getOneWhere(
         {
           token: refreshToken,
           expiresAt: { $gt: new Date() },
@@ -183,7 +183,7 @@ export class AuthenticationService {
 
   async revokeRefreshToken(refreshToken: string): Promise<SuccessResponseDto> {
     try {
-      const refreshTokenDoc = await this.refreshTokenRepository.findOneWhere({
+      const refreshTokenDoc = await this.refreshTokenRepository.getOneWhere({
         token: refreshToken,
         expiresAt: { $gt: new Date() },
       });
@@ -215,7 +215,7 @@ export class AuthenticationService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const user = await this.applicationUserRepository.findById(userId);
+      const user = await this.applicationUserRepository.getOneById(userId);
 
       if (!user) {
         throw new NotFoundException(`No user found with id: ${userId}`);
@@ -252,7 +252,7 @@ export class AuthenticationService {
 
   async getLoggedInUser(userId: string): Promise<SuccessResponseDto> {
     try {
-      const user = await this.applicationUserRepository.findById(userId, {
+      const user = await this.applicationUserRepository.getOneById(userId, {
         populate: [
           {
             path: "profilePicture",

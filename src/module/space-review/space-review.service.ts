@@ -65,7 +65,7 @@ export class SpaceReviewService {
       const totalRecords = await this.spaceReviewRepository.count();
       const skip = (Page - 1) * PageSize;
 
-      const result = await this.spaceReviewRepository.find(
+      const result = await this.spaceReviewRepository.getAll(
         {},
         {
           skip,
@@ -87,7 +87,7 @@ export class SpaceReviewService {
   }
 
   async findAllBySpaceId(spaceId: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceReviewRepository.find(
+    const result = await this.spaceReviewRepository.getAll(
       {
         space: spaceId,
       },
@@ -135,7 +135,7 @@ export class SpaceReviewService {
     }
 
     try {
-      const result = await this.spaceReviewRepository.findOneWhere(searchQuery);
+      const result = await this.spaceReviewRepository.getOneWhere(searchQuery);
 
       if (!result) {
         throw new Error("No deleted document was found");

@@ -24,7 +24,7 @@ export class SpaceBookingService {
     auditUserId: string,
   ) {
     try {
-      const bookingSpace = await this.spaceForRentRepository.findById(
+      const bookingSpace = await this.spaceForRentRepository.getOneById(
         createDto.spaceId,
       );
 
@@ -58,7 +58,7 @@ export class SpaceBookingService {
         );
       }
 
-      const conflictingBookings = await this.spaceBookingRepository.find({
+      const conflictingBookings = await this.spaceBookingRepository.getAll({
         space: bookingSpace._id?.toString(),
         fromDate: { $lte: bookingEndDate },
         toDate: { $gte: bookingStartDate },

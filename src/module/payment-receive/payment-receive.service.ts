@@ -56,7 +56,7 @@ export class PaymentReceiveService {
     auditUserId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const booking = await this.spaceBookingRepository.findById(bookingId, {
+      const booking = await this.spaceBookingRepository.getOneById(bookingId, {
         populate: "paymentReceive",
       });
 
