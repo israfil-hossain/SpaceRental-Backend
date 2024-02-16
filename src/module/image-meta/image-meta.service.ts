@@ -1,4 +1,10 @@
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from "@nestjs/common";
 import toStream from "buffer-to-stream";
 import {
   v2 as CloudinaryAPI,
@@ -19,66 +25,94 @@ export class ImageMetaService {
     singleImageFile: Express.Multer.File,
     ownerId: string,
   ): Promise<ImageMetaDocument> {
-    if (!singleImageFile) {
-      throw new Error("No image file provided");
+    try {
+      if (!singleImageFile) {
+        throw new BadRequestException("No image file provided");
+      }
+
+      const extension = this.getFileExtension(singleImageFile.originalname);
+      const uploadResult = await this.uploadImageToCloudinary(singleImageFile);
+
+      const singleImage = await this.imageMetaRepository.create({
+        url: uploadResult.secure_url,
+        name: uploadResult.public_id,
+        extension: extension,
+        size: singleImageFile.size,
+        mimeType: singleImageFile.mimetype,
+        ownerId: ownerId,
+      });
+
+      return singleImage;
+    } catch (error) {
+      this.logger.error(`Error creating single image:`, error);
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException("Failed to create single image");
+      }
     }
-
-    const extension = this.getFileExtension(singleImageFile.originalname);
-    const uploadResult = await this.uploadImageToCloudinary(singleImageFile);
-
-    const singleImage = await this.imageMetaRepository.create({
-      url: uploadResult.secure_url,
-      name: uploadResult.public_id,
-      extension: extension,
-      size: singleImageFile.size,
-      mimeType: singleImageFile.mimetype,
-      ownerId: ownerId,
-    });
-
-    return singleImage;
   }
 
   async createMultipleImages(
     multipleImageFiles: Express.Multer.File[],
     ownerId: string,
   ): Promise<ImageMetaDocument[]> {
-    if (!multipleImageFiles.length) {
-      throw new Error("No image files provided");
+    try {
+      if (!multipleImageFiles || multipleImageFiles.length === 0) {
+        throw new BadRequestException("No image files provided");
+      }
+
+      const multipleImages = await Promise.all(
+        multipleImageFiles.map(
+          async (image) => await this.createSingleImage(image, ownerId),
+        ),
+      );
+
+      return multipleImages;
+    } catch (error) {
+      this.logger.error(`Error creating multiple images:`, error);
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          "Failed to create multiple images",
+        );
+      }
     }
-
-    const multipleImages = await Promise.all(
-      multipleImageFiles.map(
-        async (image) => await this.createSingleImage(image, ownerId),
-      ),
-    );
-
-    return multipleImages;
   }
 
   async removeImage(
     imageId: string,
     ownerId: string,
   ): Promise<ImageMetaDocument | null> {
-    const deletedImage = await this.imageMetaRepository.findOneWhere({
-      _id: imageId,
-      ownerId: ownerId,
-    });
+    try {
+      const deletedImage = await this.imageMetaRepository.findOneWhere({
+        _id: imageId,
+        ownerId: ownerId,
+      });
 
-    if (!deletedImage) {
-      throw new Error(`Could not find image with id: ${imageId}`);
+      if (!deletedImage) {
+        throw new Error(`Could not find image with id: ${imageId}`);
+      }
+
+      await this.deleteImageFromCloudinary(deletedImage.name);
+      await this.imageMetaRepository.removeOneById(imageId);
+
+      return deletedImage;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error(`Error deleting image:`, error);
+      throw new InternalServerErrorException("Could not delete image");
     }
-
-    await this.deleteImageFromCloudinary(deletedImage.name);
-    await this.imageMetaRepository.removeOneById(imageId);
-
-    return deletedImage;
   }
 
-  private async uploadImageToCloudinary(
+  //#region Helper for cloud upload
+  async uploadImageToCloudinary(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse> {
     return new Promise<UploadApiResponse>((resolve, reject) => {
-      const upload = CloudinaryAPI.uploader.upload_stream(
+      const uploadStream = CloudinaryAPI.uploader.upload_stream(
         (
           error: UploadApiErrorResponse | undefined,
           result: UploadApiResponse | undefined,
@@ -99,14 +133,23 @@ export class ImageMetaService {
           }
         },
       );
-      toStream(file.buffer).pipe(upload);
+
+      const stream = toStream(file.buffer);
+      stream.pipe(uploadStream);
     });
   }
 
-  private async deleteImageFromCloudinary(
+  async deleteImageFromCloudinary(
     publicId: string,
   ): Promise<DeleteApiResponse> {
-    return CloudinaryAPI.uploader.destroy(publicId);
+    try {
+      return await CloudinaryAPI.uploader.destroy(publicId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete image from Cloudinary with public ID: ${publicId}: ${error.message}`,
+      );
+      throw error;
+    }
   }
 
   private getFileExtension(originalName: string): string {
@@ -118,4 +161,5 @@ export class ImageMetaService {
 
     return originalName?.slice(lastDotIndex + 1);
   }
+  //#endregion
 }
