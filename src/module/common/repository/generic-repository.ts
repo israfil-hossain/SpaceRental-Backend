@@ -3,7 +3,9 @@ import { ObjectId } from "mongodb";
 import {
   Document,
   FilterQuery,
+  FlattenMaps,
   Model,
+  ProjectionType,
   QueryOptions,
   SaveOptions,
   UpdateQuery,
@@ -27,7 +29,7 @@ export class GenericRepository<T extends Document> {
       return savedResult;
     } catch (error) {
       if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.internalLogger.error("Duplicate key error:", error);
+        this.internalLogger.error("Duplicate key error while creating:", error);
         throw new ConflictException(
           "Document already exists with provided inputs",
         );
@@ -37,10 +39,15 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async find(filter: FilterQuery<T>, options: QueryOptions = {}): Promise<T[]> {
+  async find(
+    filter: FilterQuery<T>,
+    options: QueryOptions = {},
+    projection: ProjectionType<T> | null = null,
+  ): Promise<FlattenMaps<T>[]> {
     try {
       const result = await this.internalModel
-        .find(filter, null, options)
+        .find(filter, projection, options)
+        .lean()
         .exec();
       return result;
     } catch (error) {
@@ -49,9 +56,9 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findAll(): Promise<T[]> {
+  async findAll(): Promise<FlattenMaps<T>[]> {
     try {
-      const result = await this.internalModel.find().exec();
+      const result = await this.internalModel.find().lean().exec();
       return result;
     } catch (error) {
       this.internalLogger.error("Error finding all entities:", error);
@@ -62,10 +69,11 @@ export class GenericRepository<T extends Document> {
   async findOneWhere(
     filter: FilterQuery<T>,
     options: QueryOptions = {},
+    projection: ProjectionType<T> | null = null,
   ): Promise<T | null> {
     try {
       const result = await this.internalModel
-        .findOne(filter, null, options)
+        .findOne(filter, projection, options)
         .exec();
       return result;
     } catch (error) {
@@ -74,10 +82,14 @@ export class GenericRepository<T extends Document> {
     }
   }
 
-  async findById(id: string, options: QueryOptions = {}): Promise<T | null> {
+  async findById(
+    id: string,
+    options: QueryOptions = {},
+    projection: ProjectionType<T> | null = null,
+  ): Promise<T | null> {
     try {
       const result = await this.internalModel
-        .findOne({ _id: id }, null, options)
+        .findOne({ _id: id }, projection, options)
         .exec();
       return result;
     } catch (error) {
