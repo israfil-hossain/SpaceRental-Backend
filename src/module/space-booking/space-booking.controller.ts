@@ -16,10 +16,13 @@ export class SpaceBookingController {
     status: 201,
     type: SuccessResponseDto,
   })
-  create(
+  newBooking(
     @AuthUserId() { userId }: ITokenPayload,
     @Body() createSpaceBookingDto: CreateSpaceBookingDto,
   ) {
-    return this.spaceBookingService.create(createSpaceBookingDto, userId);
+    return this.spaceBookingService.createNewBooking(
+      createSpaceBookingDto,
+      userId,
+    );
   }
 }

@@ -19,7 +19,10 @@ export class SpaceBookingService {
     private readonly spaceForRentRepository: SpaceForRentRepository,
   ) {}
 
-  async create(createDto: CreateSpaceBookingDto, auditUserId: string) {
+  async createNewBooking(
+    createDto: CreateSpaceBookingDto,
+    auditUserId: string,
+  ) {
     try {
       const bookingSpace = await this.spaceForRentRepository.findById(
         createDto.spaceId,

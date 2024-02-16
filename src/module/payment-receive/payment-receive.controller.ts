@@ -25,7 +25,7 @@ export class PaymentReceiveController {
     status: 200,
     type: SuccessResponseDto,
   })
-  create(
+  getPaymentIntent(
     @AuthUserId() { userId }: ITokenPayload,
     @Param() { DocId }: DocIdQueryDto,
   ) {
