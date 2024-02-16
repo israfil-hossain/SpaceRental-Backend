@@ -1,14 +1,15 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { ConfigurationRepository } from "./configuration.repository";
 import {
   CommissionSettingsDto,
   UpdateCommissionSettingsDto,
 } from "./dto/commission-settings.dto";
-import {
-  Configuration,
-  ConfigurationDocument,
-} from "./entities/configuration.entity";
 
 @Injectable()
 export class ConfigurationService {
@@ -23,27 +24,34 @@ export class ConfigurationService {
     userId: string,
   ) {
     try {
-      const result = await this.upsertConfiguration(configurationDto, userId);
+      const latestConfig = await this.configurationRepository.findOneWhere(
+        {},
+        { sort: { updatedAt: -1, createdAt: -1 } },
+      );
 
-      if (!result) {
-        this.logger.error("Failed to update commission configuration");
-        throw new BadRequestException(
-          "Failed to update commission configuration",
-        );
+      if (latestConfig) {
+        await this.configurationRepository.updateOneById(latestConfig.id, {
+          ...configurationDto,
+          updatedBy: userId,
+          updatedAt: new Date(),
+        });
+      } else {
+        await this.configurationRepository.create({
+          ...configurationDto,
+          createdBy: userId,
+        });
       }
 
       const commissionDto = new CommissionSettingsDto();
-      commissionDto.ownerCommission = result?.ownerCommission ?? 0;
-      commissionDto.renterCommission = result?.renterCommission ?? 0;
+      commissionDto.ownerCommission = configurationDto.ownerCommission ?? 0;
+      commissionDto.renterCommission = configurationDto.renterCommission ?? 0;
 
       return new SuccessResponseDto(
         "Document updated successfully",
         commissionDto,
       );
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
@@ -52,7 +60,10 @@ export class ConfigurationService {
 
   async getCommissionSettings() {
     try {
-      const latestConfig = await this.getLatestConfiguration();
+      const latestConfig = await this.configurationRepository.findOneWhere(
+        {},
+        { sort: { updatedAt: -1, createdAt: -1 } },
+      );
 
       const commissionDto = new CommissionSettingsDto();
       commissionDto.ownerCommission = latestConfig?.ownerCommission ?? 0;
@@ -63,38 +74,10 @@ export class ConfigurationService {
         commissionDto,
       );
     } catch (error) {
-      this.logger.error("Error in getCommissionSettings:", error);
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error in getting Commission Settings:", error);
       throw new BadRequestException("Error getting document");
-    }
-  }
-
-  // Private helpers
-  private async getLatestConfiguration(): Promise<ConfigurationDocument | null> {
-    return await this.configurationRepository.findOneWhere(
-      {},
-      {
-        sort: { updatedAt: -1, createdAt: -1 },
-      },
-    );
-  }
-
-  private async upsertConfiguration(
-    configuration: Partial<Configuration>,
-    auditUserId: string,
-  ): Promise<ConfigurationDocument> {
-    const latestConfig = await this.getLatestConfiguration();
-
-    if (latestConfig) {
-      configuration.updatedBy = auditUserId;
-      configuration.updatedAt = new Date();
-      return await this.configurationRepository.updateOneById(
-        latestConfig.id,
-        configuration,
-      );
-    } else {
-      configuration.createdBy = auditUserId;
-      configuration.updatedBy = auditUserId;
-      return await this.configurationRepository.create(configuration);
     }
   }
 }
