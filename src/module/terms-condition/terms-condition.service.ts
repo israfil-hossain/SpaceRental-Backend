@@ -1,10 +1,11 @@
 import {
   BadRequestException,
-  ConflictException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { IdNameResponseDto } from "../common/dto/id-name-respones.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateTermsConditionDto } from "./dto/create-terms-condition.dto";
 import { UpdateTermsConditionDto } from "./dto/update-terms-condition.dto";
@@ -23,20 +24,19 @@ export class TermsConditionService {
     userId: string,
   ): Promise<SuccessResponseDto> {
     try {
-      const newSpaceType = await this.termsConditionRepository.create({
+      const newItem = await this.termsConditionRepository.create({
         ...createTermsConditionDto,
         createdBy: userId,
       });
 
+      const respones = new IdNameResponseDto(newItem.id, newItem.name);
+
       return new SuccessResponseDto(
         "New document created successfully",
-        newSpaceType,
+        respones,
       );
     } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
@@ -49,6 +49,8 @@ export class TermsConditionService {
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
@@ -73,14 +75,7 @@ export class TermsConditionService {
 
       return new SuccessResponseDto("Document updated successfully", result);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      if (error.name === "MongoError" && error.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
@@ -88,13 +83,22 @@ export class TermsConditionService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.termsConditionRepository.removeOneById(id);
+    try {
+      const result = await this.termsConditionRepository.removeOneById(id);
 
-    if (!result) {
-      this.logger.error(`Document not delete with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new BadRequestException(
+          `Could not delete document with ID: ${id}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting document:", error);
+      throw new BadRequestException("Error deleting document");
     }
-
-    return new SuccessResponseDto("Document deleted successfully");
   }
 }
