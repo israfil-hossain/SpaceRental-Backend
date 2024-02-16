@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
+import { IsNotEqualTo } from "../../../utility/validator/is-not-equal-to.validator";
 
 export class ChangePasswordDto {
   @ApiProperty({
@@ -17,6 +18,9 @@ export class ChangePasswordDto {
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]*$/, {
     message:
       "New password must contain at least one uppercase letter, one lowercase letter, and one number",
+  })
+  @IsNotEqualTo("oldPassword", {
+    message: "New password must be different from the old password",
   })
   newPassword: string;
 }
