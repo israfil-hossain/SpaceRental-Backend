@@ -1,16 +1,18 @@
 import {
   BadRequestException,
-  ConflictException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { UpdateQuery } from "mongoose";
 import { IdNameResponseDto } from "../common/dto/id-name-respones.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
 import { ListSpaceTypeQuery } from "./dto/list-space-type-query.dto";
 import { UpdateSpaceTypeDto } from "./dto/update-space-type.dto";
+import { SpaceTypeDocument } from "./entities/space-type.entity";
 import { SpaceTypeRepository } from "./space-type.repository";
 
 @Injectable()
@@ -33,10 +35,7 @@ export class SpaceTypeService {
 
       return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
@@ -50,7 +49,8 @@ export class SpaceTypeService {
   }: ListSpaceTypeQuery): Promise<PaginatedResponseDto> {
     try {
       // Search query setup
-      const searchQuery: Record<string, any> = {};
+      const searchQuery: UpdateQuery<SpaceTypeDocument> = {};
+
       if (Name) {
         searchQuery["name"] = { $regex: Name, $options: "i" };
       }
@@ -66,31 +66,40 @@ export class SpaceTypeService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceTypeRepository.getOneById(id, {
-      populate: [
-        {
-          path: "createdBy",
-          select: "id email fullName",
-        },
-        {
-          path: "updatedBy",
-          select: "id email fullName",
-        },
-      ],
-    });
+    try {
+      const result = await this.spaceTypeRepository.getOneById(id, {
+        populate: [
+          {
+            path: "createdBy",
+            select: "id email fullName",
+          },
+          {
+            path: "updatedBy",
+            select: "id email fullName",
+          },
+        ],
+      });
 
-    if (!result) {
-      this.logger.error(`Document not found with ID: ${id}`);
-      throw new NotFoundException(`Could not find document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find document with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("Document found successfully", result);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error finding document:", error);
+      throw new BadRequestException("Could not get document");
     }
-
-    return new SuccessResponseDto("Document found successfully", result);
   }
 
   async update(
@@ -113,14 +122,7 @@ export class SpaceTypeService {
         updatedSpaceType,
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      if (error.name === "MongoError" && error.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating document:", error);
       throw new BadRequestException("Error updating document");
@@ -128,14 +130,23 @@ export class SpaceTypeService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.spaceTypeRepository.removeOneById(id);
+    try {
+      const result = await this.spaceTypeRepository.removeOneById(id);
 
-    if (!result) {
-      this.logger.error(`Document not deleted with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new BadRequestException(
+          `Could not delete document with ID: ${id}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting document:", error);
+      throw new BadRequestException("Error deleting document");
     }
-
-    return new SuccessResponseDto("Document deleted successfully");
   }
 
   async findAllForDropdown() {
@@ -147,6 +158,8 @@ export class SpaceTypeService {
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error in findAllForDropdown:", error);
       throw new BadRequestException("Could not get all document");
     }

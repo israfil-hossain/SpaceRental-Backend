@@ -9,28 +9,10 @@ import {
 
 @Injectable()
 export class SpaceTypeRepository extends GenericRepository<SpaceTypeDocument> {
-  private readonly logger: Logger;
-
   constructor(
     @InjectModel(SpaceType.name)
     private model: SpaceTypeType,
   ) {
-    const logger = new Logger(SpaceTypeRepository.name);
-    super(model, logger);
-    this.logger = logger;
-  }
-
-  async findAllForDropdown() {
-    try {
-      const result = await this.model
-        .find({}, { value: "$_id", label: "$name", pricePerMonth: 1, _id: 0 })
-        .lean()
-        .exec();
-
-      return result;
-    } catch (error) {
-      this.logger.error("Error in findAllForDropdown:", error);
-      throw error;
-    }
+    super(model, new Logger(SpaceTypeRepository.name));
   }
 }
