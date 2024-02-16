@@ -4,7 +4,7 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { NameIdResponseDto } from "../common/dto/name-id-respones.dto";
+import { IdNameResponseDto } from "../common/dto/id-name-respones.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateStorageConditionDto } from "./dto/create-storage-condition.dto";
 import { StorageConditionRepository } from "./storage-condition.repository";
@@ -27,7 +27,7 @@ export class StorageConditionService {
         createdBy: userId,
       });
 
-      const response = new NameIdResponseDto(result.id, result.name);
+      const response = new IdNameResponseDto(result.id, result.name);
 
       return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class NameIdResponseDto {
+export class IdNameResponseDto {
   @ApiProperty({
     description: "The unique identifier for the object.",
     example: "60adadfe2423d81d0c605b6f",

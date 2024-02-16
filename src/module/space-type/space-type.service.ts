@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { NameIdResponseDto } from "../common/dto/name-id-respones.dto";
+import { IdNameResponseDto } from "../common/dto/id-name-respones.dto";
 import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { CreateSpaceTypeDto } from "./dto/create-space-type.dto";
@@ -29,7 +29,7 @@ export class SpaceTypeService {
         createdBy: userId,
       });
 
-      const response = new NameIdResponseDto(result.id, result.name);
+      const response = new IdNameResponseDto(result.id, result.name);
 
       return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
