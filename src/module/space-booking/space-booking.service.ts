@@ -4,6 +4,7 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
@@ -14,6 +15,8 @@ import { SpaceBookingRepository } from "./space-booking.repository";
 
 @Injectable()
 export class SpaceBookingService {
+  private readonly logger: Logger = new Logger(SpaceBookingService.name);
+
   constructor(
     private readonly spaceBookingRepository: SpaceBookingRepository,
     private readonly spaceForRentRepository: SpaceForRentRepository,
@@ -109,11 +112,12 @@ export class SpaceBookingService {
 
       return new SuccessResponseDto("New Booking created successfully", result);
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
-      throw new InternalServerErrorException("Something went wrong");
+      this.logger.error("Error creating new booking:", error);
+      throw new InternalServerErrorException(
+        "Something went wrong making a booking",
+      );
     }
   }
 
