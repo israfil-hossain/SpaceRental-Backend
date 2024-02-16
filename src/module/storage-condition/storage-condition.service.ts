@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  ConflictException,
+  HttpException,
   Injectable,
   Logger,
 } from "@nestjs/common";
@@ -31,10 +31,7 @@ export class StorageConditionService {
 
       return new SuccessResponseDto("Document created successfully", response);
     } catch (error) {
-      if (error?.name === "MongoServerError" && error?.code === 11000) {
-        this.logger.error("Duplicate key error:", error);
-        throw new ConflictException("Document already exists");
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error);
       throw new BadRequestException("Error creating new document");
@@ -47,20 +44,31 @@ export class StorageConditionService {
 
       return new SuccessResponseDto("All document fetched", results);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding all document:", error);
       throw new BadRequestException("Could not get all document");
     }
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.storageConditionRepository.removeOneById(id);
+    try {
+      const result = await this.storageConditionRepository.removeOneById(id);
 
-    if (!result) {
-      this.logger.error(`Document not delete with ID: ${id}`);
-      throw new BadRequestException(`Could not delete document with ID: ${id}`);
+      if (!result) {
+        this.logger.error(`Document not found with ID: ${id}`);
+        throw new BadRequestException(
+          `Could not delete document with ID: ${id}`,
+        );
+      }
+
+      return new SuccessResponseDto("Document deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error deleting document:", error);
+      throw new BadRequestException("Error deleting document");
     }
-
-    return new SuccessResponseDto("Document deleted successfully");
   }
 
   async findAllForDropdown() {
@@ -72,6 +80,8 @@ export class StorageConditionService {
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error in findAllForDropdown:", error);
       throw new BadRequestException("Could not get all document");
     }
