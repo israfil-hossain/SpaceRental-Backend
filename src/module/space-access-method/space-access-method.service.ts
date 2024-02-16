@@ -162,6 +162,8 @@ export class SpaceAccessMethodService {
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error in findAllForDropdown:", error);
       throw new BadRequestException("Could not get all document");
     }
