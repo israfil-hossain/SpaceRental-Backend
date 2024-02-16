@@ -65,7 +65,10 @@ export class StorageConditionService {
 
   async findAllForDropdown() {
     try {
-      const result = await this.storageConditionRepository.findAllForDropdown();
+      const result = await this.storageConditionRepository.getAll(
+        {},
+        { projection: { value: "$_id", label: "$name", _id: 0 } },
+      );
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {

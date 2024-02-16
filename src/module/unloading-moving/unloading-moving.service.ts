@@ -65,7 +65,10 @@ export class UnloadingMovingService {
 
   async findAllForDropdown() {
     try {
-      const result = await this.unloadingMovingRepository.findAllForDropdown();
+      const result = await this.unloadingMovingRepository.getAll(
+        {},
+        { projection: { value: "$_id", label: "$name", _id: 0 } },
+      );
 
       return new SuccessResponseDto("All document fetched", result);
     } catch (error) {
