@@ -30,9 +30,6 @@ export class GenericRepository<T extends Document> {
         this.internalLogger.error("Duplicate key error:", error);
         throw new ConflictException(
           "Document already exists with provided inputs",
-          {
-            cause: "RepositoryException",
-          },
         );
       }
 
@@ -104,9 +101,7 @@ export class GenericRepository<T extends Document> {
         .exec();
 
       if (!result) {
-        throw new NotFoundException("Document not found with provided ID", {
-          cause: "RepositoryException",
-        });
+        throw new NotFoundException("Document not found with provided ID");
       }
 
       return result;

@@ -38,13 +38,13 @@ export class ApplicationUser {
   fullName?: string;
 
   @Prop({ default: null })
+  countryCode?: string;
+
+  @Prop({ default: null })
   phoneNumber?: string;
 
   @Prop({ default: null })
   address?: string;
-
-  @Prop({ default: null })
-  countryCode?: string;
 
   @Prop({ default: null })
   dateOfBirth?: Date;

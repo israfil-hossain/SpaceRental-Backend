@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
@@ -38,9 +39,7 @@ export class ApplicationUserService {
 
       return new SuccessResponseDto("User created successfully", newUser);
     } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error creating new document:", error.description);
       throw new BadRequestException("Error creating new document");
@@ -79,20 +78,29 @@ export class ApplicationUserService {
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       this.logger.error("Error finding users:", error);
       throw new BadRequestException("Could not get all users");
     }
   }
 
   async findOne(id: string): Promise<SuccessResponseDto> {
-    const user = await this.applicationUserRepository.findById(id);
+    try {
+      const user = await this.applicationUserRepository.findById(id);
 
-    if (!user) {
-      this.logger.error(`User Document not found with ID: ${id}`);
-      throw new NotFoundException(`Could not find user with ID: ${id}`);
+      if (!user) {
+        this.logger.error(`User Document not found with ID: ${id}`);
+        throw new NotFoundException(`Could not find user with ID: ${id}`);
+      }
+
+      return new SuccessResponseDto("User found successfully", user);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error(`Error finding user with id ${id}:`, error);
+      throw new BadRequestException("Could not get users with id: " + id);
     }
-
-    return new SuccessResponseDto("User found successfully", user);
   }
 
   async update(id: string, updateUserDto: UpdateApplicationUserDto) {
@@ -104,9 +112,7 @@ export class ApplicationUserService {
 
       return new SuccessResponseDto("User updated successfully", result);
     } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating new document:", error.description);
       throw new BadRequestException("Error updating new document");
@@ -114,13 +120,20 @@ export class ApplicationUserService {
   }
 
   async remove(id: string): Promise<SuccessResponseDto> {
-    const result = await this.applicationUserRepository.removeOneById(id);
-    if (!result) {
-      this.logger.error(`User Document not delete with ID: ${id}`);
-      throw new BadRequestException(`Could not delete user with ID: ${id}`);
-    }
+    try {
+      const result = await this.applicationUserRepository.removeOneById(id);
+      if (!result) {
+        this.logger.error(`User Document not delete with ID: ${id}`);
+        throw new BadRequestException(`Could not delete user with ID: ${id}`);
+      }
 
-    return new SuccessResponseDto("User deleted successfully");
+      return new SuccessResponseDto("User deleted successfully");
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error(`Error deleting user with id ${id}:`, error);
+      throw new BadRequestException("Could not delete users with id: " + id);
+    }
   }
 
   async updateOwnUserProfilePicture(
@@ -153,9 +166,7 @@ export class ApplicationUserService {
 
       return new SuccessResponseDto("Profile picture updated successfully");
     } catch (error) {
-      if (error?.options?.cause === "RepositoryException") {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error updating new document:", error.description);
       throw new BadRequestException("Error updating new document");
