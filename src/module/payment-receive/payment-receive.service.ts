@@ -7,7 +7,6 @@ import {
   RawBodyRequest,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { UpdateQuery } from "mongoose";
 import { Stripe } from "stripe";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { SpaceBookingDocument } from "../space-booking/entities/space-booking.entity";
@@ -16,6 +15,12 @@ import { SpaceBookingRepository } from "../space-booking/space-booking.repositor
 import { PaymentIntentResponseDto } from "./dto/payment-intent-response.dto";
 import { PaymentReceiveDocument } from "./entities/payment-receive.entity";
 import { PaymentReceiveRepository } from "./payment-receive.repository";
+
+interface StripeIntentMetadata extends Stripe.MetadataParam {
+  bookingCode: string;
+  bookingId: string;
+  paymentReceiveId: string;
+}
 
 @Injectable()
 export class PaymentReceiveService {
@@ -85,14 +90,16 @@ export class PaymentReceiveService {
           createdBy: auditUserId,
         });
 
+        const intentMetadata: StripeIntentMetadata = {
+          bookingCode: booking.bookingCode,
+          bookingId: booking._id?.toString(),
+          paymentReceiveId: paymentReceive._id?.toString(),
+        };
+
         stripeIntent = await this.stripeService.paymentIntents.create({
           amount: booking.totalPrice * 100,
           currency: "usd",
-          metadata: {
-            bookingCode: booking.bookingCode,
-            bookingId: booking._id?.toString(),
-            paymentReceiveId: paymentReceive._id?.toString(),
-          },
+          metadata: intentMetadata,
         });
 
         await this.paymentReceiveRepository.updateOneById(paymentReceive.id, {
@@ -125,9 +132,7 @@ export class PaymentReceiveService {
         paymentIntentResponse,
       );
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
+      if (error instanceof HttpException) throw error;
 
       this.logger.error("Error in getPaymentIntent:", error);
       throw new BadRequestException("Failed to get payment intent");
@@ -145,15 +150,14 @@ export class PaymentReceiveService {
         );
       }
 
-      // Validate the webhook signature
-      const event: any = this.stripeService.webhooks.constructEvent(
+      const event = this.stripeService.webhooks.constructEvent(
         request.rawBody as Buffer,
         signature,
         this.stripeWebhookSecret,
       );
 
-      const bookingSpaceUpdates: UpdateQuery<SpaceBookingDocument> = {};
-      const paymentReceiveUpdates: UpdateQuery<PaymentReceiveDocument> = {};
+      const bookingSpaceUpdates: Partial<SpaceBookingDocument> = {};
+      const paymentReceiveUpdates: Partial<PaymentReceiveDocument> = {};
 
       // Handle the Stripe event based on its type
       switch (event.type) {
@@ -190,17 +194,26 @@ export class PaymentReceiveService {
           this.logger.log("Unhandled event type: " + event.type);
       }
 
-      await this.paymentReceiveRepository.updateOneById(
-        event.data.object?.metadata?.paymentReceiveId,
-        {
-          ...paymentReceiveUpdates,
-          lastPaymentEvent: JSON.stringify(event?.data?.object),
-        },
-      );
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const intentMetadata = paymentIntent.metadata as StripeIntentMetadata;
 
-      if (Object.keys(bookingSpaceUpdates).length > 0) {
+      if (intentMetadata.paymentReceiveId) {
+        paymentReceiveUpdates.lastPaymentEvent = JSON.stringify(
+          event.data?.object,
+        );
+
+        await this.paymentReceiveRepository.updateOneById(
+          intentMetadata.paymentReceiveId,
+          paymentReceiveUpdates,
+        );
+      }
+
+      if (
+        intentMetadata.bookingId &&
+        Object.keys(bookingSpaceUpdates).length > 0
+      ) {
         await this.spaceBookingRepository.updateOneById(
-          event.data.object?.metadata?.bookingId,
+          intentMetadata.bookingId,
           bookingSpaceUpdates,
         );
       }
@@ -208,7 +221,7 @@ export class PaymentReceiveService {
       return { received: true };
     } catch (error) {
       this.logger.error("Error handling Stripe webhook event:", error);
-      throw new BadRequestException("Error in webhook");
+      throw new BadRequestException("Error in webhook event processing");
     }
   }
 
