@@ -10,6 +10,7 @@ import {
   SpaceForRentDocument,
   SpaceForRentType,
 } from "./entities/space-for-rent.entity";
+import { ApplicationUser } from "../application-user/entities/application-user.entity";
 
 @Injectable()
 export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocument> {
@@ -28,6 +29,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     filter: FilterQuery<SpaceForRentDocument>,
     skip: number,
     limit: number,
+    userId?: string,
   ): Promise<SpaceForRentDocument[]> {
     try {
       const result = await this.model
@@ -168,6 +170,64 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
             },
           },
         })
+        .addFields({
+          isFavorite: {
+            $cond: {
+              if: { $in: [userId, { $ifNull: ["$favorites", []] }] },
+              then: true,
+              else: false,
+            },
+          },
+        })
+        .lookup({
+          from: `${ApplicationUser.name.toLowerCase()}s`,
+          let: {
+            favoriteIds: {
+              $map: {
+                input: "$favorites",
+                as: "fav",
+                in: { $toObjectId: "$$fav" },
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: [
+                    "$_id",
+                    {
+                      $cond: {
+                        if: { $isArray: "$$favoriteIds" },
+                        then: "$$favoriteIds",
+                        else: [],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+              },
+            },
+          ],
+          as: "favoriteUsers",
+        })
+        .addFields({
+          favoriteUsers: {
+            $map: {
+              input: "$favoriteUsers",
+              as: "user",
+              in: {
+                userId: "$$user._id",
+                fullName: "$$user.fullName",
+              },
+            },
+          },
+        })
         .project({
           _id: 1,
           name: 1,
@@ -179,6 +239,8 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           coverImage: 1,
           accessMethod: 1,
           ownerProfilePicture: 1,
+          isFavorite: 1,
+          favoriteUsers: 1,
         })
         .exec();
 
@@ -241,3 +303,4 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     }
   }
 }
+

@@ -116,6 +116,7 @@ export class SpaceForRentService {
         searchQuery,
         skip,
         PageSize,
+        userId,
       );
 
       return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
@@ -271,4 +272,39 @@ export class SpaceForRentService {
       throw new BadRequestException("Error deleting image");
     }
   }
+
+  async addToFavorite(spaceForRentId, userId): Promise<SuccessResponseDto> {
+    try {
+      const existingSpaceForRent =
+        await this.spaceForRentRepository.getOneById(spaceForRentId);
+
+      if (!existingSpaceForRent) {
+        throw new NotFoundException(`Could not find space for rent`);
+      }
+
+      if (existingSpaceForRent.favorites?.includes(userId)) {
+        existingSpaceForRent.favorites = existingSpaceForRent.favorites.filter(
+          (id) => id !== userId,
+        );
+        await existingSpaceForRent.save();
+
+        return new SuccessResponseDto(
+          "Item removed from your favorite list successfully",
+        );
+      }
+
+      existingSpaceForRent.favorites?.push(userId);
+      await existingSpaceForRent.save();
+
+      return new SuccessResponseDto(
+        "Item added to your favorite list successfully",
+      );
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error adding to favorite item:", error);
+      throw new BadRequestException("Error to adding favorite item");
+    }
+  }
 }
+

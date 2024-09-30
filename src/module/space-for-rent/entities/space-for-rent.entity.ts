@@ -8,6 +8,7 @@ import { SpaceSecurity } from "../../space-security/entities/space-security.enti
 import { SpaceType } from "../../space-type/entities/space-type.entity";
 import { StorageCondition } from "../../storage-condition/entities/storage-condition.entity";
 import { UnloadingMoving } from "../../unloading-moving/entities/unloading-moving.entity";
+import { ApplicationUser } from "../../application-user/entities/application-user.entity";
 
 export type SpaceForRentDocument = HydratedDocument<SpaceForRent>;
 export type SpaceForRentType = Model<SpaceForRentDocument>;
@@ -86,6 +87,14 @@ export class SpaceForRent extends BaseEntity {
     required: false,
   })
   spaceSchedules?: string[];
+
+  @Prop({
+    type: [Types.ObjectId],
+    ref: ApplicationUser.name,
+    required: false,
+  })
+  favorites?: string[];
 }
 
 export const SpaceForRentSchema = SchemaFactory.createForClass(SpaceForRent);
+
