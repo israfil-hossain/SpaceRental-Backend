@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { FilterQuery } from "mongoose";
@@ -208,9 +209,38 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
               },
             },
             {
+              $lookup: {
+                from: `${ImageMeta.name.toLowerCase()}s`,
+                let: {
+                  createdByUserId: "$_id",
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: [
+                          { $toString: "$ownerId" },
+                          { $toString: "$$createdByUserId" },
+                        ],
+                      },
+                    },
+                  },
+                ],
+                as: "profilePictureImage",
+              },
+            },
+            {
+              $addFields: {
+                profilePictureImage: {
+                  $arrayElemAt: ["$profilePictureImage.url", 0],
+                },
+              },
+            },
+            {
               $project: {
                 _id: 1,
                 fullName: 1,
+                profilePictureImage: 1,
               },
             },
           ],
@@ -224,6 +254,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
               in: {
                 userId: "$$user._id",
                 fullName: "$$user.fullName",
+                profilePicture: "$$user.profilePictureImage",
               },
             },
           },
