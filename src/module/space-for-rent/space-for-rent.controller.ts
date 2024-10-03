@@ -20,7 +20,10 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
-import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
+import {
+  AddToFavoriteDto,
+  DeleteSpaceImageDto,
+} from "./dto/add-to-favorite.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
 import { SpaceForRentService } from "./space-for-rent.service";
@@ -153,4 +156,18 @@ export class SpaceForRentController {
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
     return this.spaceForRentService.removeSpaceImage(ImageId, SpaceId);
   }
+
+  @Patch("AddOrRemoveFavoriteItem")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @RequiredRoles([ApplicationUserRoleEnum.RENTER])
+  addToFavorite(
+    @AuthUserId() { userId }: ITokenPayload,
+    @Body() { SpaceId }: AddToFavoriteDto,
+  ) {
+    return this.spaceForRentService.addToFavorite(SpaceId, userId);
+  }
 }
+

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   ConflictException,
@@ -12,6 +13,11 @@ import { SpaceForRentRepository } from "../space-for-rent/space-for-rent.reposit
 import { CreateSpaceBookingDto } from "./dto/create-space-booking.dto";
 import { SpaceBookingStatusEnum } from "./enum/space-booking-status.enum";
 import { SpaceBookingRepository } from "./space-booking.repository";
+import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
+import { SpaceBookingDocument } from "./entities/space-booking.entity";
+import { FilterQuery } from "mongoose";
+import { ListSpaceBookingQuery } from "./dto/list-space-booking-query.dto";
+import { UpdateBookingStatusDto } from "./dto/update-booking-status.dto";
 
 @Injectable()
 export class SpaceBookingService {
@@ -121,6 +127,87 @@ export class SpaceBookingService {
     }
   }
 
+  async findAll({
+    Page = 1,
+    PageSize = 10,
+    ...queryFilters
+  }: ListSpaceBookingQuery): Promise<PaginatedResponseDto> {
+    try {
+      const searchQuery: FilterQuery<SpaceBookingDocument> = {};
+
+      if (queryFilters.BookingStatus) {
+        searchQuery.bookingStatus = queryFilters.BookingStatus;
+      }
+
+      // Pagination setup
+      const totalRecords = await this.spaceBookingRepository.count(searchQuery);
+      const skip = (Page - 1) * PageSize;
+
+      const result = await this.spaceBookingRepository.findAllBookings(
+        searchQuery,
+        skip,
+        PageSize,
+      );
+
+      return new PaginatedResponseDto(totalRecords, Page, PageSize, result);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error finding all document:", error);
+      throw new BadRequestException("Could not get all document");
+    }
+  }
+
+  async updateBookingStatus(
+    updateBookingStatusDto: UpdateBookingStatusDto,
+    userId: string,
+  ): Promise<SuccessResponseDto> {
+    try {
+      const existingBooking = await this.spaceBookingRepository.getOneById(
+        updateBookingStatusDto.bookingId,
+      );
+
+      if (!existingBooking) throw new NotFoundException("Booking not found");
+      if (
+        existingBooking.bookingStatus === SpaceBookingStatusEnum.BookingApproved
+      ) {
+        throw new BadRequestException("Booking already approved");
+      }
+
+      if (
+        existingBooking.bookingStatus ===
+        SpaceBookingStatusEnum.BookingCancelled
+      ) {
+        throw new BadRequestException("Booking already cancelled");
+      }
+
+      if (
+        existingBooking.bookingStatus ===
+        SpaceBookingStatusEnum.BookingCompleted
+      ) {
+        throw new BadRequestException("Booking already completed");
+      }
+
+      const updatedBooking = await this.spaceBookingRepository.updateOneById(
+        updateBookingStatusDto.bookingId,
+        {
+          bookingStatus: updateBookingStatusDto.bookingStatus,
+          updatedBy: userId,
+        },
+      );
+
+      return new SuccessResponseDto(
+        "Booking status updated successfully",
+        updatedBooking,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+
+      this.logger.error("Error finding all document:", error);
+      throw new BadRequestException("Could not get all document");
+    }
+  }
+
   private generateBookingCode = () => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -134,3 +221,4 @@ export class SpaceBookingService {
     return `SRB${year}${month}${day}${hour}${minutes}${seconds}${milliseconds}${randomCode}`;
   };
 }
+

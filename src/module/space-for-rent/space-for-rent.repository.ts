@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { FilterQuery } from "mongoose";
@@ -10,6 +11,7 @@ import {
   SpaceForRentDocument,
   SpaceForRentType,
 } from "./entities/space-for-rent.entity";
+import { ApplicationUser } from "../application-user/entities/application-user.entity";
 
 @Injectable()
 export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocument> {
@@ -28,6 +30,7 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     filter: FilterQuery<SpaceForRentDocument>,
     skip: number,
     limit: number,
+    userId?: string,
   ): Promise<SpaceForRentDocument[]> {
     try {
       const result = await this.model
@@ -168,6 +171,94 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
             },
           },
         })
+        .addFields({
+          isFavorite: {
+            $cond: {
+              if: { $in: [userId, { $ifNull: ["$favorites", []] }] },
+              then: true,
+              else: false,
+            },
+          },
+        })
+        .lookup({
+          from: `${ApplicationUser.name.toLowerCase()}s`,
+          let: {
+            favoriteIds: {
+              $map: {
+                input: "$favorites",
+                as: "fav",
+                in: { $toObjectId: "$$fav" },
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: [
+                    "$_id",
+                    {
+                      $cond: {
+                        if: { $isArray: "$$favoriteIds" },
+                        then: "$$favoriteIds",
+                        else: [],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: `${ImageMeta.name.toLowerCase()}s`,
+                let: {
+                  createdByUserId: "$_id",
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: [
+                          { $toString: "$ownerId" },
+                          { $toString: "$$createdByUserId" },
+                        ],
+                      },
+                    },
+                  },
+                ],
+                as: "profilePictureImage",
+              },
+            },
+            {
+              $addFields: {
+                profilePictureImage: {
+                  $arrayElemAt: ["$profilePictureImage.url", 0],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                profilePictureImage: 1,
+              },
+            },
+          ],
+          as: "favoriteUsers",
+        })
+        .addFields({
+          favoriteUsers: {
+            $map: {
+              input: "$favoriteUsers",
+              as: "user",
+              in: {
+                userId: "$$user._id",
+                fullName: "$$user.fullName",
+                profilePicture: "$$user.profilePictureImage",
+              },
+            },
+          },
+        })
         .project({
           _id: 1,
           name: 1,
@@ -179,6 +270,8 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
           coverImage: 1,
           accessMethod: 1,
           ownerProfilePicture: 1,
+          isFavorite: 1,
+          favoriteUsers: 1,
         })
         .exec();
 
@@ -241,3 +334,4 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     }
   }
 }
+
