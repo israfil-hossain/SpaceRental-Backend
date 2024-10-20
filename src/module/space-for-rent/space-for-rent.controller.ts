@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -20,13 +21,11 @@ import { PaginatedResponseDto } from "../common/dto/paginated-response.dto";
 import { SuccessResponseDto } from "../common/dto/success-response.dto";
 import { AddSpaceImageDto } from "./dto/add-space-image.dto";
 import { CreateSpaceForRentDto } from "./dto/create-space-for-rent.dto";
-import {
-  AddToFavoriteDto,
-  DeleteSpaceImageDto,
-} from "./dto/add-to-favorite.dto";
+import { AddToFavoriteDto } from "./dto/add-to-favorite.dto";
 import { ListSpaceForRentQuery } from "./dto/list-space-for-rent-query.dto";
 import { UpdateSpaceForRentDto } from "./dto/update-space-for-rent.dto";
 import { SpaceForRentService } from "./space-for-rent.service";
+import { DeleteSpaceImageDto } from "./dto/delete-space-image.dto";
 
 @ApiTags("Space - For Rent")
 @Controller("SpaceForRent")
@@ -77,8 +76,11 @@ export class SpaceForRentController {
     status: 200,
     type: SuccessResponseDto,
   })
-  findOne(@Param() { DocId }: DocIdQueryDto) {
-    return this.spaceForRentService.findOne(DocId);
+  findOne(
+    @Param() { DocId }: DocIdQueryDto,
+    @AuthUserId() { userId }: ITokenPayload,
+  ) {
+    return this.spaceForRentService.findOne(DocId, userId);
   }
 
   @Patch("UpdateById/:DocId")
@@ -155,6 +157,16 @@ export class SpaceForRentController {
   ])
   removeSpaceImage(@Param() { SpaceId, ImageId }: DeleteSpaceImageDto) {
     return this.spaceForRentService.removeSpaceImage(ImageId, SpaceId);
+  }
+
+  @Get("GetFavoriteItems")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @RequiredRoles([ApplicationUserRoleEnum.RENTER])
+  getFavoriteItems(@AuthUserId() { userId }: ITokenPayload) {
+    return this.spaceForRentService.getFavorites(userId);
   }
 
   @Patch("AddOrRemoveFavoriteItem")
