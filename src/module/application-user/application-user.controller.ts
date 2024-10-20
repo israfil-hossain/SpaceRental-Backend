@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -117,4 +118,15 @@ export class ApplicationUserController {
       userId,
     );
   }
+
+  @Get("GetUserAnalytics")
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponseDto,
+  })
+  @RequiredRoles([ApplicationUserRoleEnum.ADMIN])
+  getUserAnalytics() {
+    return this.userService.getAnalytics();
+  }
 }
+

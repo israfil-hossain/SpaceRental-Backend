@@ -282,55 +282,330 @@ export class SpaceForRentRepository extends GenericRepository<SpaceForRentDocume
     }
   }
 
-  async findOnePopulatedById(id: string): Promise<SpaceForRentDocument | null> {
+  async findOnePopulatedById(
+    id: string,
+    userId: string,
+  ): Promise<SpaceForRentDocument | null> {
     try {
       const result = await this.model
-        .findOne({ _id: id }, null, {
-          populate: [
-            {
-              path: "createdBy",
-              select: "-_id email fullName",
+        .findOne({ _id: id })
+        .populate([
+          {
+            path: "createdBy",
+            select: "-_id email fullName",
+          },
+          {
+            path: "updatedBy",
+            select: "-_id email fullName",
+          },
+          {
+            path: "type",
+            select: "name",
+          },
+          {
+            path: "accessMethod",
+            select: "name",
+          },
+          {
+            path: "storageConditions",
+            select: "name",
+          },
+          {
+            path: "unloadingMovings",
+            select: "name",
+          },
+          {
+            path: "spaceSecurities",
+            select: "name",
+          },
+          {
+            path: "spaceSchedules",
+            select: "name",
+          },
+          {
+            path: "spaceImages",
+            select: "url name extension size",
+          },
+          {
+            path: "favorites",
+            select: "fullName",
+            populate: {
+              path: "profilePicture",
+              select: "url",
             },
-            {
-              path: "updatedBy",
-              select: "-_id email fullName",
-            },
-            {
-              path: "type",
-              select: "name",
-            },
-            {
-              path: "accessMethod",
-              select: "name",
-            },
-            {
-              path: "storageConditions",
-              select: "name",
-            },
-            {
-              path: "unloadingMovings",
-              select: "name",
-            },
-            {
-              path: "spaceSecurities",
-              select: "name",
-            },
-            {
-              path: "spaceSchedules",
-              select: "name",
-            },
-            {
-              path: "spaceImages",
-              select: "url name extension size",
-            },
-          ],
-        })
+          },
+        ])
+        .lean()
         .exec();
+
+      if (result) {
+        result.favoriteUsers = result.favorites.map((fav) => ({
+          userId: fav._id,
+          fullName: fav.fullName,
+          profilePicture: fav.profilePicture.url,
+        }));
+        result.isFavorite = result.favorites.some(
+          (favorite) => favorite._id.toString() === userId,
+        );
+
+        delete result.favorites;
+      }
 
       return result;
     } catch (error) {
       this.logger.error("Error finding entity by ID:", error);
       return null;
+    }
+  }
+
+  async getFavoriteItems(userId: string): Promise<SpaceForRentDocument[]> {
+    try {
+      const result = await this.model
+        .aggregate()
+        .sort({ createdAt: -1 })
+        .match({
+          favorites: { $in: [userId] },
+        })
+        .lookup({
+          from: `${SpaceReview.name.toLowerCase()}s`,
+          let: { spaceId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: "$space" }, "$$spaceId"],
+                },
+              },
+            },
+          ],
+          as: "spaceReviews",
+        })
+        .addFields({
+          reviewCount: { $size: "$spaceReviews" },
+        })
+        .addFields({
+          averageRating: {
+            $cond: {
+              if: { $gt: ["$reviewCount", 0] },
+              then: {
+                $divide: [
+                  {
+                    $sum: "$spaceReviews.rating",
+                  },
+                  "$reviewCount",
+                ],
+              },
+              else: 0,
+            },
+          },
+        })
+        .lookup({
+          from: `${ImageMeta.name.toLowerCase()}s`,
+          let: {
+            spaceImagesIds: {
+              $map: {
+                input: "$spaceImages",
+                as: "spaceImage",
+                in: {
+                  $toObjectId: "$$spaceImage",
+                },
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$spaceImagesIds"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                url: 1,
+                name: 1,
+              },
+            },
+            {
+              $limit: 1,
+            },
+          ],
+          as: "coverImage",
+        })
+        .addFields({
+          coverImage: {
+            $cond: {
+              if: { $eq: [{ $size: "$coverImage" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$coverImage.url", 0] },
+            },
+          },
+        })
+        .lookup({
+          from: `${SpaceAccessMethod.name.toLowerCase()}s`,
+          let: {
+            accessMethodId: "$accessMethod",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: "$_id" },
+                    { $toString: "$$accessMethodId" },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "accessMethod",
+        })
+        .addFields({
+          accessMethod: {
+            $cond: {
+              if: { $eq: [{ $size: "$accessMethod" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$accessMethod.name", 0] },
+            },
+          },
+        })
+        .lookup({
+          from: `${ImageMeta.name.toLowerCase()}s`,
+          let: {
+            createdByUserId: "$createdBy",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: "$ownerId" },
+                    { $toString: "$$createdByUserId" },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "createdByUserProfilePicture",
+        })
+        .addFields({
+          ownerProfilePicture: {
+            $cond: {
+              if: { $eq: [{ $size: "$createdByUserProfilePicture" }, 0] },
+              then: null,
+              else: { $arrayElemAt: ["$createdByUserProfilePicture.url", 0] },
+            },
+          },
+        })
+        .addFields({
+          isFavorite: {
+            $cond: {
+              if: { $in: [userId, { $ifNull: ["$favorites", []] }] },
+              then: true,
+              else: false,
+            },
+          },
+        })
+        .lookup({
+          from: `${ApplicationUser.name.toLowerCase()}s`,
+          let: {
+            favoriteIds: {
+              $map: {
+                input: "$favorites",
+                as: "fav",
+                in: { $toObjectId: "$$fav" },
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: [
+                    "$_id",
+                    {
+                      $cond: {
+                        if: { $isArray: "$$favoriteIds" },
+                        then: "$$favoriteIds",
+                        else: [],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: `${ImageMeta.name.toLowerCase()}s`,
+                let: {
+                  createdByUserId: "$_id",
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: [
+                          { $toString: "$ownerId" },
+                          { $toString: "$$createdByUserId" },
+                        ],
+                      },
+                    },
+                  },
+                ],
+                as: "profilePictureImage",
+              },
+            },
+            {
+              $addFields: {
+                profilePictureImage: {
+                  $arrayElemAt: ["$profilePictureImage.url", 0],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                profilePictureImage: 1,
+              },
+            },
+          ],
+          as: "favoriteUsers",
+        })
+        .addFields({
+          favoriteUsers: {
+            $map: {
+              input: "$favoriteUsers",
+              as: "user",
+              in: {
+                userId: "$$user._id",
+                fullName: "$$user.fullName",
+                profilePicture: "$$user.profilePictureImage",
+              },
+            },
+          },
+        })
+        .project({
+          _id: 1,
+          name: 1,
+          location: 1,
+          pricePerMonth: 1,
+          minimumBookingDays: 1,
+          reviewCount: 1,
+          averageRating: 1,
+          coverImage: 1,
+          accessMethod: 1,
+          ownerProfilePicture: 1,
+          isFavorite: 1,
+          favoriteUsers: 1,
+        })
+        .exec();
+
+      return result;
+    } catch (error) {
+      this.logger.error("Error finding entities:", error);
+      return [];
     }
   }
 }
