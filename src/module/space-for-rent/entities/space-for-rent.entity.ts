@@ -93,7 +93,7 @@ export class SpaceForRent extends BaseEntity {
     ref: ApplicationUser.name,
     required: false,
   })
-  favorites?: string[];
+  favorites: string[];
 }
 
 export const SpaceForRentSchema = SchemaFactory.createForClass(SpaceForRent);

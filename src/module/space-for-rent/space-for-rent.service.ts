@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   HttpException,
@@ -128,9 +129,12 @@ export class SpaceForRentService {
     }
   }
 
-  async findOne(id: string): Promise<SuccessResponseDto> {
+  async findOne(id: string, userId?: string): Promise<SuccessResponseDto> {
     try {
-      const result = await this.spaceForRentRepository.findOnePopulatedById(id);
+      const result = await this.spaceForRentRepository.findOnePopulatedById(
+        id,
+        userId,
+      );
 
       if (!result) {
         this.logger.error(`Document not found with ID: ${id}`);
@@ -273,7 +277,10 @@ export class SpaceForRentService {
     }
   }
 
-  async addToFavorite(spaceForRentId, userId): Promise<SuccessResponseDto> {
+  async addToFavorite(
+    spaceForRentId: string,
+    userId: string,
+  ): Promise<SuccessResponseDto> {
     try {
       const existingSpaceForRent =
         await this.spaceForRentRepository.getOneById(spaceForRentId);
@@ -304,6 +311,18 @@ export class SpaceForRentService {
 
       this.logger.error("Error adding to favorite item:", error);
       throw new BadRequestException("Error to adding favorite item");
+    }
+  }
+
+  async getFavorites(userId: string): Promise<SuccessResponseDto> {
+    try {
+      const results =
+        await this.spaceForRentRepository.getFavoriteItems(userId);
+      return new SuccessResponseDto("Success", results);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error("Error getting favorite items:", error);
+      throw new BadRequestException("Error getting favorite items");
     }
   }
 }

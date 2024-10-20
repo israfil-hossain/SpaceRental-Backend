@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsMongoId, IsNotEmpty, IsString } from "class-validator";
-import { SpaceBookingStatusEnum } from "../enum/space-booking-status.enum";
+import { IsMongoId, IsNotEmpty, IsString } from "class-validator";
+import { SpaceBookingStatusDtoEnum } from "../enum/space-booking-status.enum";
 
 export class UpdateBookingStatusDto {
   @ApiProperty({
@@ -17,11 +17,10 @@ export class UpdateBookingStatusDto {
 
   @ApiProperty({
     description: "Status of the booking",
+    enum: SpaceBookingStatusDtoEnum,
     required: true,
-    enum: SpaceBookingStatusEnum,
   })
-  @IsEnum(SpaceBookingStatusEnum)
   @IsNotEmpty()
-  public readonly bookingStatus: SpaceBookingStatusEnum;
+  public readonly bookingStatus: SpaceBookingStatusDtoEnum;
 }
 

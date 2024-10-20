@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   HttpException,
@@ -172,4 +173,15 @@ export class ApplicationUserService {
       throw new BadRequestException("Error updating new document");
     }
   }
+
+  async getAnalytics() {
+    try {
+      const result = await this.applicationUserRepository.getAnalytics();
+      return result;
+    } catch (error) {
+      this.logger.error("Error getting analytics:", error);
+      throw new BadRequestException("Could not get analytics");
+    }
+  }
 }
+
